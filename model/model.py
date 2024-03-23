@@ -9,7 +9,7 @@ class RecipeAPI:
         self.API_KEY = ("X-Api-Key", "RyiqF46YrCwIZ8g6iEI3ZQ==79NePNZa9Kz92ewo")
     
     def make_api_call(self, BASE_URL, resource, method, payload=None, content_type=None, API_KEY: tuple = None):
-        """This method will make calls to REST APIs"""
+        #This method will make calls to REST APIs
         url = BASE_URL + resource
         headers = {}
         if content_type:  # If there is a content_type defined
@@ -36,17 +36,30 @@ class RecipeAPI:
 
 class Database:
     def __init__(self):
-        host = "192.168.9.2"
-        user = "root"
-        port = 3369
-        pwd = "4iqX0rBR2IdLx2udnc8qwcYyGGh1vhPC"
-        db = "RecipeDB"
+        self.host = "192.168.9.2"
+        self.user = "root"
+        self.port = 3369
+        self.pwd = "4iqX0rBR2IdLx2udnc8qwcYyGGh1vhPC"
+        self.db = "RecipeDB"
 
-        self.con = pymysql.connect(host=host,port=port,user=user,password=pwd,db=db,
+    def connect_to_db(self):
+        self.con = pymysql.connect(host=self.host,port=self.port,user=self.user,password=self.pwd,db=self.db,
                                     cursorclass=pymysql.cursors.DictCursor)
         self.cur = self.con.cursor()
 
+    def is_open(self):
+        try:
+            self.cur.execute("show tables")
+            return True
+        except:
+            return False
+        
+    def ensure_connection(self):
+        if not self.is_open():
+            self.connect_to_db()
+
     def select_all_table(self, table):
+        self.ensure_connection()
         try:
             self.cur.execute(f"Select * from {table}")
             #gonna get all tuples that satisfy that query
@@ -60,6 +73,7 @@ class Database:
         return result
     
     def select_one_table(self, table, column):
+        self.ensure_connection()
         try:
             self.cur.execute(f"Select {column} from {table}")
             #gonna get all tuples that satisfy that query
@@ -77,8 +91,9 @@ class Database:
         return result
 
     def insert(self, params, values, table):
+        self.ensure_connection()
         try:
-            self.cur.execute(f"insert into {table} ({params}) values ({values})") #"insert into Student (id, name, grade) values (%s, %s, %s)", (id,name, grade)
+            self.cur.execute(f"INSERT INTO {table} ({params}) VALUES ('{values}')")
             self.con.commit()
 
         except pymysql.Error as e:
@@ -91,6 +106,7 @@ class Database:
         return "OK"
 
     def query(self,sql):
+        self.ensure_connection()
         self.cur.execute(sql)
         result = self.cur.fetchall()
         attrib = [i[0] for i in self.cur.description]
@@ -105,5 +121,4 @@ database = Database()
 #print(database.select_one_table("Recipes", "Steps"))
 
 print(database.insert("IngName", "Tomato", "Ingredients"))
-print(database.select_one_table("Ingredient", "IngName"))
-
+print(database.select_one_table("Ingredients", "IngName"))
