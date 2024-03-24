@@ -73,6 +73,9 @@ class RecipeAPI:
 
 class Database:
     def __init__(self):
+        '''
+        Information necessary to connect to the database
+        '''
         self.host = "192.168.9.2"
         self.user = "root"
         self.port = 3369
@@ -80,11 +83,18 @@ class Database:
         self.db = "RecipeDB"
 
     def connect_to_db(self):
+        '''
+        Connects to the database and establishes a cursor
+        '''
         self.con = pymysql.connect(host=self.host,port=self.port,user=self.user,password=self.pwd,db=self.db,
                                     cursorclass=pymysql.cursors.DictCursor)
         self.cur = self.con.cursor()
 
     def is_open(self):
+        '''
+        Checks if the connection to the database is open.
+        returns: true if connected, False if not connected
+        '''
         try:
             self.cur.execute("show tables")
             return True
@@ -92,10 +102,18 @@ class Database:
             return False
         
     def ensure_connection(self):
+        '''
+        Opens a new connection to the database if it's not connected already
+        '''
         if not self.is_open():
             self.connect_to_db()
 
     def select_all_table(self, table):
+        '''
+        Performs a "Select * from" query
+        param table: name of one of the tables in the database, string
+        returns: a list of dictionaries. Each dictionary is an entry in the table. Every column is a key in the dictionary
+        '''
         self.ensure_connection()
         try:
             self.cur.execute(f"Select * from {table}")
@@ -110,6 +128,9 @@ class Database:
         return result
     
     def select_one_table(self, table, column):
+        '''
+        
+        '''
         self.ensure_connection()
         try:
             self.cur.execute(f"Select {column} from {table}")
@@ -162,6 +183,8 @@ class Database:
 recipe = RecipeAPI()
 database = Database()
 '''
+recipe = RecipeAPI()
+database = Database()
 
 '''Recipe API Testing Code'''
 #thing = recipe.lookup_recipe("Pizza")
@@ -175,7 +198,8 @@ database = Database()
 
 '''Database Queries Testing Code'''
 #print(database.select_all_table("Recipes"))
-#print(database.select_one_table("Recipes", "Steps"))
+#print(type(database.select_all_table("Recipes")))
+print(database.select_one_table("Recipes", "Steps"))
 #print(database.insert("IngName", "Tomato", "Ingredients"))
 #print(database.select_one_table("Ingredients", "IngName"))
 
