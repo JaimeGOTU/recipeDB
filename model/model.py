@@ -5,7 +5,7 @@ import pymysql
 class RecipeAPI:
     def __init__(self):
         # Base URLs / KEYs to use in API CALLS
-        self.RECIPE_URL = "https://api.api-ninjas.com/v1/recipe"
+        self.RECIPE_URL = "https://www.themealdb.com/api/json/v1/1/search.php"
         self.API_KEY = ("X-Api-Key", "RyiqF46YrCwIZ8g6iEI3ZQ==79NePNZa9Kz92ewo")
         self.INGREDIENTS_URL = "https://www.themealdb.com/api/json/v1/1/list.php?i=list"
     
@@ -46,16 +46,16 @@ class RecipeAPI:
         else:
             return response.json() if response.text else None
     
-    def lookup_recipe(self, searchTerm, offset=10):
+    def lookup_recipe(self, searchTerm):
         '''
-        API call to the ninja recipe API
+        API call to the mealDB API
         param searchTerm: what the user will put in the searchbar, any string
         param offset: amount of recipes it will return
         returns: a LIST with $offset entries, that are all dictionaries
                 Dictionaries: {title:"",ingredients:"",servings:"",instructions:""}
                 All of the values associated with the keys are strings
         '''
-        api_call = self.make_api_call(self.RECIPE_URL, f"?query={searchTerm}&offset={offset}", "GET", API_KEY=self.API_KEY)
+        api_call = self.make_api_call(self.RECIPE_URL, f"?s={searchTerm}", "GET")
         return api_call
             
     def lookup_ingredients(self):
@@ -70,6 +70,9 @@ class RecipeAPI:
         
         api_call = self.make_api_call(self.INGREDIENTS_URL,"", "GET")
         return api_call
+    
+    def parse_recipe(self, data):
+        
 
 class Database:
     def __init__(self):
@@ -187,9 +190,11 @@ recipe = RecipeAPI()
 database = Database()
 
 '''Recipe API Testing Code'''
-#thing = recipe.lookup_recipe("Pizza")
-#print(thing)
-#print(type(thing))
+recipe = RecipeAPI()
+database = Database()
+thing = recipe.lookup_recipe("Pizza")
+print(thing)
+print(type(thing))
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
