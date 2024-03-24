@@ -2,6 +2,7 @@ import requests
 import json
 import pymysql
 
+
 class RecipeAPI:
     def __init__(self):
         # Base URLs / KEYs to use in API CALLS
@@ -72,7 +73,7 @@ class RecipeAPI:
         return api_call
     
     def parse_recipe(self, data):
-        
+        data['']
 
 class Database:
     def __init__(self):
@@ -167,11 +168,11 @@ database = Database()
 '''
 
 '''Recipe API Testing Code'''
-recipe = RecipeAPI()
+'''recipe = RecipeAPI()
 database = Database()
 thing = recipe.lookup_recipe("Pizza")
 print(thing)
-print(type(thing))
+print(type(thing))'''
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
