@@ -74,6 +74,8 @@ class RecipeAPI:
     def parse_recipe(self, data):
         '''
         parses the recipes after a search
+        params: data is the information the API gives out, which is a dictionary with a single ["meals"] key
+                inside the key there's a list of 
 
         [{name:"",style:"",steps:"",ingredients:[(name,quantity),(name,quantity),
         STEPS 
@@ -84,17 +86,43 @@ class RecipeAPI:
         source - varchar(255)
         ]}{}]
         '''
-        for i in thing["meals"][0]:
-            print (i)
-        
 
-        '''
-        for i in list
+        parsed_recipes = []
+        for i in thing["meals"]:
+            # Initialize a dictionary in the desired format
+            current_recipe = {
+                "name":"",
+                "style":"",
+                "onwer":"",
+                "source":"",
+                "steps": {},
+                "ingredients":[]
+            }
+            # Fill the dictionary with values
+            current_recipe["name"] = i["strMeal"]
+            current_recipe["style"] = i["strArea"]
+            current_recipe["owner"] = "None"
+            current_recipe["source"] = i["strSource"]
+            
+            # We get ingredients and amount in the desired format
+            n = 1
+            ing_list = []
+            while n < 21:
+                if i[f"strIngredient{n}"] != "":
+                    if i[f"strMeasure{n}"] != "":
+                        ing_list.append((i[f"strIngredient{n}"],i[f"strMeasure{n}"]))
+                    else:
+                        ing_list.append((i[f"strIngredient{n}"],"to taste"))
+                else:
+                    break
+                n+=1
+            # Add ingredients in desired format
+            current_recipe["ingredients"] = ing_list
 
-            parse()
-        '''
+            print (i["strMeal"])
+            parsed_recipes.append(current_recipe)
 
-
+        return parsed_recipes
 
 class Database:
     def __init__(self):
@@ -202,7 +230,7 @@ class Database:
 ####           Keep commented out            ####
 ####                                         ####
 #################################################
-    
+
 #Delete comments or temporarily copy-paste the code outside
 '''
 recipe = RecipeAPI()
@@ -212,12 +240,10 @@ database = Database()
 '''Recipe API Testing Code'''
 recipe = RecipeAPI()
 database = Database()
-thing = recipe.lookup_recipe("Pizza")
-
-print(thing["meals"])
-print(type(thing["meals"]))
-
-
+thing = recipe.lookup_recipe("soup")
+recipe.parse_recipe(thing)
+#print(thing["meals"])
+#print(type(thing["meals"]))
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
