@@ -190,7 +190,10 @@ database = Database()
 #Commented code to delete all the entries in the ingredients list 
 #you know, in case you f*ck up.... like I did - James
 '''
+#n should be the smallest ID found on the table
 n=0
+#final is used to end / break out of the loop !!! BEWARE OF INFINITE LOOPS !!!
+final = n + 620
 while True:
     database.ensure_connection()
     try:
@@ -209,7 +212,7 @@ while True:
         database.con.close()
 
     n+=1
-    if n == 620:
+    if n == final:
         break
 '''
 #Commented code to fill out the ingredients list with ingredients from the database
