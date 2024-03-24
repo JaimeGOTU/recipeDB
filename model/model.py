@@ -75,20 +75,13 @@ class RecipeAPI:
         '''
         parses the recipes after a search
         params: data is the information the API gives out, which is a dictionary with a single ["meals"] key
-                inside the key there's a list of 
-
-        [{name:"",style:"",steps:"",ingredients:[(name,quantity),(name,quantity),
-        STEPS 
-        {
-        step1: ""
-        step2: ""
-        }
-        source - varchar(255)
-        ]}{}]
+                referencing the key gives out a list of dictionaries, that contain recipe info
+        returns: a list of dictionaries of recipes. The dictionaries are in the desired format:
+        {name:"",style:"",owner:"",source:"",steps:{"step1":"","step2":""},ingredients:[("ing","amount"),("ing2","amount2")]}
         '''
 
         parsed_recipes = []
-        for i in thing["meals"]:
+        for i in data["meals"]:
             # Initialize a dictionary in the desired format
             current_recipe = {
                 "name":"",
@@ -130,10 +123,10 @@ class RecipeAPI:
             # Add steps in desired format
             current_recipe["steps"] = steps_dictionary
 
-            #print(steps_dictionary)
-            #print (i["strMeal"])
+            # With the recipe complete we append it to the list that we'll eventually return
             parsed_recipes.append(current_recipe)
 
+        # We return a list of dictionaries of recipes in the desired format
         return parsed_recipes
 
 class Database:
@@ -250,13 +243,11 @@ database = Database()
 '''
 
 '''Recipe API Testing Code'''
-recipe = RecipeAPI()
-database = Database()
-thing = recipe.lookup_recipe("soup")
-parsed_info = recipe.parse_recipe(thing)
-for i in parsed_info:
-    print(i)
-    break
+#thing = recipe.lookup_recipe("soup")
+#parsed_info = recipe.parse_recipe(thing)
+#for i in parsed_info:
+#    print(i)
+#    break
 #print(thing["meals"])
 #print(type(thing["meals"]))
 
