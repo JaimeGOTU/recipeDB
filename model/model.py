@@ -93,7 +93,7 @@ class RecipeAPI:
             current_recipe = {
                 "name":"",
                 "style":"",
-                "onwer":"",
+                "owner":"",
                 "source":"",
                 "steps": {},
                 "ingredients":[]
@@ -119,7 +119,19 @@ class RecipeAPI:
             # Add ingredients in desired format
             current_recipe["ingredients"] = ing_list
 
-            print (i["strMeal"])
+            # We parse the explanation text into different steps
+            steps = i["strInstructions"].split('\r\n')
+            steps_dictionary = {}
+            counter_instructions = 1
+            for x in steps:
+                if x != "":
+                    steps_dictionary[f"step{counter_instructions}"] = x
+                    counter_instructions+=1
+            # Add steps in desired format
+            current_recipe["steps"] = steps_dictionary
+
+            #print(steps_dictionary)
+            #print (i["strMeal"])
             parsed_recipes.append(current_recipe)
 
         return parsed_recipes
@@ -241,7 +253,10 @@ database = Database()
 recipe = RecipeAPI()
 database = Database()
 thing = recipe.lookup_recipe("soup")
-recipe.parse_recipe(thing)
+parsed_info = recipe.parse_recipe(thing)
+for i in parsed_info:
+    print(i)
+    break
 #print(thing["meals"])
 #print(type(thing["meals"]))
 
