@@ -72,7 +72,29 @@ class RecipeAPI:
         return api_call
     
     def parse_recipe(self, data):
+        '''
+        parses the recipes after a search
+
+        [{name:"",style:"",steps:"",ingredients:[(name,quantity),(name,quantity),
+        STEPS 
+        {
+        step1: ""
+        step2: ""
+        }
+        source - varchar(255)
+        ]}{}]
+        '''
+        for i in thing["meals"][0]:
+            print (i)
         
+
+        '''
+        for i in list
+
+            parse()
+        '''
+
+
 
 class Database:
     def __init__(self):
@@ -186,15 +208,16 @@ class Database:
 recipe = RecipeAPI()
 database = Database()
 '''
-recipe = RecipeAPI()
-database = Database()
 
 '''Recipe API Testing Code'''
 recipe = RecipeAPI()
 database = Database()
 thing = recipe.lookup_recipe("Pizza")
-print(thing)
-print(type(thing))
+
+print(thing["meals"])
+print(type(thing["meals"]))
+
+
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
@@ -204,7 +227,7 @@ print(type(thing))
 '''Database Queries Testing Code'''
 #print(database.select_all_table("Recipes"))
 #print(type(database.select_all_table("Recipes")))
-print(database.select_one_table("Recipes", "Steps"))
+#print(database.select_one_table("Recipes", "Steps"))
 #print(database.insert("IngName", "Tomato", "Ingredients"))
 #print(database.select_one_table("Ingredients", "IngName"))
 
