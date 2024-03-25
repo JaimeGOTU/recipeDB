@@ -271,7 +271,7 @@ class Database:
 
     def insert_recipe(self,recipe,username="None"):
         '''
-        inserts a recipe in the recipe table
+        inserts a recipe in the recipe table, and then fills out the RecNeeds table with the necessary ingredients
         param recipe: single dictionary of the recipe in the specified format
         param username: string with the username - used for recipe owner
         returns: "OK" if it was successful, otherwise the appropiate error message
@@ -292,21 +292,43 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
 
-# WIP
-        '''
+        # List to store the necessary IDs to add to RecNeeds tables
         for dif_ingredients in recipe["ingredients"]:
-            ingredient_table_values = () # (id of recipe, id of ingredient, amount)
-            #problem I can only get the amount from this, I need to query for the rest
-            self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
-            self.con.commit()
-'''
+            recneeds_values_list = []
+            try:
+                recipe_name = recipe["name"]
+                self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe_name}'")
+                result = self.cur.fetchall()
+                recneeds_values_list.append(str(result[0]["RecID"]))
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            try:
+                ingredient_name = dif_ingredients[0]
+                self.cur.execute(f"Select IngID from Ingredients where IngName = '{ingredient_name}'")
+                result2 = self.cur.fetchall()
+                recneeds_values_list.append(str(result2[0]["IngID"]))
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+
+            recneeds_values_list.append(dif_ingredients[1])
+            try:
+                ingredient_table_values = tuple(recneeds_values_list) 
+                #print(ingredient_table_values) # Print created for testing purposes
+                self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
+                self.con.commit()
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+
         try:
             pass
         finally:
             self.con.close()
         return "OK"
 
-    #Quite honestly, I have no clue. Was created in class
+    #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
         self.cur.execute(sql)
@@ -350,10 +372,8 @@ database = Database()
 #print(database.select_one_column_table("Ingredients", "IngName"))
 #print(database.insert_one("IngName", "poopies", "Ingredients"))
 #print(database.insert_user(("User5","user5@example.com")))
-thing = recipe.direct_lookup_function("pizza")[0]
-for dif_ingredients in thing["ingredients"]:
-    print(dif_ingredients)
-#print(database.insert_recipe(thing))
+#thing = recipe.direct_lookup_function("pizza")[0]
+#print(database.insert_recipe(thing,"James"))
 
 
 #################################################
