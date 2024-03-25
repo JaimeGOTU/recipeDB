@@ -50,7 +50,6 @@ class RecipeAPI:
         '''
         API call to the mealDB API
         param searchTerm: what the user will put in the searchbar, any string
-        param offset: amount of recipes it will return
         returns: a LIST with $offset entries, that are all dictionaries
                 Dictionaries: {title:"",ingredients:"",servings:"",instructions:""}
                 All of the values associated with the keys are strings
@@ -74,7 +73,7 @@ class RecipeAPI:
     def parse_recipe(self, data):
         '''
         parses the recipes after a search
-        params: data is the information the API gives out, which is a dictionary with a single ["meals"] key
+        param data: data is the information the API gives out, which is a dictionary with a single ["meals"] key
                 referencing the key gives out a list of dictionaries, that contain recipe info
         returns: a list of dictionaries of recipes. The dictionaries are in the desired format:
         {name:"",style:"",owner:"",source:"",steps:{"step1":"","step2":""},ingredients:[("ing","amount"),("ing2","amount2")]}
@@ -131,6 +130,11 @@ class RecipeAPI:
     
     # Function that should be called on the search bar
     def direct_lookup_function(self,search_term):
+        '''
+        Function used to search recipes
+        param search_term: any string
+        returns: list of dictionaries of recipes
+        '''
         final = []
         try:
             final = self.parse_recipe(self.lookup_recipe(search_term))
@@ -179,7 +183,9 @@ class Database:
         '''
         Performs a "Select * from" query
         param table: name of one of the tables in the database, string
-        returns: a list of dictionaries. Each dictionary is an entry in the table. Every column is a key in the dictionary
+        returns: a list of dictionaries. 
+                Each dictionary is an entry in the table. 
+                Every key in the dictionary is a column in the table 
         '''
         self.ensure_connection()
         try:
@@ -194,9 +200,12 @@ class Database:
 
         return result
     
-    def select_one_table(self, table, column):
+    def select_one_column_table(self, table, column):
         '''
-        
+        Prints the column of a table
+        param table: the name of the table
+        param column: the name of a column in the table
+        returns: a list of dictionaries. Dictionaries have a single key: name of the column
         '''
         self.ensure_connection()
         try:
@@ -215,10 +224,40 @@ class Database:
 
         return result
 
-    def insert(self, params, values, table):
+    def insert_one(self, params, value, table):
+        '''
+        Inserts a new row into a table in the database
+        param param: the names of the column
+        param values: the value of what we're about to insert
+
+        !!! this function only works if it's only inserting in 1 column !!!
+
+        returns: "OK" if it was successful, otherwise the appropiate error message
+        '''
         self.ensure_connection()
         try:
-            self.cur.execute(f"INSERT INTO {table} ({params}) VALUES ('{values}')")
+            self.cur.execute(f"INSERT INTO {table} ({params}) VALUES ('{value}')")
+            self.con.commit()
+
+        except pymysql.Error as e:
+            self.con.rollback()
+            return "Error: " + e.args[1]
+
+        finally:
+            self.con.close()
+
+        return "OK"
+    
+    def insert_user(self,values):
+        '''
+        function used to insert users into the user table
+        param values: should receive a tuple in the format of ("username","email")
+        returns: "OK" if it was successful, otherwise the appropiate error message
+        '''
+        self.ensure_connection()
+
+        try:
+            self.cur.execute("INSERT INTO User (Username,Email) VALUES (%s,%s)",values)
             self.con.commit()
 
         except pymysql.Error as e:
@@ -230,6 +269,44 @@ class Database:
 
         return "OK"
 
+    def insert_recipe(self,recipe,username="None"):
+        '''
+        inserts a recipe in the recipe table
+        param recipe: single dictionary of the recipe in the specified format
+        param username: string with the username - used for recipe owner
+        returns: "OK" if it was successful, otherwise the appropiate error message
+        '''
+        self.ensure_connection()
+        #if the current owner of the recipe in the dictionary and owner insert differ
+        if recipe["owner"] != username:
+            #if the owner inside the dictionary is None, it must be replaced with the actual onwer
+            if recipe["owner"] == "None":
+                recipe["owner"] = username
+
+        #formatting and quering the recipe table
+        repice_table_values = (recipe["name"], recipe["owner"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"])
+        try:
+            self.cur.execute("INSERT INTO Recipes (RecName, Owner, Style, Steps, Source) VALUES (%s,%s,%s,%s,%s)",repice_table_values)
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            return "Error: " + e.args[1]
+
+# WIP
+        '''
+        for dif_ingredients in recipe["ingredients"]:
+            ingredient_table_values = () # (id of recipe, id of ingredient, amount)
+            #problem I can only get the amount from this, I need to query for the rest
+            self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
+            self.con.commit()
+'''
+        try:
+            pass
+        finally:
+            self.con.close()
+        return "OK"
+
+    #Quite honestly, I have no clue. Was created in class
     def query(self,sql):
         self.ensure_connection()
         self.cur.execute(sql)
@@ -246,10 +323,8 @@ class Database:
 #################################################
 
 #Delete comments or temporarily copy-paste the code outside
-'''
 recipe = RecipeAPI()
 database = Database()
-'''
 
 '''Recipe API Testing Code'''
 #test_look = recipe.direct_lookup_function()
@@ -271,9 +346,14 @@ database = Database()
 '''Database Queries Testing Code'''
 #print(database.select_all_table("Recipes"))
 #print(type(database.select_all_table("Recipes")))
-#print(database.select_one_table("Recipes", "Steps"))
-#print(database.insert("IngName", "Tomato", "Ingredients"))
-#print(database.select_one_table("Ingredients", "IngName"))
+#print(database.select_one_column_table("Recipes", "RecName"))
+#print(database.select_one_column_table("Ingredients", "IngName"))
+#print(database.insert_one("IngName", "poopies", "Ingredients"))
+#print(database.insert_user(("User5","user5@example.com")))
+thing = recipe.direct_lookup_function("pizza")[0]
+for dif_ingredients in thing["ingredients"]:
+    print(dif_ingredients)
+#print(database.insert_recipe(thing))
 
 
 #################################################
@@ -320,3 +400,7 @@ for i in ingredients["meals"]:
     print (i["idIngredient"])
     print (i["strIngredient"])
 '''
+
+'''Handy commands for testing insert_one, as Ingredients is the easiest one to work with'''
+#select * from Ingredients where IngName = "poopies";
+#delete from Ingredients where IngName = "poopies";
