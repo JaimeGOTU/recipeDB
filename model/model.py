@@ -128,6 +128,15 @@ class RecipeAPI:
 
         # We return a list of dictionaries of recipes in the desired format
         return parsed_recipes
+    
+    # Function that should be called on the search bar
+    def direct_lookup_function(self,search_term):
+        final = []
+        try:
+            final = self.parse_recipe(self.lookup_recipe(search_term))
+            return final
+        except:
+            return final
 
 class Database:
     def __init__(self):
@@ -243,6 +252,9 @@ database = Database()
 '''
 
 '''Recipe API Testing Code'''
+#test_look = recipe.direct_lookup_function()
+#print(test_look)
+
 #thing = recipe.lookup_recipe("soup")
 #parsed_info = recipe.parse_recipe(thing)
 #for i in parsed_info:

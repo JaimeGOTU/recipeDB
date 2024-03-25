@@ -2,7 +2,7 @@ from flask import Flask
 from flask_simplelogin import SimpleLogin
 
 app = Flask(__name__)
-SimpleLogin(app)
+#SimpleLogin(app)
 
 @app.route('/')
 def home():
