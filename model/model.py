@@ -328,6 +328,27 @@ class Database:
             self.con.close()
         return "OK"
 
+    def check_in_others_menus(self,recipe,username="None"):
+        '''
+        This function checks if the recipe is in other people's menus
+        param recipe: string of the recipe name
+        param username: string that indicates the name of the user who wants to do a certain action
+        returns: True if it is in someone else's menu, False if not.
+        '''
+        if username == "None":
+            return True
+        else:
+            self.ensure_connection()
+            try:
+                self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
+                self.cur.execute(f"Select User.UserID from User join (select Recipes.RecID,RecName,UserID from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where UserID != 2 and RecName = 'Chicken Curry') as X on User.UserID = X.UserID;")
+                result = self.cur.fetchall()
+                RecID = (str(result[0]["RecID"]))
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+
+
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
