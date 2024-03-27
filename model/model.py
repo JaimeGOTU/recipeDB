@@ -328,12 +328,6 @@ class Database:
             self.con.close()
         return "OK"
 
-    def check_others_all(self):
-        if not self.check_in_others_menus() and not self.check_in_others_knows():
-            return False
-        else:
-            return True
-
     def check_in_others_menus(self,recipe,username="None"):
         '''
         This function checks if the recipe is in other people's menus
@@ -369,7 +363,7 @@ class Database:
             finally:
                 self.con.close()
 
-    def check_in_others_knows(self,recipe,username="None"):
+    def check_in_others_saved(self,recipe,username="None"):
         '''
         This function checks if the recipe is in other people's Saved Recipes list (bookmarked)
         param recipe: string of the recipe name
@@ -377,11 +371,11 @@ class Database:
         '''
         self.ensure_connection()
         if username == "None":
-            userID = None
+            UserID = None
         # Get User ID
         else:
             try:
-                self.cur.execute(f"Select UserID from User where username != '{username}'")
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
                 result = self.cur.fetchall()
                 UserID = str(result[0]["UserID"])
             except pymysql.Error as e:
@@ -396,9 +390,9 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
 
-        if username:
+        if username != "None":
             try:
-                self.cur.execute(f"Select * from SavedRec where RecID = {RecID} and UserID = {UserID}")
+                self.cur.execute(f"Select * from SavedRec where RecID = {RecID} and UserID != {UserID}")
                 result = self.cur.fetchall()
                 if result == ():
                     return False # Not in anyone else's menu, can be easily removed.
@@ -422,6 +416,17 @@ class Database:
                 print("Error: " + e.args[1])
             finally:
                 self.con.close()
+
+    def check_others_all(self,recipe,username="None"):
+        print("On other people menu?")
+        print(self.check_in_others_menus(recipe,username))
+        print("On other saved")
+        print(self.check_in_others_saved(recipe,username))
+        print("#########")
+        if not self.check_in_others_menus(recipe,username) and not self.check_in_others_saved(recipe,username):
+            return False
+        else:
+            return True
 
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
@@ -470,6 +475,8 @@ database = Database()
 #thing = recipe.direct_lookup_function("pizza")[0]
 #print(database.insert_recipe(thing,"James"))
 #print(database.check_in_others_menus("Pizza Express Margherita"))
+#print(database.check_in_others_saved("Thingy"))
+#print(database.check_others_all("Spaghetti Bolognese"))
 
 #################################################
 ####                                         ####
