@@ -335,15 +335,31 @@ class Database:
         param username: string that indicates the name of the user who wants to do a certain action
         returns: True if it is in someone else's menu, False if not.
         '''
+        self.ensure_connection()
+        #?????????????????????
         if username == "None":
+            try:
+                self.cur.execute(f"Select * from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = '{recipe}';")
+                result = self.cur.fetchall()
+                if result == ():
+                    return False # Not in anyone else's menu, can be easily removed.
+                else:
+                    return True # In someone else's table - may need to reconsider
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+
+            #select * from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = "Pizza Express Margherita";
+
             return True
         else:
-            self.ensure_connection()
             try:
-                self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
-                self.cur.execute(f"Select User.UserID from User join (select Recipes.RecID,RecName,UserID from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where UserID != 2 and RecName = 'Chicken Curry') as X on User.UserID = X.UserID;")
+                self.cur.execute(f"Select User.UserID,User.Username from User join (select Recipes.RecID,RecName,UserID from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = '{recipe}') as X on User.UserID = X.UserID where User.Username != '{username}'")
                 result = self.cur.fetchall()
-                RecID = (str(result[0]["RecID"]))
+                if result == ():
+                    return False # Not in anyone else's menu, can be easily removed.
+                else:
+                    return True # In someone else's table - may need to reconsider
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
@@ -395,7 +411,7 @@ database = Database()
 #print(database.insert_user(("User5","user5@example.com")))
 #thing = recipe.direct_lookup_function("pizza")[0]
 #print(database.insert_recipe(thing,"James"))
-
+#print(database.check_in_others_menus("Pizza Express Margherita"))
 
 #################################################
 ####                                         ####
