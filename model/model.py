@@ -230,7 +230,7 @@ class Database:
         param param: the names of the column
         param values: the value of what we're about to insert
 
-        !!! this function only works if it's only inserting in 1 column !!!
+        !!! this function only works if it's only inserting in 1 column !!! 
 
         returns: "OK" if it was successful, otherwise the appropiate error message
         '''
@@ -328,6 +328,12 @@ class Database:
             self.con.close()
         return "OK"
 
+    def check_others_all(self):
+        if not self.check_in_others_menus() and not self.check_in_others_knows():
+            return False
+        else:
+            return True
+
     def check_in_others_menus(self,recipe,username="None"):
         '''
         This function checks if the recipe is in other people's menus
@@ -336,7 +342,6 @@ class Database:
         returns: True if it is in someone else's menu, False if not.
         '''
         self.ensure_connection()
-        #?????????????????????
         if username == "None":
             try:
                 self.cur.execute(f"Select * from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = '{recipe}';")
@@ -348,10 +353,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
-
-            #select * from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = "Pizza Express Margherita";
-
-            return True
+            finally:
+                self.con.close()
         else:
             try:
                 self.cur.execute(f"Select User.UserID,User.Username from User join (select Recipes.RecID,RecName,UserID from MenuTemp left join Recipes on MenuTemp.RecID = Recipes.RecID where RecName = '{recipe}') as X on User.UserID = X.UserID where User.Username != '{username}'")
@@ -363,7 +366,62 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            finally:
+                self.con.close()
 
+    def check_in_others_knows(self,recipe,username="None"):
+        '''
+        This function checks if the recipe is in other people's Saved Recipes list (bookmarked)
+        param recipe: string of the recipe name
+        param username: string that indicates the name of the user who wants to do a certain action
+        '''
+        self.ensure_connection()
+        if username == "None":
+            userID = None
+        # Get User ID
+        else:
+            try:
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                result = self.cur.fetchall()
+                UserID = str(result[0]["UserID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+        # Get Recipe ID
+        try:
+            self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
+            result2 = self.cur.fetchall()
+            RecID = str(result2[0]["RecID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+
+        if username:
+            try:
+                self.cur.execute(f"Select * from SavedRec where RecID = {RecID} and UserID = {UserID}")
+                result = self.cur.fetchall()
+                if result == ():
+                    return False # Not in anyone else's menu, can be easily removed.
+                else:
+                    return True # In someone else's table - may need to reconsider
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            finally:
+                self.con.close()
+        else:
+            try:
+                self.cur.execute(f"Select * from SavedRec where RecID = {RecID}")
+                result = self.cur.fetchall()
+                if result == ():
+                    return False # Not in anyone else's menu, can be easily removed.
+                else:
+                    return True # In someone else's table - may need to reconsider
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            finally:
+                self.con.close()
 
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
