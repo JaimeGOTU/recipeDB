@@ -381,7 +381,7 @@ class Database:
         # Get User ID
         else:
             try:
-                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                self.cur.execute(f"Select UserID from User where username != '{username}'")
                 result = self.cur.fetchall()
                 UserID = str(result[0]["UserID"])
             except pymysql.Error as e:
