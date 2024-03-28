@@ -8,7 +8,10 @@ from model.model import Database
 
 
 auth = Blueprint('auth', __name__, template_folder='../templates')
+recipeDB = Database()
 
+def get_username(email):
+    return email.split('@')[0]
 
 @auth.route('/login')
 def login():
@@ -45,6 +48,7 @@ def signup_post():
     email = request.form.get('email')
     name = request.form.get('name')
     password = request.form.get('password')
+    userparams = (get_username(email), email)
 
     user = db.query(User).filter_by(email=email).first()  # if this returns a user, then the email already exists in database
 
@@ -58,6 +62,8 @@ def signup_post():
     # add the new user to the database
     db.add(new_user)
     db.commit()
+    
+    recipeDB.insert_user(userparams)
     
 
     # code to validate and add user to database goes here
