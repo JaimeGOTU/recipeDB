@@ -469,7 +469,7 @@ class Database:
         self.delete_with_id("SavedRec","UserID",UserID)
         self.delete_with_id("Owns","UserID",UserID)
         self.delete_with_id("User","UserID",UserID) # This has to be last, after removing all other references
-        
+        self.con.close()
 
     ############# ADD RECIPES TO A MENU ################
     #############       FUNCTION        ################
