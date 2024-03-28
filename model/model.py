@@ -418,15 +418,63 @@ class Database:
                 self.con.close()
 
     def check_others_all(self,recipe,username="None"):
-        print("On other people menu?")
-        print(self.check_in_others_menus(recipe,username))
-        print("On other saved")
-        print(self.check_in_others_saved(recipe,username))
-        print("#########")
+        # If it's not in others menus or in others saved recipes it returns False
         if not self.check_in_others_menus(recipe,username) and not self.check_in_others_saved(recipe,username):
             return False
+        # otherwise it returns True
         else:
             return True
+        
+    def delete_recipe(self):
+        pass
+
+    def delete_with_id(self,table_name,what_id,id):
+        '''
+        Deletes a value from a table referencing an ID
+        parm table_name: string of the table name
+        param what_id: string of the column name
+        param id: id (number) of the value you want to delete 
+        '''
+        self.ensure_connection()
+        try:
+            self.cur.execute(f"delete from {table_name} where {what_id} = {id}")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            return "Error: " + e.args[1]
+
+    #DELETE FROM User WHERE UserID = 7;
+
+    def delete_user(self,username):
+        '''
+        This function permanently deletes a user from all tables in the database
+        param username: string with the username
+        (may require password as well, depends on user implementation)
+        '''
+        self.ensure_connection()
+        if username == "None":
+            UserID = None
+        # Get User ID
+        else:
+            try:
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                result = self.cur.fetchall()
+                UserID = str(result[0]["UserID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+        # Now it deletes from all necessary tables
+        self.delete_with_id("Allergies","UserID",UserID)
+        self.delete_with_id("MenuTemp","UserID",UserID)
+        self.delete_with_id("SavedRec","UserID",UserID)
+        self.delete_with_id("Owns","UserID",UserID)
+        self.delete_with_id("User","UserID",UserID) # This has to be last, after removing all other references
+        
+
+    ############# ADD RECIPES TO A MENU ################
+    #############       FUNCTION        ################
+    def insert_menu(self,username,recipe,menu_name,description):
+        pass
 
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
@@ -477,6 +525,8 @@ database = Database()
 #print(database.check_in_others_menus("Pizza Express Margherita"))
 #print(database.check_in_others_saved("Thingy"))
 #print(database.check_others_all("Spaghetti Bolognese"))
+#database.delete_with_id("Allergies","IngID",1)
+#database.delete_user("Poo")
 
 #################################################
 ####                                         ####
