@@ -522,13 +522,16 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
             return "ERROR"
-        
+        ######################################################################
+        ######## Before this, check there isnt an exact same one  ############
+        ######################################################################
         try:
             self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
             self.con.commit()
         except pymysql.Error as e:
             self.con.rollback()
-            return "Error: " + e.args[1]
+            print("Error: " + e.args[1])
+            return "ERROR"
         
         self.con.close()
         return "SUCCESS"
@@ -553,7 +556,7 @@ class Database:
 recipe = RecipeAPI()
 database = Database()
 
-database.insert_menu("User2","Pizza Express Margherita","Stuff","monday")
+print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 
 '''Recipe API Testing Code'''
 #test_look = recipe.direct_lookup_function()
