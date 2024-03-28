@@ -530,6 +530,7 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
         
+        self.con.close()
         return "SUCCESS"
     
     #Quite honestly, I have no clue what this is. It was created in class
