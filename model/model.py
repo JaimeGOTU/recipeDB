@@ -443,8 +443,6 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
 
-    #DELETE FROM User WHERE UserID = 7;
-
     def delete_user(self,username):
         '''
         This function permanently deletes a user from all tables in the database
@@ -474,8 +472,66 @@ class Database:
     ############# ADD RECIPES TO A MENU ################
     #############       FUNCTION        ################
     def insert_menu(self,username,recipe,menu_name,description):
-        pass
+        '''
+        inserts a single entry in the menu template table
+        param username: a string with the username
+        param recipe: a string with the recipe name
+        param menu_name: a string with the menu the recipe is going to get added to
+        param description: a string that indicates the purpose of the recipe in this menu
+        returns a string of "SUCCESS" or "ERROR"
+        '''
+        self.ensure_connection()
+        if username == "None":
+            return "ERROR"
+        
+        # Get User ID
+        else:
+            try:
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                result = self.cur.fetchall()
+                UserID = str(result[0]["UserID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+                return "ERROR"
+            
+        # Get Recipe ID
+        try:
+            self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
+            result2 = self.cur.fetchall()
+            RecID = str(result2[0]["RecID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return "ERROR"
+        
+        # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
+        try:
+            self.cur.execute(f" select * from MenuTemp where MenuName = '{menu_name}' and UserID = {UserID};")
+            result3 = self.cur.fetchall()
+            # If a menu with that name doesnt exist (it's new), give it a new menu ID
+            if result3 == ():
+                self.cur.execute(f"select MenuID from MenuTemp order by -MenuID limit 1")
+                result4 = self.cur.fetchall()
+                MenuID = result4[0]["MenuID"] + 1
+            # If a menu with that name does exist, take its menu ID
+            else:
+                MenuID = str(result3[0]["MenuID"])
 
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return "ERROR"
+        
+        try:
+            self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            return "Error: " + e.args[1]
+        
+        return "SUCCESS"
+    
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
@@ -495,6 +551,8 @@ class Database:
 #Delete comments or temporarily copy-paste the code outside
 recipe = RecipeAPI()
 database = Database()
+
+database.insert_menu("User2","Pizza Express Margherita","Stuff","monday")
 
 '''Recipe API Testing Code'''
 #test_look = recipe.direct_lookup_function()
