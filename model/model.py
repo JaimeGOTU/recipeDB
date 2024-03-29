@@ -40,7 +40,8 @@ class RecipeAPI:
         except requests.exceptions.HTTPError as e:
             print(e)
             return None
-        
+        except:
+            print("Unexpected error")
         # If the response has text content, try to parse it as JSON and return the result. 
         # If the response doesn’t have any text content (i.e., it’s empty or None), then return None.
         else:
@@ -193,6 +194,9 @@ class Database:
             #gonna get all tuples that satisfy that query
             result = self.cur.fetchall()
 
+        except:
+            print("Unexpected error")
+
         finally:
             #close the connection | we're in a limited environment with only
             #a few limited connections. Anyway, it's important regardless
@@ -216,6 +220,9 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             return "Error: " + e.args[1]
+        
+        except:
+            print("Unexpected error")
 
         finally:
             #close the connection | we're in a limited environment with only
@@ -242,6 +249,8 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             return "Error: " + e.args[1]
+        except:
+            print("Unexpected error")
 
         finally:
             self.con.close()
@@ -263,6 +272,8 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             return "Error: " + e.args[1]
+        except:
+            print("Unexpected error")
 
         finally:
             self.con.close()
@@ -303,6 +314,9 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
+
             try:
                 ingredient_name = dif_ingredients[0]
                 self.cur.execute(f"Select IngID from Ingredients where IngName = '{ingredient_name}'")
@@ -311,6 +325,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
 
             recneeds_values_list.append(dif_ingredients[1])
             try:
@@ -321,6 +337,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
 
         try:
             pass
@@ -347,6 +365,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
             finally:
                 self.con.close()
         else:
@@ -360,6 +380,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
             finally:
                 self.con.close()
 
@@ -381,6 +403,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
         # Get Recipe ID
         try:
             self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
@@ -389,6 +413,8 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             print("Error: " + e.args[1])
+        except:
+            print("Unexpected error")
 
         if username != "None":
             try:
@@ -401,6 +427,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
             finally:
                 self.con.close()
         else:
@@ -414,6 +442,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
             finally:
                 self.con.close()
 
@@ -428,7 +458,7 @@ class Database:
     def delete_recipe(self, RecName):
         '''
         This function permanently deletes a recipe from all tables in the database
-        param recipename: string with the recipe name
+        param RecName: string with the recipe name
         '''
         self.ensure_connection()
         if RecName == "None":
@@ -442,6 +472,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
         # Now it deletes from all necessary tables
         self.delete_with_id("RecNeeds","RecID",RecID)
         self.delete_with_id("MenuTemp","RecID",RecID)
@@ -463,6 +495,8 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             return "Error: " + e.args[1]
+        except:
+            print("Unexpected error")
 
     def delete_user(self,username):
         '''
@@ -482,6 +516,8 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
+            except:
+                print("Unexpected error")
         # Now it deletes from all necessary tables
         self.delete_with_id("Allergies","UserID",UserID)
         self.delete_with_id("MenuTemp","UserID",UserID)
@@ -490,8 +526,6 @@ class Database:
         self.delete_with_id("User","UserID",UserID) # This has to be last, after removing all other references
         self.con.close()
 
-    ############# ADD RECIPES TO A MENU ################
-    #############       FUNCTION        ################
     def insert_menu(self,username,recipe,menu_name,description):
         '''
         inserts a single entry in the menu template table
@@ -515,6 +549,8 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
                 return ("ERROR","Could not find username")
+            except:
+                print("Unexpected error")
             
         # Get Recipe ID
         try:
@@ -525,6 +561,8 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
             return ("ERROR","Could not find recipe")
+        except:
+            print("Unexpected error")
         
         # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
         try:
@@ -543,6 +581,8 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
             return ("ERROR", "Unexpected error when checking Menu ID")
+        except:
+            print("Unexpected error")
 
         # We check to see if there's already an exact same entry on the Menu
         try:
@@ -557,6 +597,8 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
             return ("ERROR","Unexpected error when checking menus")
+        except:
+                print("Unexpected error")
 
         try:
             self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
@@ -568,7 +610,7 @@ class Database:
         
         self.con.close()
         return ("SUCCESS","You successfully added the recipe to your menu!")
-    
+
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
