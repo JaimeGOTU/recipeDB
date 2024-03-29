@@ -469,8 +469,6 @@ class Database:
         self.delete_with_id("User","UserID",UserID) # This has to be last, after removing all other references
         self.con.close()
 
-    ############# ADD RECIPES TO A MENU ################
-    #############       FUNCTION        ################
     def insert_menu(self,username,recipe,menu_name,description):
         '''
         inserts a single entry in the menu template table
@@ -547,7 +545,7 @@ class Database:
         
         self.con.close()
         return ("SUCCESS","You successfully added the recipe to your menu!")
-    
+
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
