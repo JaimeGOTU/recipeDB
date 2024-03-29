@@ -663,7 +663,7 @@ database = Database()
 #database.delete_with_id("Allergies","IngID",1)
 #database.delete_user("Poo")
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
-#database.delete_recipe("Fake Record 3")
+database.delete_recipe("Fake Record 3")
 
 #################################################
 ####                                         ####
