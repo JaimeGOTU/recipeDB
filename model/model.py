@@ -425,8 +425,29 @@ class Database:
         else:
             return True
         
-    def delete_recipe(self):
-        pass
+    def delete_recipe(self, RecName):
+        '''
+        This function permanently deletes a recipe from all tables in the database
+        param recipename: string with the recipe name
+        '''
+        self.ensure_connection()
+        if RecName == "None":
+            RecID = None
+        # Get Recipe ID
+        else:
+            try:
+                self.cur.execute(f"Select RecID from Recipes where RecName = '{RecName}'")
+                result = self.cur.fetchall()
+                RecID = str(result[0]["RecID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+        # Now it deletes from all necessary tables
+        self.delete_with_id("RecNeeds","RecID",RecID)
+        self.delete_with_id("MenuTemp","RecID",RecID)
+        self.delete_with_id("SavedRec","RecID",RecID)
+        self.delete_with_id("Recipes","RecID",RecID) # This has to be last, after removing all other references
+        self.con.close()
 
     def delete_with_id(self,table_name,what_id,id):
         '''
@@ -598,6 +619,7 @@ database = Database()
 #database.delete_with_id("Allergies","IngID",1)
 #database.delete_user("Poo")
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
+#database.delete_recipe("Fake Record 3")
 
 #################################################
 ####                                         ####
@@ -647,3 +669,13 @@ for i in ingredients["meals"]:
 '''Handy commands for testing insert_one, as Ingredients is the easiest one to work with'''
 #select * from Ingredients where IngName = "poopies";
 #delete from Ingredients where IngName = "poopies";
+
+
+
+#Insert command to create test Recipes to delete
+'''INSERT INTO Recipes (RecName, Owner, Style, Steps, Source)
+    -> VALUES
+    ->     ('Fake Record 1', 'John Doe', 'Casual', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com'),
+    ->     ('Fake Record 2', 'Jane Smith', 'Formal', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com'),
+    ->     ('Fake Record 3', 'Alice Johnson', 'Sporty', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com');
+Query OK, 3 rows affected (0.03 sec)'''
