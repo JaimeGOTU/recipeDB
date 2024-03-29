@@ -455,7 +455,7 @@ class Database:
         else:
             return True
         
-    def delete_recipe(self, RecName):
+    def delete_recipe(self, RecName="None"):
         '''
         This function permanently deletes a recipe from all tables in the database
         param RecName: string with the recipe name
@@ -471,8 +471,10 @@ class Database:
                 RecID = str(result[0]["RecID"])
             except pymysql.Error as e:
                 self.con.rollback()
+                RecID = None
                 print("Error: " + e.args[1])
             except:
+                RecID = None
                 print("Unexpected error")
         # Now it deletes from all necessary tables
         self.delete_with_id("RecNeeds","RecID",RecID)
@@ -515,8 +517,10 @@ class Database:
                 UserID = str(result[0]["UserID"])
             except pymysql.Error as e:
                 self.con.rollback()
+                UserID = None
                 print("Error: " + e.args[1])
             except:
+                UserID = None
                 print("Unexpected error")
         # Now it deletes from all necessary tables
         self.delete_with_id("Allergies","UserID",UserID)
