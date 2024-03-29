@@ -568,8 +568,6 @@ class Database:
 recipe = RecipeAPI()
 database = Database()
 
-print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
-
 '''Recipe API Testing Code'''
 #test_look = recipe.direct_lookup_function()
 #print(test_look)
@@ -601,6 +599,7 @@ print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2")
 #print(database.check_others_all("Spaghetti Bolognese"))
 #database.delete_with_id("Allergies","IngID",1)
 #database.delete_user("Poo")
+#print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 
 #################################################
 ####                                         ####
