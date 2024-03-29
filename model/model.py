@@ -478,11 +478,11 @@ class Database:
         param recipe: a string with the recipe name
         param menu_name: a string with the menu the recipe is going to get added to
         param description: a string that indicates the purpose of the recipe in this menu
-        returns a string of "SUCCESS" or "ERROR"
+        returns a tuple: (string of "SUCCESS" or "ERROR", reason)
         '''
         self.ensure_connection()
         if username == "None":
-            return "ERROR"
+            return ("ERROR","No username specified")
         
         # Get User ID
         else:
@@ -493,7 +493,7 @@ class Database:
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
-                return "ERROR"
+                return ("ERROR","Could not find username")
             
         # Get Recipe ID
         try:
@@ -503,7 +503,7 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             print("Error: " + e.args[1])
-            return "ERROR"
+            return ("ERROR","Could not find recipe")
         
         # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
         try:
@@ -521,20 +521,32 @@ class Database:
         except pymysql.Error as e:
             self.con.rollback()
             print("Error: " + e.args[1])
-            return "ERROR"
-        ######################################################################
-        ######## Before this, check there isnt an exact same one  ############
-        ######################################################################
+            return ("ERROR", "Unexpected error when checking Menu ID")
+
+        # We check to see if there's already an exact same entry on the Menu
+        try:
+            self.cur.execute(f"select * from MenuTemp where MenuID = {MenuID} and Description = '{description}' and UserID = {UserID} and RecID = {RecID} and MenuName = '{menu_name}';")
+            self.con.commit()
+            result5 = self.cur.fetchall()
+            print(result5)
+            if result5 != ():
+                return ("ERROR","There's already a copy of this recipe with this description on this menu")
+            
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return ("ERROR","Unexpected error when checking menus")
+
         try:
             self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
             self.con.commit()
         except pymysql.Error as e:
             self.con.rollback()
             print("Error: " + e.args[1])
-            return "ERROR"
+            return ("ERROR","Unexpected error when adding recipe to the menu")
         
         self.con.close()
-        return "SUCCESS"
+        return ("SUCCESS","You successfully added the recipe to your menu!")
     
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
