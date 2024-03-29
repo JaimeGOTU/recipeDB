@@ -418,16 +418,136 @@ class Database:
                 self.con.close()
 
     def check_others_all(self,recipe,username="None"):
-        print("On other people menu?")
-        print(self.check_in_others_menus(recipe,username))
-        print("On other saved")
-        print(self.check_in_others_saved(recipe,username))
-        print("#########")
+        # If it's not in others menus or in others saved recipes it returns False
         if not self.check_in_others_menus(recipe,username) and not self.check_in_others_saved(recipe,username):
             return False
+        # otherwise it returns True
         else:
             return True
+        
+    def delete_recipe(self):
+        pass
 
+    def delete_with_id(self,table_name,what_id,id):
+        '''
+        Deletes a value from a table referencing an ID
+        parm table_name: string of the table name
+        param what_id: string of the column name
+        param id: id (number) of the value you want to delete 
+        '''
+        self.ensure_connection()
+        try:
+            self.cur.execute(f"delete from {table_name} where {what_id} = {id}")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            return "Error: " + e.args[1]
+
+    def delete_user(self,username):
+        '''
+        This function permanently deletes a user from all tables in the database
+        param username: string with the username
+        (may require password as well, depends on user implementation)
+        '''
+        self.ensure_connection()
+        if username == "None":
+            UserID = None
+        # Get User ID
+        else:
+            try:
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                result = self.cur.fetchall()
+                UserID = str(result[0]["UserID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+        # Now it deletes from all necessary tables
+        self.delete_with_id("Allergies","UserID",UserID)
+        self.delete_with_id("MenuTemp","UserID",UserID)
+        self.delete_with_id("SavedRec","UserID",UserID)
+        self.delete_with_id("Owns","UserID",UserID)
+        self.delete_with_id("User","UserID",UserID) # This has to be last, after removing all other references
+        self.con.close()
+
+    ############# ADD RECIPES TO A MENU ################
+    #############       FUNCTION        ################
+    def insert_menu(self,username,recipe,menu_name,description):
+        '''
+        inserts a single entry in the menu template table
+        param username: a string with the username
+        param recipe: a string with the recipe name
+        param menu_name: a string with the menu the recipe is going to get added to
+        param description: a string that indicates the purpose of the recipe in this menu
+        returns a tuple: (string of "SUCCESS" or "ERROR", reason)
+        '''
+        self.ensure_connection()
+        if username == "None":
+            return ("ERROR","No username specified")
+        
+        # Get User ID
+        else:
+            try:
+                self.cur.execute(f"Select UserID from User where username = '{username}'")
+                result = self.cur.fetchall()
+                UserID = str(result[0]["UserID"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+                return ("ERROR","Could not find username")
+            
+        # Get Recipe ID
+        try:
+            self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
+            result2 = self.cur.fetchall()
+            RecID = str(result2[0]["RecID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return ("ERROR","Could not find recipe")
+        
+        # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
+        try:
+            self.cur.execute(f" select * from MenuTemp where MenuName = '{menu_name}' and UserID = {UserID};")
+            result3 = self.cur.fetchall()
+            # If a menu with that name doesnt exist (it's new), give it a new menu ID
+            if result3 == ():
+                self.cur.execute(f"select MenuID from MenuTemp order by -MenuID limit 1")
+                result4 = self.cur.fetchall()
+                MenuID = result4[0]["MenuID"] + 1
+            # If a menu with that name does exist, take its menu ID
+            else:
+                MenuID = str(result3[0]["MenuID"])
+
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return ("ERROR", "Unexpected error when checking Menu ID")
+
+        # We check to see if there's already an exact same entry on the Menu
+        try:
+            self.cur.execute(f"select * from MenuTemp where MenuID = {MenuID} and Description = '{description}' and UserID = {UserID} and RecID = {RecID} and MenuName = '{menu_name}';")
+            self.con.commit()
+            result5 = self.cur.fetchall()
+            print(result5)
+            if result5 != ():
+                return ("ERROR","There's already a copy of this recipe with this description on this menu")
+            
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return ("ERROR","Unexpected error when checking menus")
+
+        try:
+            self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+            return ("ERROR","Unexpected error when adding recipe to the menu")
+        
+        self.con.close()
+        return ("SUCCESS","You successfully added the recipe to your menu!")
+    
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
@@ -477,6 +597,9 @@ database = Database()
 #print(database.check_in_others_menus("Pizza Express Margherita"))
 #print(database.check_in_others_saved("Thingy"))
 #print(database.check_others_all("Spaghetti Bolognese"))
+#database.delete_with_id("Allergies","IngID",1)
+#database.delete_user("Poo")
+#print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 
 #################################################
 ####                                         ####
