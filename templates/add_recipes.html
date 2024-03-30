@@ -51,6 +51,7 @@
                         {% endfor %}
                     </ul>
                     <p>Source: {{ recipe.source }}</p>
+                    <br>
                     <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
                 {% endfor %}
             {% endif %}
@@ -124,6 +125,7 @@
                                 }
                                 html += '</ul>';
                                 html += '<p>Source: ' + recipe.source + '</p>';
+                                html += '<button class="selectRecipeButton">Select Recipe</button>';
                             });
                         }
                         $("#searchResults").html(html);
@@ -153,6 +155,7 @@
                 });
             });
         });
+
     </script>
 
 </body>
