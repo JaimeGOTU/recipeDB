@@ -1,8 +1,20 @@
 <div class="topnav" id="myTopnav">
     <a href="/" class="title">RecipeDB</a>
-    <a href="/home" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>        
+    <!--<a href="/home" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>   not sure we need this...-->        
     <a href="/menus" class="{{ 'active' if active_page == 'menus' else '' }}">Menus</a>
+
+    <!--Should only display if user is not logged in-->
+    {% if not current_user.is_authenticated %}
     <a href="/login?" class="{{ 'active' if active_page == 'login' else '' }}">Login</a>
+    {% endif %}
+
+    <!--Should only display if user is logged in-->
+    {% if current_user.is_authenticated %}
+    <a href="/logout">Logout</a>
+    {% endif %}
+
+    <!--We want to only see recipe options when user is logged in-->
+    {% if current_user.is_authenticated %}
     <div class="dropdown">
         <button class="dropbtn" onclick="dropdownFunction()">Recipes 
             <i class="fa fa-caret-down"></i>
@@ -13,8 +25,50 @@
             <a href="/my_recipes">My Recipes</a>
         </div>
     </div>
+    {% endif %}
+
     <a href="javascript:void(0);" class="icon" onclick="navbarFunction()"> <i class="fa fa-bars"></i> </a>
 </div>
+
+<script>
+    function navbarFunction() {
+        var x = document.getElementById("myTopnav");
+        if (x.className === "topnav") {
+            x.className += " responsive";
+        } else {
+            x.className = "topnav";
+        }
+    }
+
+    /* When the user clicks on the button, 
+    toggle between hiding and showing the dropdown content */
+    function dropdownFunction() {
+            var x = document.getElementById("dropdown-content");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.style.display === "block") {
+                    openDropdown.style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+
+
+<!--
+    Old script - in case you want to revert
 
 <script>
     function navbarFunction() {
@@ -45,4 +99,8 @@
             }
         }
     }
+
 </script>
+
+-->
+
