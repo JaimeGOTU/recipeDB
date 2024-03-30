@@ -40,7 +40,6 @@ def index():
     recipes_random = database.random_recipes(5)
     for recipe in recipes_random:
         recipe['Steps'] = json.loads(recipe['Steps'])
-        print(database.get_ingredients(recipe["RecName"]))
         recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
     print(recipes_random[0])
     return render_template('index.html', active_page='home', recipes=recipes_random)

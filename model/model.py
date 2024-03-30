@@ -293,7 +293,7 @@ class Database:
         "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
         '''
 
-        print(recipe)
+        #print(recipe)
 
         self.ensure_connection()
         #formatting and quering the recipe table
