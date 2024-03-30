@@ -10,4 +10,3 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(25), unique=True)
     password = db.Column(db.String(512))
     name = db.Column(db.String(1000))
-
