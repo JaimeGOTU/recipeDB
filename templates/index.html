@@ -1,6 +1,22 @@
 {% include "header.html" %}
-    <body>
+<body>
     {% include "navbar.html" %}
+
+
     <!-- Your content here -->
-    </body>
+    {% for recipe in recipes %}
+        <h2>{{ recipe.RecName }}</h2>
+        <p>Owner: {{ recipe.Owner }}</p>
+        <p>Style: {{ recipe.Style }}</p>
+        <p>Steps:</p>
+        <ul>
+            {% for step, instruction in recipe.Steps.items() %}
+                <li>{{ step }}: {{ instruction }}</li>
+            {% endfor %}
+        </ul>
+        <p>Source: {{ recipe.Source }}</p>
+    {% endfor %}
+</body>
+
+
 {% include "footer.html" %}
