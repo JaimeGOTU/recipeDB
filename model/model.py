@@ -288,7 +288,13 @@ class Database:
         param recipe: single dictionary of the recipe in the specified format
         param username: string with the username - used for recipe owner
         returns: "OK" if it was successful, otherwise the appropiate error message
+
+        SPECIFIED FORMAT: {'RecID':"str","style":"str","owner":"str","source":"str,
+        "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
         '''
+
+        #print(recipe)
+
         self.ensure_connection()
         #formatting and quering the recipe table
         repice_table_values = (recipe["name"], username, recipe["style"], json.dumps(recipe["steps"]), recipe["source"])
@@ -633,6 +639,42 @@ class Database:
         #    print("Unexpected error")
         self.con.close()
 
+    def get_ingredients(self,recipe):
+        '''
+        returns a dictionary of {"ingredient":"amount"} for a given recipe
+        params recipe: str of the recipe name
+        '''
+        self.ensure_connection()
+        # Get Recipe ID
+        try:
+            self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}';")
+            result2 = self.cur.fetchall()
+            RecID = str(result2[0]["RecID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("Unexpected error")
+        
+        ingredient_dict = {}
+
+        try:
+            self.cur.execute(f"select IngName,Amount from RecNeeds left join Ingredients on RecNeeds.IngID = Ingredients.IngID where RecID = {RecID};")
+            result3 = self.cur.fetchall()
+            for i in result3:
+                ingredient_dict[i["IngName"]] = i["Amount"]
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("Unexpected error")
+        
+        if ingredient_dict == {}:
+            return {"Could not load":"ERROR"}
+        else:
+            return(ingredient_dict)
+
+
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
         self.ensure_connection()
@@ -687,6 +729,7 @@ database = Database()
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 #database.delete_recipe("Fake Record 3")
 #print(database.random_recipes(2))
+#print(database.get_ingredients("Pizza Express Margherita"))
 
 #################################################
 ####                                         ####
