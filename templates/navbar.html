@@ -1,6 +1,6 @@
 <div class="topnav" id="myTopnav">
-    <a href="/" class="title">DEEZNUTZ</a>
-    <a href="/" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>        
+    <a href="/" class="title">RecipeDB</a>
+    <a href="/home" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>        
     <a href="/menus" class="{{ 'active' if active_page == 'menus' else '' }}">Menus</a>
     <a href="/login?" class="{{ 'active' if active_page == 'login' else '' }}">Login</a>
     <div class="dropdown">
@@ -15,9 +15,7 @@
     </div>
     <a href="javascript:void(0);" class="icon" onclick="navbarFunction()"> <i class="fa fa-bars"></i> </a>
 </div>
-<div>
 
-</div>
 <script>
     function navbarFunction() {
         var x = document.getElementById("myTopnav");
