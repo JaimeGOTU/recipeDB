@@ -61,15 +61,17 @@ def recipe_info():
     print(recipe)  # or do whatever you need with the recipe info
     return jsonify(status="success")
 
-@main.route('/add_recipes', methods=['GET', 'POST'])
+@main.route('/add_recipe', methods=['POST'])
 def add_recipe():
-    parsed_recipes = []
-    return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+    recipe = request.get_json()
+    print(recipe)
+    database.insert_recipe(recipe, get_username(current_user.email))
+    return jsonify(success=True)
+
 
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
-    #print(recipeapi.lookup_recipe(recipe['name']), get_username(current_user.email))
     database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
