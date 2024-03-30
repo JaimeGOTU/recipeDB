@@ -690,7 +690,7 @@ database = Database()
 #database.delete_user("Poo")
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 #database.delete_recipe("Fake Record 3")
-print(database.random_recipes(2))
+#print(database.random_recipes(2))
 
 #################################################
 ####                                         ####
