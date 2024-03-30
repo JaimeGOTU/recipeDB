@@ -555,7 +555,8 @@ class Database:
                 return ("ERROR","Could not find username")
             except:
                 print("Unexpected error")
-            
+            finally:
+                self.con.close()
         # Get Recipe ID
         try:
             self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
@@ -567,6 +568,8 @@ class Database:
             return ("ERROR","Could not find recipe")
         except:
             print("Unexpected error")
+        finally:
+            self.con.close()
         
         # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
         try:
@@ -614,6 +617,24 @@ class Database:
         
         self.con.close()
         return ("SUCCESS","You successfully added the recipe to your menu!")
+
+    def random_recipes(self,amount):
+        '''
+        Gets "amount" amount of random recipes
+        returns a list of dictionaries. Each dictionary is a recipe.
+        The keys are the column names (RecID, RecMame,Owner,Style,Steps,Source)
+        '''
+        self.ensure_connection()
+        try:
+            self.cur.execute(f"select * from Recipes order by RAND() limit {amount}")
+            result = self.cur.fetchall()
+            return result
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("Unexpected error")
+        self.con.close()
 
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
@@ -668,6 +689,7 @@ database = Database()
 #database.delete_user("Poo")
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 #database.delete_recipe("Fake Record 3")
+database.random_recipes_five()
 
 #################################################
 ####                                         ####
