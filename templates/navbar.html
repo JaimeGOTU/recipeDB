@@ -1,6 +1,6 @@
 <div class="topnav" id="myTopnav">
     <a href="/" class="title">RecipeDB</a>
-    <!--<a href="/home" class="{{ 'active' if active_page == 'home' else '' }}">Home</a>   not sure we need this...-->        
+    
     <a href="/menus" class="{{ 'active' if active_page == 'menus' else '' }}">Menus</a>
 
     <!--Should only display if user is not logged in-->
@@ -11,20 +11,9 @@
     <!--Should only display if user is logged in-->
     {% if current_user.is_authenticated %}
     <a href="/logout">Logout</a>
-    {% endif %}
-
-    <!--We want to only see recipe options when user is logged in-->
-    {% if current_user.is_authenticated %}
-    <div class="dropdown">
-        <button class="dropbtn" onclick="dropdownFunction()">Recipes 
-            <i class="fa fa-caret-down"></i>
-        </button>
-        <div class="dropdown-container" id="dropdown-content">
-            <a href="/add_recipes">Add Recipes</a>
-            <a href="/saved_recipes">Saved Recipes</a>
-            <a href="/my_recipes">My Recipes</a>
-        </div>
-    </div>
+    <a href="/add_recipes" class="recipe-option">Add Recipes</a>
+    <a href="/saved_recipes" class="recipe-option">Saved Recipes</a>
+    <a href="/my_recipes" class="recipe-option">My Recipes</a>
     {% endif %}
 
     <a href="javascript:void(0);" class="icon" onclick="navbarFunction()"> <i class="fa fa-bars"></i> </a>
@@ -40,67 +29,13 @@
         }
     }
 
-    /* When the user clicks on the button, 
-    toggle between hiding and showing the dropdown content */
-    function dropdownFunction() {
-            var x = document.getElementById("dropdown-content");
-            if (x.style.display === "none") {
-                x.style.display = "block";
-            } else {
-                x.style.display = "none";
-            }
-        }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.style.display === "block") {
-                    openDropdown.style.display = "none";
-                }
-            }
+    // Add a little animation to the recipe options when a user logs in
+    window.onload = function() {
+        if (document.querySelector('.recipe-option')) {
+            var recipeOptions = document.querySelectorAll('.recipe-option');
+            recipeOptions.forEach(function(option) {
+                option.style.animation = "fadeIn 2s";
+            });
         }
     }
 </script>
-
-
-<!--
-    Old script - in case you want to revert
-
-<script>
-    function navbarFunction() {
-        var x = document.getElementById("myTopnav");
-        if (x.className === "topnav") {
-            x.className += " responsive";
-        } else {
-            x.className = "topnav";
-        }
-    }
-
-    /* When the user clicks on the button, 
-    toggle between hiding and showing the dropdown content */
-    function dropdownFunction() {
-        document.getElementById("dropdown-content").classList.toggle("show");
-    }
-
-    // Close the dropdown if the user clicks outside of it
-    window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-                var openDropdown = dropdowns[i];
-                if (openDropdown.classList.contains('show')) {
-                    openDropdown.classList.remove('show');
-                }
-            }
-        }
-    }
-
-</script>
-
--->
-
