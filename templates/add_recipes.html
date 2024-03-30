@@ -53,8 +53,7 @@
                     </ul>
                     <p>This is a static content displayed for each recipe.</p>
                     <p>Source: {{ recipe.source }}</p>
-                    <button class="idButton" onclick="sendRecipeId('{{ recipe.id }}')">Recipe ID: {{ recipe.id }}</button>
-                    <button class="infoRecipeButton" onclick="sendRecipeInfo('{{ recipe|tojson }}')">Send Recipe Info</button>
+                    <br>
                     <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
                     <p>This is a static content displayed for each recipe.</p>
                 {% endfor %}
@@ -142,6 +141,7 @@
                                 }
                                 html += '</ul>';
                                 html += '<p>Source: ' + recipe.source + '</p>';
+                                html += '<button class="selectRecipeButton">Select Recipe</button>';
                             });
                         }
                         $("#searchResults").html(html);
@@ -171,6 +171,7 @@
                 });
             });
         });
+
     </script>
 
 </body>
