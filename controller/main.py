@@ -69,7 +69,8 @@ def add_recipe():
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
-    database.insert_recipe(recipe['name'], get_username(current_user.email))
+    #print(recipeapi.lookup_recipe(recipe['name']), get_username(current_user.email))
+    database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
 @main.route('/saved_recipes')
