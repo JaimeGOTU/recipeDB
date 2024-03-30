@@ -49,6 +49,7 @@
                         {% endfor %}
                     </ul>
                     <p>Source: {{ recipe.source }}</p>
+                    <button class="infoRecipeButton" onclick="sendRecipeInfo('{{ recipe|tojson }}')">Send Recipe Info</button>
                     <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
                 {% endfor %}
             {% endif %}
@@ -84,6 +85,19 @@
                 lastStep.parentNode.removeChild(lastStep);
             }
         });
+
+        function sendRecipeInfo(recipe) {
+            fetch('/recipe_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({recipe: recipe})
+            }).then(response => response.json())
+            .then(data => console.log(data));
+        }
+
+
     </script>
 
 

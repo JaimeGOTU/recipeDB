@@ -56,6 +56,11 @@ def api_recipes():
     else:
         return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
 
+@main.route('/recipe_info', methods=['POST'])
+def recipe_info():
+    recipe = request.get_json().get('recipe')
+    print(recipe)  # or do whatever you need with the recipe info
+    return jsonify(status="success")
 
 '''
 @main.route('/add_recipes', methods=['GET', 'POST'])
