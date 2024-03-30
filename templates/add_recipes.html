@@ -41,17 +41,7 @@
         <div id="searchResults">
             {% if recipes %}
                 {% for recipe in recipes %}
-                    <h2>{{ recipe.name }}</h2>
-                    <p>Owner: {{ recipe.owner }}</p>
-                    <p>Style: {{ recipe.style }}</p>
-                    <p>Steps:</p>
-                    <ul>
-                        {% for step, instruction in recipe.steps.items() %}
-                            <li>{{ step }}: {{ instruction }}</li>
-                        {% endfor %}
-                    </ul>
-                    <p>Source: {{ recipe.source }}</p>
-                    <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
+                    <!--Code is in script below-->
                 {% endfor %}
             {% endif %}
         </div>
@@ -86,6 +76,19 @@
                 lastStep.parentNode.removeChild(lastStep);
             }
         });
+
+        function sendRecipeInfo(recipe) {
+            fetch('/recipe_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({recipe: recipe})
+            }).then(response => response.json())
+            .then(data => console.log(data));
+        }
+
+
     </script>
 
 
@@ -124,6 +127,7 @@
                                 }
                                 html += '</ul>';
                                 html += '<p>Source: ' + recipe.source + '</p>';
+                                html += '<button class="selectRecipeButton" data-recipe-name="' + recipe.name + '">Select Recipe</button>';
                             });
                         }
                         $("#searchResults").html(html);
@@ -133,26 +137,22 @@
         });
     </script>
     
-    
-
-
     <script>
-        $(document).ready(function(){
-            $(".selectRecipeButton").click(function(){
-                var recipe = $(this).data('recipe');  // Get the selected recipe's data
-        
-                // Send the selected recipe's data to the server using AJAX
-                $.ajax({
-                    url: '/select_recipe',  // The URL to send the request to
-                    type: 'POST',  // The type of HTTP method to use
-                    contentType: 'application/json',  // The type of data you're sending
-                    data: JSON.stringify(recipe),  // The selected recipe's data
-                    success: function(response) {
-                        // Handle the server's response here
-                    }
-                });
-            });
+        $(document).on('click', '.selectRecipeButton', function() {
+        var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
+
+        // Send the selected recipe's name to the server using AJAX
+        $.ajax({
+            url: '/select_recipe',  // The URL to send the request to
+            type: 'POST',  // The type of HTTP method to use
+            contentType: 'application/json',  // The type of data you're sending
+            data: JSON.stringify({name: recipeName}),  // The selected recipe's name
+            success: function(response) {
+                // Handle the server's response here
+            }
         });
+});
+
     </script>
 
 </body>
