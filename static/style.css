@@ -104,6 +104,11 @@ tr:hover {
     overflow: hidden;
 }
 
+/* nate added this */
+.dropdown-container {
+    display: none
+}
+
 .dropdown .dropbtn {
     font-size: 18px;
     border: none;
