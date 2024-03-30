@@ -43,8 +43,13 @@
     /* When the user clicks on the button, 
     toggle between hiding and showing the dropdown content */
     function dropdownFunction() {
-        document.getElementById("dropdown-content").classList.toggle("show");
-    }
+            var x = document.getElementById("dropdown-content");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+            } else {
+                x.style.display = "none";
+            }
+        }
 
     // Close the dropdown if the user clicks outside of it
     window.onclick = function(event) {
