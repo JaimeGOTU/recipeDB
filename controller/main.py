@@ -50,11 +50,16 @@ def api_recipes():
         search_term = request.form.get('search')
         search_results = recipeapi.lookup_recipe(search_term)
         parsed_recipes = recipeapi.parse_recipe(search_results)
-        print(parsed_recipes)
+        #print(parsed_recipes)
         return jsonify(recipes=parsed_recipes)
     else:
         return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
 
+@main.route('/recipe_info', methods=['POST'])
+def recipe_info():
+    recipe = request.get_json().get('recipe')
+    print(recipe)  # or do whatever you need with the recipe info
+    return jsonify(status="success")
 
 @main.route('/add_recipes', methods=['GET', 'POST'])
 def add_recipe():
@@ -64,7 +69,8 @@ def add_recipe():
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
-    database.insert_recipe(recipe['name'], get_username(current_user.email))
+    #print(recipeapi.lookup_recipe(recipe['name']), get_username(current_user.email))
+    database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
 @main.route('/saved_recipes')
