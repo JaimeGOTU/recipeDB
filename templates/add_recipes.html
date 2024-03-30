@@ -42,6 +42,7 @@
             {% if recipes %}
                 {% for recipe in recipes %}
                     <h2>{{ recipe.name }}</h2>
+                    <p>This is a static content displayed for each recipe.</p>
                     <p>Owner: {{ recipe.owner }}</p>
                     <p>Style: {{ recipe.style }}</p>
                     <p>Steps:</p>
@@ -50,9 +51,12 @@
                             <li>{{ step }}: {{ instruction }}</li>
                         {% endfor %}
                     </ul>
+                    <p>This is a static content displayed for each recipe.</p>
                     <p>Source: {{ recipe.source }}</p>
+                    <button class="idButton" onclick="sendRecipeId('{{ recipe.id }}')">Recipe ID: {{ recipe.id }}</button>
                     <button class="infoRecipeButton" onclick="sendRecipeInfo('{{ recipe|tojson }}')">Send Recipe Info</button>
                     <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
+                    <p>This is a static content displayed for each recipe.</p>
                 {% endfor %}
             {% endif %}
         </div>
