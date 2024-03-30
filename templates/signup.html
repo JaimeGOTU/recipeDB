@@ -1,8 +1,9 @@
 <!-- templates/signup.html -->
 
-{% extends "base_temp.html" %}
+{% include "header.html" %}
 
-{% block content %}
+<body>
+    {% include "navbar.html" %}
 <div class="column is-4 is-offset-4">
     <h3 class="title">Sign Up</h3>
     <div class="box">
@@ -37,4 +38,5 @@
         </form>
     </div>
 </div>
-{% endblock %}
+</body>
+{% include "footer.html" %}

@@ -1,8 +1,9 @@
 <!-- templates/profile.html -->
 
-{% extends "base_temp.html" %}
+{% include "header.html" %}
 
-{% block content %}
+<body>
+{% include "navbar.html" %}
 <div class="column is-4 is-offset-4">
   {% with messages = get_flashed_messages() %}
   {% if messages %}
@@ -16,4 +17,5 @@
   Welcome, {{ name }}!
 </h1>
 <h2>{{ mail }}</h2>
-{% endblock %}
+</body>
+{% include "footer.html" %}
