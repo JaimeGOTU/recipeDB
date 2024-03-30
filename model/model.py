@@ -290,19 +290,8 @@ class Database:
         returns: "OK" if it was successful, otherwise the appropiate error message
         '''
         self.ensure_connection()
-        #if the current owner of the recipe in the dictionary and owner insert differ
-        if recipe["owner"] != username:
-            #if the owner inside the dictionary is None, it must be replaced with the actual onwer
-            if recipe["owner"] == "None":
-                recipe["owner"] = username
-
-        try:
-            pass
-        except:
-            pass
-
         #formatting and quering the recipe table
-        repice_table_values = (recipe["name"], recipe["owner"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"])
+        repice_table_values = (recipe["name"], username, recipe["style"], json.dumps(recipe["steps"]), recipe["source"])
         try:
             self.cur.execute("INSERT INTO Recipes (RecName, Owner, Style, Steps, Source) VALUES (%s,%s,%s,%s,%s)",repice_table_values)
             self.con.commit()
