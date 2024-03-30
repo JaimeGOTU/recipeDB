@@ -8,6 +8,12 @@
         <h2>{{ recipe.RecName }}</h2>
         <p>Owner: {{ recipe.Owner }}</p>
         <p>Style: {{ recipe.Style }}</p>
+        <p>Ingredients:</p>
+        <u1>
+            {% for food,amount in recipe.Ingredients.items() %}
+            <li>{{ food }}: {{ amount }}</li>
+        {% endfor %}
+        </u1>
         <p>Steps:</p>
         <ul>
             {% for step, instruction in recipe.Steps.items() %}
