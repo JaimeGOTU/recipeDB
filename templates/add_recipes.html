@@ -2,29 +2,31 @@
 <body>
     {% include "navbar.html" %}
 
-    <button id="addRecipe">Manually Add Recipe</button>
+    <button id="addRecipeButton">Manually Add Recipe</button>
     <button id="searchRecipeButton">Lookup Recipe</button>
 
-    <div id="addRecipeForm" style="display: none;">
-        <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
-            <label for="recipeName">Recipe Name:</label><br>
-            <input type="text" id="recipeName" name="recipeName"><br>
-            <label for="owner">Owner:</label><br>
-            <input type="text" id="owner" name="owner"><br>
-            <label for="style">Style:</label><br>
-            <input type="text" id="style" name="style"><br>
-            <label for="source">Source:</label><br>
-            <input type="text" id="source" name="source"><br>
-            <div id="steps">
-                <div id="step1">
-                    <label for="step1Input">Step 1:</label><br>
-                    <input type="text" id="step1Input" name="step1"><br>
+    <div id="recipeManualEntry" style="display: none;">
+        <div id="addRecipeForm">
+            <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
+                <label for="recipeName">Recipe Name:</label><br>
+                <input type="text" id="recipeName" name="recipeName"><br>
+                <label for="owner">Owner:</label><br>
+                <input type="text" id="owner" name="owner"><br>
+                <label for="style">Style:</label><br>
+                <input type="text" id="style" name="style"><br>
+                <label for="source">Source:</label><br>
+                <input type="text" id="source" name="source"><br>
+                <div id="steps">
+                    <div id="step1">
+                        <label for="step1Input">Step 1:</label><br>
+                        <input type="text" id="step1Input" name="step1"><br>
+                    </div>
                 </div>
-            </div>
-            <button type="button" id="addStep">Add Step</button><br>
-            <button type="button" id="removeStep">Remove Step</button><br>
-            <input type="submit" value="Submit">
-        </form>
+                <button type="button" id="addStep">Add Step</button><br>
+                <button type="button" id="removeStep">Remove Step</button><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
     </div>
 
     <div id="searchRecipe" style="display: none;">
@@ -101,45 +103,51 @@
     </script>
 
 
-
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
-    $(document).ready(function(){
-        $("#searchRecipeButton").click(function(){
-            $("#searchRecipe").toggle();
-        });
-
-        $("#searchForm").on('submit', function(e) {
-            e.preventDefault();  // Prevent the form from reloading the page
-
-            // Submit the form using AJAX
-            $.ajax({
-                url: $(this).attr('action'),  // The URL to send the request to
-                type: 'POST',  // The type of HTTP method to use
-                data: $(this).serialize(),  // The form data
-                success: function(response) {
-                    // Update the searchResults div with the data from the JSON response
-                    var html = '';
-                    if (response.recipes) {
-                        response.recipes.forEach(function(recipe) {
-                            html += '<h2>' + recipe.name + '</h2>';
-                            html += '<p>Owner: ' + recipe.owner + '</p>';
-                            html += '<p>Style: ' + recipe.style + '</p>';
-                            html += '<p>Steps:</p><ul>';
-                            for (var step in recipe.steps) {
-                                html += '<li>' + step + ': ' + recipe.steps[step] + '</li>';
-                            }
-                            html += '</ul>';
-                            html += '<p>Source: ' + recipe.source + '</p>';
-                        });
+        $(document).ready(function(){
+            $("#addRecipeButton").click(function(){
+                $("#recipeManualEntry").show();
+                $("#searchRecipe").hide();
+            });
+    
+            $("#searchRecipeButton").click(function(){
+                $("#searchRecipe").show();
+                $("#recipeManualEntry").hide();
+            });
+    
+            $("#searchForm").on('submit', function(e) {
+                e.preventDefault();  // Prevent the form from reloading the page
+    
+                // Submit the form using AJAX
+                $.ajax({
+                    url: $(this).attr('action'),  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    data: $(this).serialize(),  // The form data
+                    success: function(response) {
+                        // Update the searchResults div with the data from the JSON response
+                        var html = '';
+                        if (response.recipes) {
+                            response.recipes.forEach(function(recipe) {
+                                html += '<h2>' + recipe.name + '</h2>';
+                                html += '<p>Owner: ' + recipe.owner + '</p>';
+                                html += '<p>Style: ' + recipe.style + '</p>';
+                                html += '<p>Steps:</p><ul>';
+                                for (var step in recipe.steps) {
+                                    html += '<li>' + step + ': ' + recipe.steps[step] + '</li>';
+                                }
+                                html += '</ul>';
+                                html += '<p>Source: ' + recipe.source + '</p>';
+                            });
+                        }
+                        $("#searchResults").html(html);
                     }
-                    $("#searchResults").html(html);
-                }
+                });
             });
         });
-    });
     </script>
+    
+    
 
 
     <script>
