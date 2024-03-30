@@ -25,11 +25,13 @@ Dummy_data3 = {
     "ingredients":[("patty","500gr"),("buns","2"),("fries","5 sticks")]
 }
 
-from flask import Flask, Blueprint, render_template
+from flask import Flask, Blueprint, render_template, request, jsonify
 from model.model import Database
+from model.model import RecipeAPI
 import json
 #from flask_simplelogin import SimpleLogin
 database = Database()
+recipeapi = RecipeAPI()
 
 main = Blueprint('main',__name__, template_folder='../templates')
 #SimpleLogin(app)
@@ -41,9 +43,42 @@ def index():
         recipe['Steps'] = json.loads(recipe['Steps'])
     return render_template('index.html', active_page='home', recipes=recipes_random)
 
-@main.route('/add_recipes')
-def add_recipes():
-    return render_template('add_recipes.html', active_page='add_recipes')
+
+@main.route('/add_recipes', methods=['GET', 'POST'])
+def api_recipes():
+    parsed_recipes = []
+    if request.method == 'POST':
+        search_term = request.form.get('search')
+        search_results = recipeapi.lookup_recipe(search_term)
+        parsed_recipes = recipeapi.parse_recipe(search_results)
+        print(parsed_recipes)
+        return jsonify(recipes=parsed_recipes)
+    else:
+        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+
+
+'''
+@main.route('/add_recipes', methods=['GET', 'POST'])
+def api_recipes():
+    search_results = []
+    parsed_recipes = []
+    if request.method == 'POST':
+        search_term = request.form.get('search')
+        search_results = recipeapi.lookup_recipe(search_term)
+        parsed_recipes = recipeapi.parse_recipe(search_results)
+        print(parsed_recipes)
+    return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+'''
+
+@main.route('/add_recipes', methods=['GET', 'POST'])
+def add_recipe():
+    parsed_recipes = []
+    return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+
+@main.route('/select_recipe', methods=['POST'])
+def select_recipe():
+    recipe = request.get_json()
+    return jsonify(success=True)
 
 @main.route('/saved_recipes')
 def saved_recipes():
