@@ -296,6 +296,11 @@ class Database:
             if recipe["owner"] == "None":
                 recipe["owner"] = username
 
+        try:
+            pass
+        except:
+            pass
+
         #formatting and quering the recipe table
         repice_table_values = (recipe["name"], recipe["owner"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"])
         try:
