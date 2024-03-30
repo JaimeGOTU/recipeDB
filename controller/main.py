@@ -51,7 +51,7 @@ def api_recipes():
         search_term = request.form.get('search')
         search_results = recipeapi.lookup_recipe(search_term)
         parsed_recipes = recipeapi.parse_recipe(search_results)
-        print(parsed_recipes)
+        #print(parsed_recipes)
         return jsonify(recipes=parsed_recipes)
     else:
         return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
