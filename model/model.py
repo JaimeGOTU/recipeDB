@@ -624,16 +624,17 @@ class Database:
         returns a list of dictionaries. Each dictionary is a recipe.
         The keys are the column names (RecID, RecMame,Owner,Style,Steps,Source)
         '''
+        amount = str(amount)
         self.ensure_connection()
         try:
-            self.cur.execute(f"select * from Recipes order by RAND() limit {amount}")
+            self.cur.execute(f"select distinct * from Recipes order by RAND() limit {amount}")
             result = self.cur.fetchall()
             return result
         except pymysql.Error as e:
             self.con.rollback()
             print("Error: " + e.args[1])
-        except:
-            print("Unexpected error")
+        #except:
+        #    print("Unexpected error")
         self.con.close()
 
     #Quite honestly, I have no clue what this is. It was created in class
@@ -689,7 +690,7 @@ database = Database()
 #database.delete_user("Poo")
 #print(database.insert_menu("User2","Pizza Express Margherita","Others","Snack2"))
 #database.delete_recipe("Fake Record 3")
-database.random_recipes_five()
+print(database.random_recipes(2))
 
 #################################################
 ####                                         ####

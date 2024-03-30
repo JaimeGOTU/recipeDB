@@ -26,14 +26,20 @@ Dummy_data3 = {
 }
 
 from flask import Flask, Blueprint, render_template
+from model.model import Database
+import json
 #from flask_simplelogin import SimpleLogin
+database = Database()
 
 main = Blueprint('main',__name__, template_folder='../templates')
 #SimpleLogin(app)
 
 @main.route('/')
 def index():
-    return render_template('index.html', active_page='home')
+    recipes_random = database.random_recipes(5)
+    for recipe in recipes_random:
+        recipe['Steps'] = json.loads(recipe['Steps'])
+    return render_template('index.html', active_page='home', recipes=recipes_random)
 
 @main.route('/add_recipes')
 def add_recipes():
