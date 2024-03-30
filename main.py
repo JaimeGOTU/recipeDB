@@ -5,10 +5,6 @@ from model.authdb import db
 
 def create_app():
     app = Flask(__name__)
-    
-    from controller.main import main as main_blueprint
-    app.register_blueprint(main_blueprint)
-    app.run(debug=True, host="0.0.0.0", port=5696)
 
     db.create_all()
 
@@ -32,7 +28,6 @@ def create_app():
     # blueprint for non-auth parts of app
     from controller.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
-
     app.run(debug=True, host="0.0.0.0", port=5696)
 
 if __name__ == '__main__':
