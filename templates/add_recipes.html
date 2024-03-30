@@ -1,0 +1,159 @@
+{% include "header.html" %}
+<body>
+    {% include "navbar.html" %}
+
+    <button id="addRecipeButton">Manually Add Recipe</button>
+    <button id="searchRecipeButton">Lookup Recipe</button>
+
+    <div id="recipeManualEntry" style="display: none;">
+        <div id="addRecipeForm">
+            <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
+                <label for="recipeName">Recipe Name:</label><br>
+                <input type="text" id="recipeName" name="recipeName"><br>
+                <label for="owner">Owner:</label><br>
+                <input type="text" id="owner" name="owner"><br>
+                <label for="style">Style:</label><br>
+                <input type="text" id="style" name="style"><br>
+                <label for="source">Source:</label><br>
+                <input type="text" id="source" name="source"><br>
+                <div id="steps">
+                    <div id="step1">
+                        <label for="step1Input">Step 1:</label><br>
+                        <input type="text" id="step1Input" name="step1"><br>
+                    </div>
+                </div>
+                <button type="button" id="addStep">Add Step</button><br>
+                <button type="button" id="removeStep">Remove Step</button><br>
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+    </div>
+
+    <div id="searchRecipe" style="display: none;">
+        <div id="searchRecipeForm">
+            <form id="searchForm" action="{{ url_for('main.api_recipes') }}" method="post">
+                <label for="search">Search:</label><br>
+                <input type="text" id="search" name="search"><br>
+                <input type="submit" value="Search">
+            </form>
+        </div>
+
+        <div id="searchResults">
+            {% if recipes %}
+                {% for recipe in recipes %}
+                    <h2>{{ recipe.name }}</h2>
+                    <p>Owner: {{ recipe.owner }}</p>
+                    <p>Style: {{ recipe.style }}</p>
+                    <p>Steps:</p>
+                    <ul>
+                        {% for step, instruction in recipe.steps.items() %}
+                            <li>{{ step }}: {{ instruction }}</li>
+                        {% endfor %}
+                    </ul>
+                    <p>Source: {{ recipe.source }}</p>
+                    <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+    
+
+
+    <script>
+        document.getElementById('addRecipeButton').addEventListener('click', function() {
+            document.getElementById('addRecipeForm').style.display = 'block';
+            document.getElementById('searchRecipeForm').style.display = 'none';
+        });
+
+        document.getElementById('searchRecipeButton').addEventListener('click', function() {
+            document.getElementById('searchRecipeForm').style.display = 'block';
+            document.getElementById('addRecipeForm').style.display = 'none';
+        });
+
+        var stepCount = 2;
+        document.getElementById('addStep').addEventListener('click', function() {
+            var newStep = document.createElement('div');
+            newStep.id = 'step' + stepCount;
+            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
+            document.getElementById('steps').appendChild(newStep);
+            stepCount++;
+        });
+
+        document.getElementById('removeStep').addEventListener('click', function() {
+            if (stepCount > 2) {
+                stepCount--;
+                var lastStep = document.getElementById('step' + stepCount);
+                lastStep.parentNode.removeChild(lastStep);
+            }
+        });
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $("#addRecipeButton").click(function(){
+                $("#recipeManualEntry").show();
+                $("#searchRecipe").hide();
+            });
+    
+            $("#searchRecipeButton").click(function(){
+                $("#searchRecipe").show();
+                $("#recipeManualEntry").hide();
+            });
+    
+            $("#searchForm").on('submit', function(e) {
+                e.preventDefault();  // Prevent the form from reloading the page
+    
+                // Submit the form using AJAX
+                $.ajax({
+                    url: $(this).attr('action'),  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    data: $(this).serialize(),  // The form data
+                    success: function(response) {
+                        // Update the searchResults div with the data from the JSON response
+                        var html = '';
+                        if (response.recipes) {
+                            response.recipes.forEach(function(recipe) {
+                                html += '<h2>' + recipe.name + '</h2>';
+                                html += '<p>Owner: ' + recipe.owner + '</p>';
+                                html += '<p>Style: ' + recipe.style + '</p>';
+                                html += '<p>Steps:</p><ul>';
+                                for (var step in recipe.steps) {
+                                    html += '<li>' + step + ': ' + recipe.steps[step] + '</li>';
+                                }
+                                html += '</ul>';
+                                html += '<p>Source: ' + recipe.source + '</p>';
+                            });
+                        }
+                        $("#searchResults").html(html);
+                    }
+                });
+            });
+        });
+    </script>
+    
+    
+
+
+    <script>
+        $(document).ready(function(){
+            $(".selectRecipeButton").click(function(){
+                var recipe = $(this).data('recipe');  // Get the selected recipe's data
+        
+                // Send the selected recipe's data to the server using AJAX
+                $.ajax({
+                    url: '/select_recipe',  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    contentType: 'application/json',  // The type of data you're sending
+                    data: JSON.stringify(recipe),  // The selected recipe's data
+                    success: function(response) {
+                        // Handle the server's response here
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+{% include "footer.html" %}
