@@ -79,55 +79,57 @@ class RecipeAPI:
         returns: a list of dictionaries of recipes. The dictionaries are in the desired format:
         {name:"",style:"",owner:"",source:"",steps:{"step1":"","step2":""},ingredients:[("ing","amount"),("ing2","amount2")]}
         '''
-
-        parsed_recipes = []
-        for i in data["meals"]:
-            # Initialize a dictionary in the desired format
-            current_recipe = {
-                "name":"",
-                "style":"",
-                "owner":"",
-                "source":"",
-                "steps": {},
-                "ingredients":[]
-            }
-            # Fill the dictionary with values
-            current_recipe["name"] = i["strMeal"]
-            current_recipe["style"] = i["strArea"]
-            current_recipe["owner"] = "None"
-            current_recipe["source"] = i["strSource"]
-            
-            # We get ingredients and amount in the desired format
-            n = 1
-            ing_list = []
-            while n < 21:
-                if i[f"strIngredient{n}"] != "":
-                    if i[f"strMeasure{n}"] != "":
-                        ing_list.append((i[f"strIngredient{n}"],i[f"strMeasure{n}"]))
+        try:
+            parsed_recipes = []
+            for i in data["meals"]:
+                # Initialize a dictionary in the desired format
+                current_recipe = {
+                    "name":"",
+                    "style":"",
+                    "owner":"",
+                    "source":"",
+                    "steps": {},
+                    "ingredients":[]
+                }
+                # Fill the dictionary with values
+                current_recipe["name"] = i["strMeal"]
+                current_recipe["style"] = i["strArea"]
+                current_recipe["owner"] = "None"
+                current_recipe["source"] = i["strSource"]
+                
+                # We get ingredients and amount in the desired format
+                n = 1
+                ing_list = []
+                while n < 21:
+                    if i[f"strIngredient{n}"] != "":
+                        if i[f"strMeasure{n}"] != "":
+                            ing_list.append((i[f"strIngredient{n}"],i[f"strMeasure{n}"]))
+                        else:
+                            ing_list.append((i[f"strIngredient{n}"],"to taste"))
                     else:
-                        ing_list.append((i[f"strIngredient{n}"],"to taste"))
-                else:
-                    break
-                n+=1
-            # Add ingredients in desired format
-            current_recipe["ingredients"] = ing_list
+                        break
+                    n+=1
+                # Add ingredients in desired format
+                current_recipe["ingredients"] = ing_list
 
-            # We parse the explanation text into different steps
-            steps = i["strInstructions"].split('\r\n')
-            steps_dictionary = {}
-            counter_instructions = 1
-            for x in steps:
-                if x != "":
-                    steps_dictionary[f"step{counter_instructions}"] = x
-                    counter_instructions+=1
-            # Add steps in desired format
-            current_recipe["steps"] = steps_dictionary
+                # We parse the explanation text into different steps
+                steps = i["strInstructions"].split('\r\n')
+                steps_dictionary = {}
+                counter_instructions = 1
+                for x in steps:
+                    if x != "":
+                        steps_dictionary[f"step{counter_instructions}"] = x
+                        counter_instructions+=1
+                # Add steps in desired format
+                current_recipe["steps"] = steps_dictionary
 
-            # With the recipe complete we append it to the list that we'll eventually return
-            parsed_recipes.append(current_recipe)
+                # With the recipe complete we append it to the list that we'll eventually return
+                parsed_recipes.append(current_recipe)
 
-        # We return a list of dictionaries of recipes in the desired format
-        return parsed_recipes
+            # We return a list of dictionaries of recipes in the desired format
+            return parsed_recipes
+        except:
+            return []
     
     # Function that should be called on the search bar
     def direct_lookup_function(self,search_term):
@@ -293,6 +295,11 @@ class Database:
             #if the owner inside the dictionary is None, it must be replaced with the actual onwer
             if recipe["owner"] == "None":
                 recipe["owner"] = username
+
+        try:
+            pass
+        except:
+            pass
 
         #formatting and quering the recipe table
         repice_table_values = (recipe["name"], recipe["owner"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"])

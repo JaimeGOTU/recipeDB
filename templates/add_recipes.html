@@ -76,6 +76,19 @@
                 lastStep.parentNode.removeChild(lastStep);
             }
         });
+
+        function sendRecipeInfo(recipe) {
+            fetch('/recipe_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({recipe: recipe})
+            }).then(response => response.json())
+            .then(data => console.log(data));
+        }
+
+
     </script>
 
 
