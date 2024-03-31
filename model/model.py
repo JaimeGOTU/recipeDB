@@ -882,6 +882,13 @@ class Database:
                 except:
                     print("getting recipe id list error")
 
+        if recipes_to_return != []:
+            for i in recipes_to_return:
+                ingredients = self.get_ingredients(i["RecName"])
+                temporary = []
+                for y in ingredients:
+                    temporary.append((y,ingredients[y]))
+                i["Ingredients"] = temporary
         return recipes_to_return
 
     def get_id(self,what_id,what_table,what_column,keyword):
@@ -990,7 +997,7 @@ database = Database()
 #print(database.get_ingredients("Pizza Express Margherita"))
 #print(database.browse_main_table("pizza"))
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
-#print(database.show_saved_recipes("rpazzi"))
+print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
 
 #################################################
