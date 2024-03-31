@@ -68,6 +68,14 @@ def select_recipe():
     database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
+@main.route('/browse_db', methods=['POST'])
+def browse_db():
+    search_term = request.form.get('search')
+    recipes = database.browse_main_table(search_term)
+    print(recipes)
+    return jsonify(recipes = recipes)
+
+
 @main.route('/saved_recipes')
 def saved_recipes():
     if isinstance(current_user, AnonymousUserMixin):
@@ -80,7 +88,7 @@ def saved_recipes():
         picture = current_user.picture
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture)
 
-@main.route('/my_recipes')
+@main.route('/browse_recipes')
 def my_recipes():
     if isinstance(current_user, AnonymousUserMixin):
         name = None
@@ -90,7 +98,7 @@ def my_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-    return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture)
+    return render_template('browse_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture)
 
 @main.route('/menus')
 def menus():
