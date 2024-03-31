@@ -882,6 +882,13 @@ class Database:
                 except:
                     print("getting recipe id list error")
 
+        if recipes_to_return != []:
+            for i in recipes_to_return:
+                ingredients = self.get_ingredients(i["RecName"])
+                temporary = []
+                for y in ingredients:
+                    temporary.append((y,ingredients[y]))
+                i["Ingredients"] = temporary
         return recipes_to_return
 
     def get_id(self,what_id,what_table,what_column,keyword):
