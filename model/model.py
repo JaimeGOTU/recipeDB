@@ -144,6 +144,16 @@ class RecipeAPI:
             return final
         except:
             return final
+    
+    def get_youtubelink_parser(self,repice_name):
+        '''
+        function to get the youtube link of a recipe given it's name
+        params recipe_name: str of the full recipe name
+        '''
+        try:
+            return self.lookup_recipe(repice_name)["meals"][0]["strYoutube"]
+        except:
+            pass
 
 class Database:
     def __init__(self):
@@ -717,32 +727,28 @@ class Database:
         SPECIFIED FORMAT: {'RecID':"str","style":"str","owner":"str","source":"str,
         "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
         '''
-
+        self.ensure_connection()
         if username == "None":
             print("No username, cannot update")
         else:
             try:
-                self.cur.execute(f"select UserID from User where Username = '{username}'")
+                self.cur.execute(f"select RecID from Recipes where RecName = '{recipe['RecName']}'")
                 result_user = self.cur.fetchall()
-                UserID = result_user[0]["UserID"]
+                RecID = result_user[0]["RecID"]
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Error at UserID lvl")
+                print("Error at RecID lvl")
 
-            try:
-                pass
-            except pymysql.Error as e:
-                self.con.rollback()
-                print("Error: " + e.args[1])
-            except:
-                print("Error at RecipeID lvl")
 
 
 ######### DO #########
 #UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
 
+
+####### DO #######
+#Also for ingredients but i gotta figure that out later
 
         pass
 
@@ -777,6 +783,7 @@ database = Database()
 #    break
 #print(thing["meals"])
 #print(type(thing["meals"]))
+print(recipe.get_youtubelink_parser("Chicken Curry"))
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
