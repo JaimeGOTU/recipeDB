@@ -145,15 +145,18 @@ class RecipeAPI:
         except:
             return final
     
-    def get_youtubelink_parser(self,repice_name):
+    def get_youtubelink_parser(self,recipe_name):
         '''
         function to get the youtube link of a recipe given it's name
         params recipe_name: str of the full recipe name
         '''
         try:
-            return self.lookup_recipe(repice_name)["meals"][0]["strYoutube"]
+            youtube_link = self.lookup_recipe(recipe_name)["meals"][0]["strYoutube"]
+            # Convert the YouTube link into the embeddable format
+            youtube_link = youtube_link.replace('watch?v=', 'embed/')
+            return youtube_link
         except:
-            pass
+            return None
 
 class Database:
     def __init__(self):
@@ -751,6 +754,52 @@ class Database:
             except:
                 print("UPDATE RECIPES ERROR (line 742)")
 
+    def add_from_others(self, recipe, username):
+        self.ensure_connection()
+        try:
+            if username == "None":
+                pass
+            else:
+                Saved_Other_Values = []
+                try:
+                    User_Name = username
+                    self.cur.execute(f"select UserID from User where Username = '{User_Name}'")
+                    resultUser = self.cur.fetchall()
+                    Saved_Other_Values.append(str(resultUser[0]["UserID"]))
+                except:
+                    print("SELECT USERID FROM USER ERROR (line 757)")
+
+                try:
+                    recipe_name = recipe
+                    self.cur.execute(f"select RecID, Owner from Recipes where RecName = '{recipe_name}'")
+                    resultRec = self.cur.fetchall()
+                    Saved_Other_Values.append(str(resultRec[0]["RecID"]))
+                    Saved_Owner_name = resultRec[0]["Owner"]
+                except:
+                    print("SELECT RECID FROM RECIPES ERROR (line 766)")
+
+                try:
+                    if Saved_Owner_name == username:
+                        print("Owner Already Added")
+                        return "Owner Already Added"
+                        
+                    else:
+                        self.cur.execute(f"SELECT * from SavedRec Where UserID = {resultUser[0]['UserID']} and RecID = {resultRec[0]['RecID']}")
+                        ReturnUserRec = self.cur.fetchall()
+                        if ReturnUserRec == ():                            
+                            self.cur.execute("INSERT INTO SavedRec (UserID, RecID) VALUES (%s, %s)",Saved_Other_Values)
+                            self.con.commit()
+                        else:
+                            print("User Already Added Recipe")
+                            return "User Already Added Recipe"
+                except pymysql.Error as e:
+                    self.con.rollback()
+                    print("Error: " + e.args[1])
+                except:
+                    print("INSERT INTO SAVED REC ERROR (line 784)")
+        except:
+            print("Error ADD_FROM_OTHER")
+
 ######### DO #########
 #UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
 
@@ -914,3 +963,4 @@ Dummy_Update ={
 #database.insert_recipe(Dummy_data1, 'asdf')
 #database.delete_recipe("Dummy_data1")
 #database.update_recipe(Dummy_Update, "rpazzi")
+#database.add_from_others("Never going to give you up Spaghetti", "trump")
