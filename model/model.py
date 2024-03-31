@@ -834,4 +834,4 @@ Dummy_data1 = {
     "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
     "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
 
-database.insert_recipe(Dummy_data1, 'asdf')
+#database.insert_recipe(Dummy_data1, 'asdf')
