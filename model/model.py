@@ -826,6 +826,16 @@ class Database:
             print("SELECT * FROM TABLE ERROR (line 779)")
         finally:
             self.con.close()
+
+        if result != []:
+            for i in result:
+                ingredients = self.get_ingredients(i["RecName"])
+                temporary = []
+                for y in ingredients:
+                    temporary.append((y,ingredients[y]))
+                i["Ingredients"] = temporary
+        # return Ingredients:[(Ing1,Amount),(Ing2,Amount)]
+
         return result
 
     def show_saved_recipes(self,username="None"):
@@ -978,10 +988,10 @@ database = Database()
 #database.delete_recipe("Fake Record 3")
 #print(database.random_recipes(2))
 #print(database.get_ingredients("Pizza Express Margherita"))
-#print(database.browse_main_table("poop"))
+#print(database.browse_main_table("pizza"))
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
 #print(database.show_saved_recipes("rpazzi"))
-print(database.add_to_saved("Chicken Curry","rpazzi"))
+#print(database.add_to_saved("Chicken Curry","rpazzi"))
 
 #################################################
 ####                                         ####
