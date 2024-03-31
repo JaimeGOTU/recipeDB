@@ -41,6 +41,7 @@ def index():
     for recipe in recipes_random:
         recipe['Steps'] = json.loads(recipe['Steps'])
         recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
+        recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     print(recipes_random[0])
     return render_template('index.html', active_page='home', recipes=recipes_random)
 
