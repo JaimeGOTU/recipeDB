@@ -357,7 +357,7 @@ class Database:
                 print("Error: " + e.args[1])
             except:
                 print("INSERT INTO RECNEEDS ERROR (line 343)")
-
+        # Inserts the recipe into the SavedRec of the 
         try:
             if username == "None":
                 pass
@@ -385,10 +385,6 @@ class Database:
 
                 except:
                     print("INSERT INTO SAVED REC ERROR (line 371)")
-
-
-            
-            
         finally:
             self.con.close()
         return "OK"
@@ -720,29 +716,22 @@ class Database:
             return(ingredient_dict)
 
     def update_recipe(self,recipe,username="None"):
+
         '''
         updates a recipe in the recipe table, 
         and then (hopefully) the other tables have no issues
         param recipe: single dictionary of the recipe in the specified format
         param username: string with the username - used for recipe owner
-        returns: "OK" if it was successful, otherwise the appropiate error message
 
         SPECIFIED FORMAT: {'RecID':"str","style":"str","owner":"str","source":"str,
         "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
         '''
+        # 1st Updates the recipe table
         self.ensure_connection()
         if username == "None":
             print("No username, cannot update")
         else:
-            try:
-                self.cur.execute(f"select RecID from Recipes where RecName = '{recipe['name']}'")
-                result_RecID = self.cur.fetchall()
-                RecID = result_RecID[0]["RecID"]
-            except pymysql.Error as e:
-                self.con.rollback()
-                print("Error: " + e.args[1])
-            except:
-                print("Error at RecID lvl (line 732)")
+            RecID = self.get_id("RecID","Recipes","RecName",recipe['name'])
             
             Update_table_values = (recipe["name"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"], RecID, username)
             try:
@@ -753,6 +742,29 @@ class Database:
                 print("Error: " + e.args[1])
             except:
                 print("UPDATE RECIPES ERROR (line 742)")
+            # 2nd Deletes all previous ingredients
+            try:
+                self.cur.execute(f"delete from RecNeeds where RecID = {RecID}")
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("deleting ingredients error (line 757)")
+            # 3rd Re-Adds all previous ingredients
+            try:
+                for dif_ingredients in recipe["Ingredients"]:
+                    temp_rec_id = self.get_id("RecID","Recipes","RecName",recipe["name"])
+                    temp_ing_id = self.get_id("IngID","Ingredients","IngName",dif_ingredients[0])
+                    ingredient_table_values = (temp_rec_id,temp_ing_id,dif_ingredients[1])
+
+                    self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
+                    self.con.commit()
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("deleting ingredients error (line 757)")
+
 
     def add_from_others(self, recipe, username):
         self.ensure_connection()
