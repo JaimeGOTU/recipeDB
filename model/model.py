@@ -716,7 +716,6 @@ class Database:
             return(ingredient_dict)
 
     def update_recipe(self,recipe,username="None"):
-
         '''
         updates a recipe in the recipe table, 
         and then (hopefully) the other tables have no issues
@@ -745,6 +744,7 @@ class Database:
             # 2nd Deletes all previous ingredients
             try:
                 self.cur.execute(f"delete from RecNeeds where RecID = {RecID}")
+                self.con.commit()
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
@@ -764,7 +764,6 @@ class Database:
                 print("Error: " + e.args[1])
             except:
                 print("deleting ingredients error (line 757)")
-
 
     def add_from_others(self, recipe, username):
         self.ensure_connection()
@@ -987,7 +986,12 @@ class Database:
         return result
 
     def delete_single_from_menu(self, recipe_name, menu_name, username):
-        #Delete a single recipe from MenuTemp based on the recipe_name, the menu_name and the user
+        '''
+        Deletes a single recipe from a menu of a username
+        params recipe_name: str of the recipe name
+        params menu_name: str of the menu name
+        params username: str of the username
+        '''
         self.ensure_connection()
         UserID = self.get_id("UserID", "User", "Username", username)
         RecID = self.get_id("RecID", "Recipes", "RecName", recipe_name)
@@ -1002,7 +1006,11 @@ class Database:
             print("DELETE FROM MENUTEMP ERROR (line 990)")
 
     def delete_entire_menu(self, menu_name, username):
-        #Delete all recipe from MenuTemp based on the Menu_name and the user
+        '''
+        Deletes all recipes and the menu itself of a username
+        params menu_name: str of the menu name
+        params username: str of the username
+        '''
         self.ensure_connection()
         UserID = self.get_id("UserID", "User", "Username", username)
         try:
@@ -1014,7 +1022,37 @@ class Database:
         except:
             print("DELETE FROM MENUTEMP ERROR (line 1003)")
 
+    def get_menus(self,username):
+        '''
+        For a user, it returns a dictionary, the key is the menu name and the entries are lists of lists
+        format: {"menu1":[["Description","Name"],["Description2","Name2"]],"menu2":[[]]}
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        result = []
+        try:
+            self.cur.execute(f"Select A.MenuName,A.Description,A.RecID,Recipes.RecName from (select * from MenuTemp where UserID = {UserID}) as A left join Recipes on A.RecID = Recipes.RecID;")
+            result = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("SELECT ID ERROR from get my recipes")
 
+        menu_dict = {}
+        try:
+            
+            for item in result:
+                menu_name = item['MenuName']
+                description = item['Description']
+                rec_name = item['RecName']
+                if menu_name not in menu_dict:
+                    menu_dict[menu_name] = []
+                menu_dict[menu_name].append([description, rec_name])
+        except:
+            print("unexpected error getting menu / description info line 1052")
+        
+        return menu_dict
 
 #################################################
 ####                                         ####
@@ -1068,6 +1106,7 @@ database = Database()
 #print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
 #print(database.get_my_recipes("trump"))
+print(database.get_menus("rpazzi"))
 
 #################################################
 ####                                         ####
