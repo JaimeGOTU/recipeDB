@@ -6,12 +6,10 @@
     <button id="searchRecipeButton">Lookup Recipe</button>
 
     <div id="recipeManualEntry" style="display: none;">
-        <div id="addRecipeForm">
+        <div id="enterRecipeForm">
             <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
                 <label for="recipeName">Recipe Name:</label><br>
                 <input type="text" id="recipeName" name="recipeName"><br>
-                <label for="owner">Owner:</label><br>
-                <input type="text" id="owner" name="owner"><br>
                 <label for="style">Style:</label><br>
                 <input type="text" id="style" name="style"><br>
                 <label for="source">Source:</label><br>
@@ -24,6 +22,22 @@
                 </div>
                 <button type="button" id="addStep">Add Step</button><br>
                 <button type="button" id="removeStep">Remove Step</button><br>
+                <div style="display: flex;">
+                    <div id="ingredients">
+                        <div id="ing1">
+                            <label for="ing1Input">Ingredient 1:</label><br>
+                            <input type="text" id="ing1Input" name="ing1"><br>
+                        </div>
+                    </div>
+                    <div id="amounts">
+                        <div id="amt">
+                            <label for="amt1Input">Amount:</label><br>
+                            <input type="text" id="amtInput" name="amt"><br>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addIng">Add Ingredient</button><br>
+                <button type="button" id="removeIng">Remove Ingredient</button><br>                
                 <input type="submit" value="Submit">
             </form>
         </div>
@@ -41,17 +55,7 @@
         <div id="searchResults">
             {% if recipes %}
                 {% for recipe in recipes %}
-                    <h2>{{ recipe.name }}</h2>
-                    <p>Owner: {{ recipe.owner }}</p>
-                    <p>Style: {{ recipe.style }}</p>
-                    <p>Steps:</p>
-                    <ul>
-                        {% for step, instruction in recipe.steps.items() %}
-                            <li>{{ step }}: {{ instruction }}</li>
-                        {% endfor %}
-                    </ul>
-                    <p>Source: {{ recipe.source }}</p>
-                    <button class="selectRecipeButton" data-recipe="{{ recipe|tojson }}">Select Recipe</button>
+                    <!--Code is in script below-->
                 {% endfor %}
             {% endif %}
         </div>
@@ -79,6 +83,22 @@
             stepCount++;
         });
 
+        var ingCount = 2;
+        var amtCount = 2;
+        document.getElementById('addIng').addEventListener('click', function() {
+            var newIng = document.createElement('div');
+            newIng.id = 'ing' + ingCount;
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
+            document.getElementById('ingredients').appendChild(newIng);
+            ingCount++;
+
+            var newAmt = document.createElement('div');
+            newAmt.id = 'amt' + amtCount;
+            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
+            document.getElementById('amounts').appendChild(newAmt);
+            amtCount++;
+        });
+
         document.getElementById('removeStep').addEventListener('click', function() {
             if (stepCount > 2) {
                 stepCount--;
@@ -86,6 +106,30 @@
                 lastStep.parentNode.removeChild(lastStep);
             }
         });
+
+        document.getElementById('removeIng').addEventListener('click', function() {
+            if (ingCount > 2) {
+                ingCount--;
+                amtCount--;
+                var lastIng = document.getElementById('ing' + ingCount);
+                var lastAmt = document.getElementById('amt' + amtCount);
+                lastIng.parentNode.removeChild(lastIng);
+                lastAmt.parentNode.removeChild(lastAmt);
+            }
+        });
+
+        function sendRecipeInfo(recipe) {
+            fetch('/recipe_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({recipe: recipe})
+            }).then(response => response.json())
+            .then(data => console.log(data));
+        }
+
+
     </script>
 
 
@@ -124,6 +168,7 @@
                                 }
                                 html += '</ul>';
                                 html += '<p>Source: ' + recipe.source + '</p>';
+                                html += '<button class="selectRecipeButton" data-recipe-name="' + recipe.name + '">Select Recipe</button>';
                             });
                         }
                         $("#searchResults").html(html);
@@ -133,26 +178,79 @@
         });
     </script>
     
-    
+    <script>
+        $(document).on('click', '.selectRecipeButton', function() {
+        var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
 
+        // Send the selected recipe's name to the server using AJAX
+        $.ajax({
+            url: '/select_recipe',  // The URL to send the request to
+            type: 'POST',  // The type of HTTP method to use
+            contentType: 'application/json',  // The type of data you're sending
+            data: JSON.stringify({name: recipeName}),  // The selected recipe's name
+            success: function(response) {
+                // Handle the server's response here
+            }
+        });
+});
+
+    </script>
 
     <script>
-        $(document).ready(function(){
-            $(".selectRecipeButton").click(function(){
-                var recipe = $(this).data('recipe');  // Get the selected recipe's data
-        
-                // Send the selected recipe's data to the server using AJAX
-                $.ajax({
-                    url: '/select_recipe',  // The URL to send the request to
-                    type: 'POST',  // The type of HTTP method to use
-                    contentType: 'application/json',  // The type of data you're sending
-                    data: JSON.stringify(recipe),  // The selected recipe's data
-                    success: function(response) {
-                        // Handle the server's response here
-                    }
-                });
-            });
+        $("#enterRecipeForm").on('submit', function(e) {
+        e.preventDefault();  // Prevent the form from reloading the page
+
+        // Extract the information from the form
+        var recipeName = $("#recipeName").val();
+        var style = $("#style").val();
+        var source = $("#source").val();
+
+        // Format the steps as a JSON object
+        var steps = {};
+        $("#steps div").each(function() {
+            var stepNumber = $(this).attr('id');  // Get the step number
+            var stepInstruction = $(this).find('input').val();  // Get the step instruction
+            steps[stepNumber] = stepInstruction;
         });
+
+        // Initialize an empty array
+        var ingredients = [];
+
+        // Loop through each div inside the #ingredients and #Amounts divs
+        $("#ingredients div").each(function(index) {
+            // Get the ingredient name and amount
+            var ingName = $(this).find('input').val();
+            var ingAmt = $("#amounts div").eq(index).find('input').val();
+
+            // Create an array with the ingredient name and amount
+            var ingredient = [ingName, ingAmt];
+
+            // Add the array to the ingredients array
+            ingredients.push(ingredient);
+        });
+
+        // Create the data object to send to the server
+        var data = {
+            name: recipeName,
+            style: style,
+            steps: steps,
+            source: source,
+            ingredients: ingredients
+
+        };
+
+        // Send the data to the server using AJAX
+        $.ajax({
+            url: '/add_recipe',  // The URL to send the request to
+            type: 'POST',  // The type of HTTP method to use
+            contentType: 'application/json',  // The type of data you're sending
+            data: JSON.stringify(data),  // The data to send
+            success: function(response) {
+                // Handle the server's response here
+            }
+        });
+    });
+
     </script>
 
 </body>

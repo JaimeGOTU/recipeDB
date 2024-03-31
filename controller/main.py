@@ -28,19 +28,20 @@ Dummy_data3 = {
 from flask import Flask, Blueprint, render_template, request, jsonify
 from model.model import Database
 from model.model import RecipeAPI
+from controller.auth import current_user, get_username
 import json
-#from flask_simplelogin import SimpleLogin
 database = Database()
 recipeapi = RecipeAPI()
 
 main = Blueprint('main',__name__, template_folder='../templates')
-#SimpleLogin(app)
 
 @main.route('/')
 def index():
     recipes_random = database.random_recipes(5)
     for recipe in recipes_random:
         recipe['Steps'] = json.loads(recipe['Steps'])
+        recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
+    print(recipes_random[0])
     return render_template('index.html', active_page='home', recipes=recipes_random)
 
 
@@ -51,33 +52,29 @@ def api_recipes():
         search_term = request.form.get('search')
         search_results = recipeapi.lookup_recipe(search_term)
         parsed_recipes = recipeapi.parse_recipe(search_results)
-        print(parsed_recipes)
+        #print(parsed_recipes)
         return jsonify(recipes=parsed_recipes)
     else:
         return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
 
+@main.route('/recipe_info', methods=['POST'])
+def recipe_info():
+    recipe = request.get_json().get('recipe')
+    print(recipe)  # or do whatever you need with the recipe info
+    return jsonify(status="success")
 
-'''
-@main.route('/add_recipes', methods=['GET', 'POST'])
-def api_recipes():
-    search_results = []
-    parsed_recipes = []
-    if request.method == 'POST':
-        search_term = request.form.get('search')
-        search_results = recipeapi.lookup_recipe(search_term)
-        parsed_recipes = recipeapi.parse_recipe(search_results)
-        print(parsed_recipes)
-    return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
-'''
-
-@main.route('/add_recipes', methods=['GET', 'POST'])
+@main.route('/add_recipe', methods=['POST'])
 def add_recipe():
-    parsed_recipes = []
-    return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+    recipe = request.get_json()
+    print(recipe)
+    database.insert_recipe(recipe, get_username(current_user.email))
+    return jsonify(success=True)
+
 
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
+    database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
 @main.route('/saved_recipes')
