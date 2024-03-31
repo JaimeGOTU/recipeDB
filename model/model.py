@@ -501,7 +501,7 @@ class Database:
         # otherwise it returns True
         else:
             return True
-        
+
     def delete_recipe(self, RecName="None"):
         '''
         This function permanently deletes a recipe from all tables in the database
@@ -948,6 +948,28 @@ class Database:
             except:
                 print("INSERT INTO SAVED REC ERROR (line 932)")
 
+    def get_my_recipes(self,username):
+        self.ensure_connection()
+        result = []
+        try:
+            self.cur.execute(f"Select * from Recipes where owner = '{username}'")
+            result = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("SELECT ID ERROR from get my recipes")
+        
+        if result != []:
+            for i in result:
+                ingredients = self.get_ingredients(i["RecName"])
+                temporary = []
+                for y in ingredients:
+                    temporary.append((y,ingredients[y]))
+                i["Ingredients"] = temporary
+
+        return result
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -997,8 +1019,9 @@ database = Database()
 #print(database.get_ingredients("Pizza Express Margherita"))
 #print(database.browse_main_table("pizza"))
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
-print(database.show_saved_recipes("rpazzi"))
+#print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
+print(database.get_my_recipes("trump"))
 
 #################################################
 ####                                         ####
