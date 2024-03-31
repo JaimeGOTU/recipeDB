@@ -131,9 +131,6 @@ tr:hover {
     }
 }
 
-.large-text {
-    font-size: 1.6em;  /* smaller text */
-}
 
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
@@ -180,7 +177,7 @@ tr:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 8px 16px 0px rgb(248, 205, 205);
-    width: 50%;
+    width: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -259,6 +256,7 @@ tr:hover {
     flex-direction: column;
     align-items: center;
     padding: 20px;
+    text-align: left;
 }
 
 .recipe-card {
@@ -266,11 +264,11 @@ tr:hover {
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0px 8px 16px 0px rgb(248, 205, 205);
-    width: 50%;
+    width: auto;
     margin-bottom: 20px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     text-align: left;
     min-width: 300px;
     max-width: 800px;
@@ -325,8 +323,8 @@ tr:hover {
 }
 
 .entry-container {
-    width: 80%;
-    max-width: 600px;
+    width: auto;
+    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -391,7 +389,12 @@ tr:hover {
     transform: scale(1.05);
 }
 
-
+#searchResults {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+}
 
 .user-account {
     margin: 100px
@@ -433,4 +436,26 @@ tr:hover {
     font-weight: bold;
     color: #ffffff;
     text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff69b4, 0 0 40px #ff69b4;
+}
+
+#recipe {
+    font-size: 16px;
+    color: #000000;
+    background: #ffe8e8;
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    padding: 10px;
+    width: 80%;
+    margin-bottom: 20px;
+    box-shadow: 0px 8px 16px 0px rgb(248, 205, 205);
+    transition: transform 0.3s ease;
+}
+
+#recipe:focus {
+    transform: scale(1.05);
+}
+
+#recipe option {
+    padding: 10px;
 }

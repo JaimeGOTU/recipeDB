@@ -25,8 +25,12 @@
                             {% endfor %}
                         </ol>
                         <p class="recipe-source">Source: {{ recipe.Source }}</p>
-                        <button class="delete-recipe-button">Delete Recipe</button>
-                        <button class="update-recipe-button">Update Recipe</button>
+                        <!-- Embed YouTube video -->
+                        {% if recipe.youtube_link %}
+                            <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        {% endif %}
+                        <button id="delete-recipe-button" class="select-recipe-button">Delete Recipe</button>
+                        <button id="update-recipe-button" class="select-recipe-button">Update Recipe</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -35,7 +39,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('.delete-recipe-button').click(function() {
+        $('delete-recipe-button').click(function() {
             var recipeName = $(this).siblings('.recipe-title').text();
             var confirmation = confirm('Are you sure you want to delete ' + recipeName + '? Other users may be using your recipe');
             if (confirmation) {
@@ -56,7 +60,7 @@
 
 <script>
     $(document).ready(function() {
-        $('.update-recipe-button').click(function() {
+        $('update-recipe-button').click(function() {
             var recipeName = $(this).siblings('.recipe-title').text();
             var confirmation = confirm('Would you like to update ' + recipeName + '? Other users may be using your recipe');
             if (confirmation) {

@@ -4,87 +4,59 @@
 
     <div class="entry-container">
         <div class="tabs">
-            <button class="tab-button active" id="addRecipeButton">Manually Add Recipe</button>
-            <button class="tab-button" id="searchRecipeButton">Lookup Recipe</button>
+            <button class="tab-button" id="searchRecipeButton">Menus</button>
+            <button class="tab-button active" id="addRecipeButton">Add To Menu</button>
         </div>
 
-        <div id="addRecipeForm" class="tab-content active">
+        <div id="addRecipeForm" class="tab-content active" style="display: none;">
             <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
                 <div class="field">
-                    <label for="recipeName" class="form-label">Recipe Name:</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input"><br>
+                    <label for="recipeName" class="form-label">Menu Name</label><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" placeholder="If adding to an existing menu, name must match exactly"><br>
                 </div>
                 <div class="field">
-                    <label for="style" class="form-label">Style:</label><br>
+                    <label for="style" class="form-label">Description</label><br>
                     <input type="text" id="style" name="style" class="input"><br>
                 </div>
                 <div class="field">
-                    <label for="source" class="form-label">Source:</label><br>
-                    <input type="text" id="source" name="source" class="input"><br>
+                    <label for="recipe" class="form-label">Recipe:</label><br>
+                    <select id="recipe" name="recipe">
+                        {% for option in select_from %}
+                            <option value="{{ option }}">{{ option }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
-                <div id="steps">
-                    <div id="step1" class="field">
-                        <label for="step1Input" class="form-label">Step 1:</label><br>
-                        <input type="text" id="step1Input" name="step1" class="input"><br>
-                    </div>
-                </div>
-                <button type="button" id="addStep" class="button">Add Step</button><br>
-                <button type="button" id="removeStep" class="button">Remove Step</button><br>
-                <div class="ingredient-container">
-                    <div id="ingredients">
-                        <div id="ing1" class="field">
-                            <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
-                            <input type="text" id="ing1Input" name="ing1" class="input"><br>
-                        </div>
-                    </div>
-                    <div id="amounts">
-                        <div id="amt" class="field">
-                            <label for="amt1Input" class="form-label">Amount:</label><br>
-                            <input type="text" id="amtInput" name="amt" class="input"><br>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" id="addIng" class="button">Add Ingredient</button><br>
-                <button type="button" id="removeIng" class="button">Remove Ingredient</button><br>                
                 <input type="submit" value="Submit" class="button">
             </form>
-        </div>
+        </div>        
 
-        <div id="searchRecipe" class="tab-content">
+        <div id="searchRecipe" class="tab-content" style="display: block;">
             <div id="searchRecipeForm" class="box">
-                <form id="searchForm" action="{{ url_for('main.api_recipes') }}" method="post">
-                    <div class="field">
-                        <label for="search" class="form-label">Search:</label><br>
-                        <input type="text" id="search" name="search" class="input"><br>
-                    </div>
-                    <input type="submit" value="Search" class="button">
-                </form>
-            </div>
-
-            <div id="searchResults">
-                {% if recipes %}
-                    {% for recipe in recipes %}
-                        <div class="recipe-card">
-                            <h2 class="recipe-title">{{ recipe.RecName }}</h2>
-                            <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
-                            <p class="recipe-style">Style: {{ recipe.Style }}</p>
-                            <p class="recipe-ingredients-title">Ingredients:</p>
-                            <ul class="recipe-ingredients">
-                                {% for food,amount in recipe.Ingredients.items() %}
-                                <li>{{ food }}: {{ amount }}</li>
-                                {% endfor %}
-                            </ul>
-                            <p class="recipe-steps-title">Steps:</p>
-                            <ol class="recipe-steps">
-                                {% for step, instruction in recipe.Steps.items() %}
-                                    <li>{{ instruction }}</li>
-                                {% endfor %}
-                            </ol>
-                            <p class="recipe-source">Source: {{ recipe.Source }}</p>
-                            <button class="button">Select Recipe</button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+                <div id="searchResults">
+                    {% if recipes %}
+                        {% for recipe in recipes %}
+                            <div class="recipe-card">
+                                <h2 class="recipe-title">{{ recipe.RecName }}</h2>
+                                <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
+                                <p class="recipe-style">Style: {{ recipe.Style }}</p>
+                                <p class="recipe-ingredients-title">Ingredients:</p>
+                                <ul class="recipe-ingredients">
+                                    {% for food,amount in recipe.Ingredients %}
+                                    <li>{{ food }}: {{ amount }}</li>
+                                    {% endfor %}
+                                </ul>
+                                <p class="recipe-steps-title">Steps:</p>
+                                <ol class="recipe-steps">
+                                    {% for step, instruction in recipe.Steps.items() %}
+                                        <li>{{ instruction }}</li>
+                                    {% endfor %}
+                                </ol>
+                                <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                                <button class="button">Select Recipe</button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>                
             </div>
         </div>
     </div>
@@ -92,33 +64,32 @@
 
 
     <script>
-    // Initially hide the search form
-    document.getElementById('searchRecipe').style.display = 'none';
-
-    document.getElementById('addRecipeButton').addEventListener('click', function() {
-        document.getElementById('searchRecipe').style.display = 'none';
-        document.getElementById('addRecipeForm').style.display = 'block';
-        document.getElementById('addRecipeForm').style.opacity = 0;
-        setTimeout(function() {
-            document.getElementById('addRecipeForm').style.opacity = 1;
-        }, 1); // Start the transition 1ms later to ensure it works correctly
-    });
-
-    document.getElementById('searchRecipeButton').addEventListener('click', function() {
+        // Initially hide the addRecipeForm
         document.getElementById('addRecipeForm').style.display = 'none';
-        document.getElementById('searchRecipe').style.display = 'block';
-        document.getElementById('searchRecipe').style.opacity = 0;
-        setTimeout(function() {
-            document.getElementById('searchRecipe').style.opacity = 1;
-        }, 1); // Start the transition 1ms later to ensure it works correctly
-    });
+
+        document.getElementById('addRecipeButton').addEventListener('click', function() {
+            document.getElementById('searchRecipe').style.display = 'none';
+            document.getElementById('addRecipeForm').style.display = 'block';
+            document.getElementById('addRecipeForm').style.opacity = 0;
+            setTimeout(function() {
+                document.getElementById('addRecipeForm').style.opacity = 1;
+            }, 1); // Start the transition 1ms later to ensure it works correctly
+        });
+
+        document.getElementById('searchRecipeButton').addEventListener('click', function() {
+            document.getElementById('addRecipeForm').style.display = 'none';
+            document.getElementById('searchRecipe').style.display = 'block';
+            document.getElementById('searchRecipe').style.opacity = 0;
+            setTimeout(function() {
+                document.getElementById('searchRecipe').style.opacity = 1;
+            }, 1); // Start the transition 1ms later to ensure it works correctly
+        });
 
         var stepCount = 2;
         document.getElementById('addStep').addEventListener('click', function() {
             var newStep = document.createElement('div');
             newStep.id = 'step' + stepCount;
-            newStep.className = 'field';
-            newStep.innerHTML = '<label for="step' + stepCount + 'Input" class="form-label">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '" class="input"><br>';
+            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
             document.getElementById('steps').appendChild(newStep);
             stepCount++;
         });
@@ -128,15 +99,13 @@
         document.getElementById('addIng').addEventListener('click', function() {
             var newIng = document.createElement('div');
             newIng.id = 'ing' + ingCount;
-            newIng.className = 'field';
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="input"><br>';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
-            newAmt.className = 'field';
-            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" class="input"><br>';
+            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });
