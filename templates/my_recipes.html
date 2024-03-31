@@ -26,6 +26,7 @@
                         </ol>
                         <p class="recipe-source">Source: {{ recipe.Source }}</p>
                         <button class="delete-recipe-button">Delete Recipe</button>
+                        <button class="update-recipe-button">Update Recipe</button>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -41,6 +42,27 @@
                 var form = $('<form></form>');
                 form.attr("method", "post");
                 form.attr("action", "/delete_recipe");
+                var field = $('<input></input>');
+                field.attr("type", "hidden");
+                field.attr("name", "recipeName");
+                field.attr("value", recipeName);
+                form.append(field);
+                $(document.body).append(form);
+                form.submit();
+            }
+        });
+    });
+</script>
+
+<script>
+    $(document).ready(function() {
+        $('.update-recipe-button').click(function() {
+            var recipeName = $(this).siblings('.recipe-title').text();
+            var confirmation = confirm('Would you like to update ' + recipeName + '? Other users may be using your recipe');
+            if (confirmation) {
+                var form = $('<form></form>');
+                form.attr("method", "post");
+                form.attr("action", "/update_recipe_form");
                 var field = $('<input></input>');
                 field.attr("type", "hidden");
                 field.attr("name", "recipeName");
