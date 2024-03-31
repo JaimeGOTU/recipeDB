@@ -731,7 +731,6 @@ class Database:
             print("No username, cannot update")
         else:
             RecID = self.get_id("RecID","Recipes","RecName",recipe['name'])
-            
             Update_table_values = (recipe["name"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"], RecID, username)
             try:
                 self.cur.execute("UPDATE Recipes SET RecName = %s, Style = %s, Steps = %s, Source = %s WHERE RecID = %s AND Owner = %s", Update_table_values)
@@ -752,18 +751,17 @@ class Database:
                 print("deleting ingredients error (line 757)")
             # 3rd Re-Adds all previous ingredients
             try:
-                for dif_ingredients in recipe["Ingredients"]:
+                for dif_ingredients in recipe["ingredients"]:
                     temp_rec_id = self.get_id("RecID","Recipes","RecName",recipe["name"])
                     temp_ing_id = self.get_id("IngID","Ingredients","IngName",dif_ingredients[0])
                     ingredient_table_values = (temp_rec_id,temp_ing_id,dif_ingredients[1])
-
                     self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
                     self.con.commit()
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("deleting ingredients error (line 757)")
+                print("deleting ingredients error (line 767)")
 
     def add_from_others(self, recipe, username):
         self.ensure_connection()
@@ -1020,7 +1018,7 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
         except:
-            print("DELETE FROM MENUTEMP ERROR (line 1003)")
+            print("DELETE FROM MENUTEMP ERROR (line 1015)")
 
     def get_menus(self,username):
         '''
@@ -1184,11 +1182,11 @@ Dummy_data1 = {
 
 Dummy_Update ={
     "name":"UDPATE RECIPE",
-    "style":"Chinese",
+    "style":"Canadian",
     "owner":"rpazzi",
     "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
-    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]} 
+    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("Tomatoes","269g")]} 
 
 #Insert into MenuTemp(MenuID, Description, UserID, RecID, MenuName) Values (4, 'Test 1', 8, 26, 'Menu1'), (4, 'Test 2', 8, 18, 'Menu1'), (5, 'Test 3', 8, 11, 'Menu2'), (5, 'Test 4', 8, 11, 'Menu2'), (5, 'Test 5', 8, 26, 'Menu2')
 #database.insert_recipe(Dummy_data1, 'asdf')
