@@ -1,6 +1,36 @@
 {% include "header.html" %}
-    <body>
+<body>
     {% include "navbar.html" %}
-    <!-- Your content here -->
-    </body>
+
+
+    <div class="content-container">
+        <!-- Your content here -->
+        {% for recipe in recipes %}
+            <div class="recipe-card">
+                <h2 class="recipe-title">{{ recipe.RecName }}</h2>
+                <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
+                <p class="recipe-style">Style: {{ recipe.Style }}</p>
+                <p class="recipe-ingredients-title">Ingredients:</p>
+                <ul class="recipe-ingredients">
+                    {% for food,amount in recipe.Ingredients.items() %}
+                    <li>{{ food }}: {{ amount }}</li>
+                    {% endfor %}
+                </ul>
+                <p class="recipe-steps-title">Steps:</p>
+                <ol class="recipe-steps">
+                    {% for step, instruction in recipe.Steps.items() %}
+                        <li>{{ instruction }}</li>
+                    {% endfor %}
+                </ol>
+                <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                <!-- Embed YouTube video -->
+                {% if recipe.youtube_link %}
+                    <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+
+</body>
 {% include "footer.html" %}
