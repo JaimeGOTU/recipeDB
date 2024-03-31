@@ -944,7 +944,7 @@ database = Database()
 #print(database.get_ingredients("Pizza Express Margherita"))
 #print(database.browse_main_table("poop"))
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
-#print(database.show_saved_recipes("User1"))
+#print(database.show_saved_recipes("rpazzi"))
 
 #################################################
 ####                                         ####
