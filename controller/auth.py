@@ -3,8 +3,10 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 from model.authdb import User, db
 from model.model import Database
+import os
 
 
 auth = Blueprint('auth', __name__, template_folder='../templates')
@@ -42,6 +44,7 @@ def login_post():
 def signup():
     return render_template('signup.html')
 
+print(os.getcwd())
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
@@ -49,6 +52,22 @@ def signup_post():
     name = request.form.get('name')
     password = request.form.get('password')
     userparams = (get_username(email), email)
+    picture = request.files['image']
+    
+    if not os.path.exists('static\\images\\uploads\\'):
+        os.makedirs('static\\images\\uploads\\')
+
+    # handle the image upload
+    if 'image' not in request.files:
+        flash('No image part in the request.')
+        return redirect(request.url)
+    if picture.filename == '':
+        flash('No selected image.')
+        return redirect(request.url)
+    if picture:
+        filename = secure_filename(picture.filename)
+        filepath = f"../static/images/uploads/{filename}"
+        picture.save(os.path.join('static\\images\\uploads', filename))
 
     user = db.query(User).filter_by(email=email).first()  # if this returns a user, then the email already exists in database
 
@@ -57,22 +76,21 @@ def signup_post():
         return redirect(url_for('auth.signup'))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
-    new_user = User(email=email, name=name, password=generate_password_hash(password))
+    new_user = User(email=email, name=name, password=generate_password_hash(password), picture=filepath)
 
     # add the new user to the database
     db.add(new_user)
     db.commit()
-    
-    recipeDB.insert_user(userparams)
-    
 
-    # code to validate and add user to database goes here
+    recipeDB.insert_user(userparams)
+
     return redirect(url_for('auth.login'))
+
 
 @auth.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html', name=current_user.name, mail=current_user.email)
+    return render_template('profile.html', name=current_user.name, email=current_user.email, picture=current_user.picture)
 
 
 @auth.route('/logout')
