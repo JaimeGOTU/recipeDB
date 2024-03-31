@@ -1,33 +1,7 @@
-Dummy_data1 = {
-    "name":"Never going to give you up Spaghetti",
-    "style":"Chinese",
-    "owner":"Rick",
-    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
-    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]
-}
-
-Dummy_data2 = {
-    "name":"You know the rules curry",
-    "style":"Japanese",
-    "owner":"Rick",
-    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "steps": {"step1": "Marinate chicken", "step2": "Prepare curry base", "step3": "Cook chicken in curry base", "step4": "Serve with rice"},
-    "ingredients":[("chicken","300gr"),("rice","500gr"),("curry base", "2 spoons")]
-}
-
-Dummy_data3 = {
-    "name":"And so do I patty",
-    "style":"Spanish",
-    "owner":"Rick",
-    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "steps":{"step1": "Grill patty", "step2": "Assemble ingredients on bun", "step3": "Serve with fries"},
-    "ingredients":[("patty","500gr"),("buns","2"),("fries","5 sticks")]
-}
-
-from flask import Flask, Blueprint, render_template, request, jsonify
+from flask import Flask, Blueprint, render_template, request, jsonify, redirect, url_for
 from model.model import Database
 from model.model import RecipeAPI
+from flask_login import AnonymousUserMixin
 from controller.auth import current_user, get_username
 import json
 database = Database()
@@ -43,7 +17,15 @@ def index():
         recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
         recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     print(recipes_random[0])
-    return render_template('index.html', active_page='home', recipes=recipes_random)
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('index.html', active_page='home', recipes=recipes_random, name=name, email=email, picture=picture)
 
 
 @main.route('/add_recipes', methods=['GET', 'POST'])
@@ -56,7 +38,15 @@ def api_recipes():
         #print(parsed_recipes)
         return jsonify(recipes=parsed_recipes)
     else:
-        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes)
+        if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+        else:
+            name = current_user.name
+            email = current_user.email
+            picture = current_user.picture
+        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes, name=name, email=email, picture=picture)
 
 @main.route('/recipe_info', methods=['POST'])
 def recipe_info():
@@ -71,49 +61,216 @@ def add_recipe():
     database.insert_recipe(recipe, get_username(current_user.email))
     return jsonify(success=True)
 
-
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
     database.insert_recipe(recipeapi.parse_recipe(recipeapi.lookup_recipe(recipe['name']))[0], get_username(current_user.email))
     return jsonify(success=True)
 
+@main.route('/browse_db', methods=['POST'])
+def browse_db():
+    search_term = request.form.get('search')
+    recipes = database.browse_main_table(search_term)
+    print(recipes)
+    return jsonify(recipes = recipes)
+
+@main.route('/update_recipe_form', methods=['POST'])
+def update_recipe_form():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        
+    recipe = request.form.get('recipe')
+    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+
+        
+@main.route('/update_recipe', methods=['POST'])
+def update_recipe():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        
+    recipe = request.get_json()
+    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+        
+
+@main.route('/save_recipe', methods=['POST'])
+def save_recipe():
+    recipe = request.get_json()
+    database.add_to_saved(recipe['name'], get_username(current_user.email))
+    return jsonify(success=True)
+
+@main.route('/delete_recipe', methods=['POST'])
+def delete_recipe():
+    recipe = request.form.get('recipeName')
+    database.delete_recipe(recipe)
+    return redirect(url_for('main.my_recipes'))
+
 @main.route('/saved_recipes')
 def saved_recipes():
-    return render_template('saved_recipes.html', active_page='saved_recipes')
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        recipes = database.show_saved_recipes(get_username(email))
+        for recipe in recipes:
+            recipe['Steps'] = json.loads(recipe['Steps'])
+        print(recipes)
+    return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
 def my_recipes():
-    return render_template('my_recipes.html', active_page='my_recipes')
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        recipes = database.get_my_recipes(get_username(email))
+        for recipe in recipes:
+            recipe['Steps'] = json.loads(recipe['Steps'])
+        print(recipes)
+    return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
-@main.route('/menus')
+@main.route('/browse_recipes')
+def browse_recipes():
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
+
+@main.route('/menus',methods=['GET', 'POST'])
 def menus():
-    return render_template('menus.html', active_page='menus')
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+
+    select_from = []  # Add your options here
+    selected_option = None
+    recipes = database.show_saved_recipes(get_username(email))
+    for i in recipes:
+        select_from.append(i["RecName"])
+
+    if request.method == 'POST':
+        selected_option = request.form.get('select')
+
+    recipes = [{
+    "name":"Never going to give you up Spaghetti",
+    "style":"Chinese",
+    "owner":"Rick",
+    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "Steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
+    "Ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
+    ]
+    
+    return render_template('menus.html', active_page='menus', name=name, email=email, picture=picture,select_from=select_from, selected_option=selected_option,recipes=recipes)
 
 @main.app_errorhandler(400)
 def bad_request(e):
-    return render_template('error.html', error_code=400, message="Bad request"), 400
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=400, message="Bad request", name=name, email=email, picture=picture), 400
 
 @main.app_errorhandler(401)
 def unauthorized(e):
-    return render_template('error.html', error_code=401, message="Unauthorized"), 401
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=401, message="Unauthorized", name=name, email=email, picture=picture), 401
 
 @main.app_errorhandler(403)
 def forbidden(e):
-    return render_template('error.html', error_code=403, message="Forbidden"), 403
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=403, message="Forbidden", name=name, email=email, picture=picture), 403
 
 @main.app_errorhandler(405)
 def method_not_allowed(e):
-    return render_template('error.html', error_code=405, message="Method not allowed"), 405
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=405, message="Method not allowed", name=name, email=email, picture=picture), 405
 
 @main.app_errorhandler(404)
 def page_not_found(e):
-    return render_template('error.html', error_code=404, message="Page not found"), 404
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=404, message="Page not found", name=name, email=email, picture=picture), 404
 
 @main.app_errorhandler(500)
 def internal_server_error(e):
-    return render_template('error.html', error_code=500, message="Internal server error"), 500
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=500, message="Internal server error", name=name, email=email, picture=picture), 500
 
 @main.app_errorhandler(503)
 def service_unavailable(e):
-    return render_template('error.html', error_code=503, message="Service unavailable"), 503
+    if isinstance(current_user, AnonymousUserMixin):
+        name = None
+        email = None
+        picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    return render_template('error.html', error_code=503, message="Service unavailable", name=name, email=email, picture=picture), 503

@@ -1,0 +1,159 @@
+{% include "header.html" %}
+<body>
+    {% include "navbar.html" %}
+
+    <div class="entry-container">
+        <div id="addRecipeForm" class="tab-content active">
+            <form id="enterRecipeForm" action="{{ url_for('main.update_recipe') }}" method="post">
+                <div class="field">
+                    <label for="recipeName" class="form-label">Recipe Name:</label><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input"><br>
+                </div>
+                <div class="field">
+                    <label for="style" class="form-label">Style:</label><br>
+                    <input type="text" id="style" name="style" class="input"><br>
+                </div>
+                <div class="field">
+                    <label for="source" class="form-label">Source:</label><br>
+                    <input type="text" id="source" name="source" class="input"><br>
+                </div>
+                <div id="steps">
+                    <div id="step1" class="field">
+                        <label for="step1Input" class="form-label">Step 1:</label><br>
+                        <input type="text" id="step1Input" name="step1" class="input"><br>
+                    </div>
+                </div>
+                <button type="button" id="addStep" class="button">Add Step</button><br>
+                <button type="button" id="removeStep" class="button">Remove Step</button><br>
+                <div class="ingredient-container">
+                    <div id="ingredients">
+                        <div id="ing1" class="field">
+                            <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
+                            <input type="text" id="ing1Input" name="ing1" class="input"><br>
+                        </div>
+                    </div>
+                    <div id="amounts">
+                        <div id="amt" class="field">
+                            <label for="amt1Input" class="form-label">Amount:</label><br>
+                            <input type="text" id="amtInput" name="amt" class="input"><br>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="addIng" class="button">Add Ingredient</button><br>
+                <button type="button" id="removeIng" class="button">Remove Ingredient</button><br>                
+                <input type="submit" value="Submit" class="button">
+            </form>
+        </div>
+    </div>
+    
+
+
+    <script>
+        var stepCount = 2;
+        document.getElementById('addStep').addEventListener('click', function() {
+            var newStep = document.createElement('div');
+            newStep.id = 'step' + stepCount;
+            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
+            document.getElementById('steps').appendChild(newStep);
+            stepCount++;
+        });
+
+        var ingCount = 2;
+        var amtCount = 2;
+        document.getElementById('addIng').addEventListener('click', function() {
+            var newIng = document.createElement('div');
+            newIng.id = 'ing' + ingCount;
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
+            document.getElementById('ingredients').appendChild(newIng);
+            ingCount++;
+
+            var newAmt = document.createElement('div');
+            newAmt.id = 'amt' + amtCount;
+            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
+            document.getElementById('amounts').appendChild(newAmt);
+            amtCount++;
+        });
+
+        document.getElementById('removeStep').addEventListener('click', function() {
+            if (stepCount > 2) {
+                stepCount--;
+                var lastStep = document.getElementById('step' + stepCount);
+                lastStep.parentNode.removeChild(lastStep);
+            }
+        });
+
+        document.getElementById('removeIng').addEventListener('click', function() {
+            if (ingCount > 2) {
+                ingCount--;
+                amtCount--;
+                var lastIng = document.getElementById('ing' + ingCount);
+                var lastAmt = document.getElementById('amt' + amtCount);
+                lastIng.parentNode.removeChild(lastIng);
+                lastAmt.parentNode.removeChild(lastAmt);
+            }
+        });
+
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $("#enterRecipeForm").on('submit', function(e) {
+        e.preventDefault();  // Prevent the form from reloading the page
+
+        // Extract the information from the form
+        var recipeName = $("#recipeName").val();
+        var style = $("#style").val();
+        var source = $("#source").val();
+
+        // Format the steps as a JSON object
+        var steps = {};
+        $("#steps div").each(function() {
+            var stepNumber = $(this).attr('id');  // Get the step number
+            var stepInstruction = $(this).find('input').val();  // Get the step instruction
+            steps[stepNumber] = stepInstruction;
+        });
+
+        // Initialize an empty array
+        var ingredients = [];
+
+        // Loop through each div inside the #ingredients and #Amounts divs
+        $("#ingredients div").each(function(index) {
+            // Get the ingredient name and amount
+            var ingName = $(this).find('input').val();
+            var ingAmt = $("#amounts div").eq(index).find('input').val();
+
+            // Create an array with the ingredient name and amount
+            var ingredient = [ingName, ingAmt];
+
+            // Add the array to the ingredients array
+            ingredients.push(ingredient);
+        });
+
+        // Create the data object to send to the server
+        var data = {
+            name: recipeName,
+            style: style,
+            steps: steps,
+            source: source,
+            ingredients: ingredients
+
+        };
+
+        // Send the data to the server using AJAX
+        $.ajax({
+            url: '/update_recipe',  // The URL to send the request to
+            type: 'POST',  // The type of HTTP method to use
+            contentType: 'application/json',  // The type of data you're sending
+            data: JSON.stringify(data),  // The data to send
+            success: function(response) {
+                // Handle the server's response here
+            }
+        });
+    });
+
+    </script>
+
+</body>
+{% include "footer.html" %}

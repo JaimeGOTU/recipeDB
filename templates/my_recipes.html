@@ -1,6 +1,58 @@
 {% include "header.html" %}
-    <body>
+<body>
     {% include "navbar.html" %}
-    <!-- Your content here -->
-    </body>
+
+
+    <div class="content-container">
+        <!-- Your content here -->
+        <div id="searchResults">
+            {% if recipes %}
+                {% for recipe in recipes %}
+                    <div class="recipe-card">
+                        <h2 class="recipe-title">{{ recipe.RecName }}</h2>
+                        <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
+                        <p class="recipe-style">Style: {{ recipe.Style }}</p>
+                        <p class="recipe-ingredients-title">Ingredients:</p>
+                        <ul class="recipe-ingredients">
+                            {% for food,amount in recipe.Ingredients %}
+                            <li>{{ food }}: {{ amount }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="recipe-steps-title">Steps:</p>
+                        <ol class="recipe-steps">
+                            {% for step, instruction in recipe.Steps.items() %}
+                                <li>{{ instruction }}</li>
+                            {% endfor %}
+                        </ol>
+                        <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                        <button class="delete-recipe-button">Delete Recipe</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete-recipe-button').click(function() {
+            var recipeName = $(this).siblings('.recipe-title').text();
+            var confirmation = confirm('Are you sure you want to delete ' + recipeName + '? Other users may be using your recipe');
+            if (confirmation) {
+                var form = $('<form></form>');
+                form.attr("method", "post");
+                form.attr("action", "/delete_recipe");
+                var field = $('<input></input>');
+                field.attr("type", "hidden");
+                field.attr("name", "recipeName");
+                field.attr("value", recipeName);
+                form.append(field);
+                $(document.body).append(form);
+                form.submit();
+            }
+        });
+    });
+</script>
+
+
+</body>
 {% include "footer.html" %}
