@@ -91,10 +91,32 @@ def saved_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-    return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture)
+        
+    recipes = database.show_saved_recipes(get_username(email))
+    for recipe in recipes:
+        recipe['Steps'] = json.loads(recipe['Steps'])
+    print(recipes)
+    return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
+
+@main.route('/my_recipes')
+def my_recipes():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        
+    recipes = database.show_saved_recipes(get_username(email))
+    for recipe in recipes:
+        recipe['Steps'] = json.loads(recipe['Steps'])
+    print(recipes)
+    return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/browse_recipes')
-def my_recipes():
+def browse_recipes():
     if isinstance(current_user, AnonymousUserMixin):
         name = None
         email = None
