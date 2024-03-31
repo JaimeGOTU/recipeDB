@@ -1,0 +1,132 @@
+{% include "header.html" %}
+<body>
+    {% include "navbar.html" %}
+
+<div class="browse-recipe">
+    <div class="entry-container">
+        <div id="searchRecipe">
+            <div id="searchRecipeForm" class="box">
+                <form id="searchForm" action="{{ url_for('main.browse_db') }}" method="post">
+                    <div class="field">
+                        <label for="search" class="form-label">Browse Database:</label><br>
+                        <input type="text" id="search" name="search" class="input"><br>
+                    </div>
+                    <input type="submit" value="Search" class="button">
+                </form>
+            </div>
+
+            <div id="searchResults">
+                {% if recipes %}
+                    {% for recipe in recipes %}
+                        <div class="recipe-card">
+                            <h2 class="recipe-title">{{ recipe.RecName }}</h2>
+                            <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
+                            <p class="recipe-style">Style: {{ recipe.Style }}</p>
+                            <p class="recipe-ingredients-title">Ingredients:</p>
+                            <ul class="recipe-ingredients">
+                                {% for food,amount in recipe.Ingredients.items() %}
+                                <li>{{ food }}: {{ amount }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="recipe-steps-title">Steps:</p>
+                            <ol class="recipe-steps">
+                                {% for step, instruction in recipe.Steps.items() %}
+                                    <li>{{ instruction }}</li>
+                                {% endfor %}
+                            </ol>
+                            <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                            <button class="save-recipe-button">Save Recipe</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+    
+
+
+    <script>
+        function sendRecipeInfo(recipe) {
+            fetch('/recipe_info', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({recipe: recipe})
+            }).then(response => response.json())
+            .then(data => console.log(data));
+        }
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+    
+            $("#searchForm").on('submit', function(e) {
+                e.preventDefault();  // Prevent the form from reloading the page
+    
+                // Submit the form using AJAX
+                $.ajax({
+                    url: $(this).attr('action'),  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    data: $(this).serialize(),  // The form data
+                    success: function(response) {
+                        // Update the searchResults div with the data from the JSON response
+                        var html = '';
+                        if (response.recipes) {
+                            response.recipes.forEach(function(recipe) {
+                                html += '<div class="recipe-card">';
+                                html += '<h2 class="recipe-title">' + recipe.RecName + '</h2>';
+                                html += '<p class="recipe-owner">Owner: ' + recipe.Owner + '</p>';
+                                html += '<p class="recipe-style">Style: ' + recipe.Style + '</p>';
+                                html += '<p class="recipe-ingredients-title">Ingredients:</p><ul>';
+                                for (var i = 0; i < recipe.Ingredients.length; i++) {
+                                    // Get the ingredient name and amount
+                                    var ingName = recipe.Ingredients[i][0];
+                                    var ingAmount = recipe.Ingredients[i][1];
+                                    html += '<li>' + ingName + ': ' + ingAmount + '</li>';
+                                }
+                                html += '</ul>';
+                                html += '<p class="recipe-steps-title">Steps:</p><ol>';
+                                for (var step in recipe.steps) {
+                                    // Remove the "step" prefix from the step number
+                                    var stepNum = step.replace('step', '');
+                                    html += '<li>' + stepNum + ': ' + recipe.Steps[step] + '</li>';
+                                }
+                                html += '</ol>';
+                                html += '<p class="recipe-source">Source: ' + recipe.Source + '</p>';
+                                html += '<button class="save-recipe-button" data-recipe-name="' + recipe.RecName + '">Save Recipe</button>';
+                                html += '</div>';
+                            });
+                        }
+                        $("#searchResults").html(html);
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <script>
+        $(document).on('click', '.save-recipe-button', function() {
+            var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
+
+            // Send the selected recipe's name to the server using AJAX
+            $.ajax({
+                url: '/save_recipe',  // The URL to send the request to
+                type: 'POST',  // The type of HTTP method to use
+                contentType: 'application/json',  // The type of data you're sending
+                data: JSON.stringify({name: recipeName}),  // The selected recipe's name
+                success: function(response) {
+                    // Handle the server's response here
+                    console.log(response);
+                }
+            });
+        });
+    </script>
+
+
+</body>
+{% include "footer.html" %}
+
