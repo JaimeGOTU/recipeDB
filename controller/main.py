@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, render_template, request, jsonify
+from flask import Flask, Blueprint, render_template, request, jsonify, redirect, url_for
 from model.model import Database
 from model.model import RecipeAPI
 from flask_login import AnonymousUserMixin
@@ -75,11 +75,47 @@ def browse_db():
     print(recipes)
     return jsonify(recipes = recipes)
 
+@main.route('/update_recipe_form', methods=['POST'])
+def update_recipe_form():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        
+    recipe = request.form.get('recipe')
+    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+
+        
+@main.route('/update_recipe', methods=['POST'])
+def update_recipe():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+        
+    recipe = request.get_json()
+    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+        
+
 @main.route('/save_recipe', methods=['POST'])
 def save_recipe():
     recipe = request.get_json()
     database.add_to_saved(recipe['name'], get_username(current_user.email))
     return jsonify(success=True)
+
+@main.route('/delete_recipe', methods=['POST'])
+def delete_recipe():
+    recipe = request.form.get('recipeName')
+    database.delete_recipe(recipe)
+    return redirect(url_for('main.my_recipes'))
 
 @main.route('/saved_recipes')
 def saved_recipes():
@@ -91,11 +127,10 @@ def saved_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-        
-    recipes = database.show_saved_recipes(get_username(email))
-    for recipe in recipes:
-        recipe['Steps'] = json.loads(recipe['Steps'])
-    print(recipes)
+        recipes = database.show_saved_recipes(get_username(email))
+        for recipe in recipes:
+            recipe['Steps'] = json.loads(recipe['Steps'])
+        print(recipes)
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
@@ -108,12 +143,11 @@ def my_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-        
-    recipes = database.show_saved_recipes(get_username(email))
-    for recipe in recipes:
-        recipe['Steps'] = json.loads(recipe['Steps'])
-    print(recipes)
-    return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
+        recipes = database.get_my_recipes(get_username(email))
+        for recipe in recipes:
+            recipe['Steps'] = json.loads(recipe['Steps'])
+        print(recipes)
+    return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/browse_recipes')
 def browse_recipes():
@@ -125,7 +159,7 @@ def browse_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-    return render_template('browse_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture)
+    return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
 
 @main.route('/menus')
 def menus():

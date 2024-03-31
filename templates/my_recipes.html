@@ -25,11 +25,33 @@
                             {% endfor %}
                         </ol>
                         <p class="recipe-source">Source: {{ recipe.Source }}</p>
-                        <button class="save-recipe-button">Delete Recipe</button>
+                        <button class="delete-recipe-button">Delete Recipe</button>
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.delete-recipe-button').click(function() {
+            var recipeName = $(this).siblings('.recipe-title').text();
+            var confirmation = confirm('Are you sure you want to delete ' + recipeName + '? Other users may be using your recipe');
+            if (confirmation) {
+                var form = $('<form></form>');
+                form.attr("method", "post");
+                form.attr("action", "/delete_recipe");
+                var field = $('<input></input>');
+                field.attr("type", "hidden");
+                field.attr("name", "recipeName");
+                field.attr("value", recipeName);
+                form.append(field);
+                $(document.body).append(form);
+                form.submit();
+            }
+        });
+    });
+</script>
 
 
 </body>
