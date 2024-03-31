@@ -147,6 +147,7 @@ def my_recipes():
         recipes = database.get_my_recipes(get_username(email))
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
+            recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
         print(recipes)
     return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
@@ -160,6 +161,10 @@ def browse_recipes():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
+        recipes = database.get_my_recipes(get_username(email))
+        for recipe in recipes:
+            recipe['Steps'] = json.loads(recipe['Steps'])
+            recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
 
 @main.route('/menus',methods=['GET', 'POST'])
