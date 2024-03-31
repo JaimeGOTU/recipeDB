@@ -145,15 +145,18 @@ class RecipeAPI:
         except:
             return final
     
-    def get_youtubelink_parser(self,repice_name):
+    def get_youtubelink_parser(self,recipe_name):
         '''
         function to get the youtube link of a recipe given it's name
         params recipe_name: str of the full recipe name
         '''
         try:
-            return self.lookup_recipe(repice_name)["meals"][0]["strYoutube"]
+            youtube_link = self.lookup_recipe(recipe_name)["meals"][0]["strYoutube"]
+            # Convert the YouTube link into the embeddable format
+            youtube_link = youtube_link.replace('watch?v=', 'embed/')
+            return youtube_link
         except:
-            pass
+            return None
 
 class Database:
     def __init__(self):
