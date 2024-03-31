@@ -25,7 +25,11 @@
                             {% endfor %}
                         </ol>
                         <p class="recipe-source">Source: {{ recipe.Source }}</p>
-                        <button class="delete-recipe-button">Delete Recipe</button>
+                        <!-- Embed YouTube video -->
+                        {% if recipe.youtube_link %}
+                            <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        {% endif %}
+                        <button class="select-recipe-button">Delete Recipe</button>
                     </div>
                 {% endfor %}
             {% endif %}
