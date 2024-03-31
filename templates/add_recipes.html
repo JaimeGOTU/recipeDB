@@ -2,77 +2,116 @@
 <body>
     {% include "navbar.html" %}
 
-    <button id="addRecipeButton">Manually Add Recipe</button>
-    <button id="searchRecipeButton">Lookup Recipe</button>
+    <div class="entry-container">
+        <div class="tabs">
+            <button class="tab-button active" id="addRecipeButton">Manually Add Recipe</button>
+            <button class="tab-button" id="searchRecipeButton">Lookup Recipe</button>
+        </div>
 
-    <div id="recipeManualEntry" style="display: none;">
-        <div id="enterRecipeForm">
+        <div id="addRecipeForm" class="tab-content active">
             <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
-                <label for="recipeName">Recipe Name:</label><br>
-                <input type="text" id="recipeName" name="recipeName"><br>
-                <label for="style">Style:</label><br>
-                <input type="text" id="style" name="style"><br>
-                <label for="source">Source:</label><br>
-                <input type="text" id="source" name="source"><br>
+                <div class="field">
+                    <label for="recipeName" class="form-label">Recipe Name:</label><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input"><br>
+                </div>
+                <div class="field">
+                    <label for="style" class="form-label">Style:</label><br>
+                    <input type="text" id="style" name="style" class="input"><br>
+                </div>
+                <div class="field">
+                    <label for="source" class="form-label">Source:</label><br>
+                    <input type="text" id="source" name="source" class="input"><br>
+                </div>
                 <div id="steps">
-                    <div id="step1">
-                        <label for="step1Input">Step 1:</label><br>
-                        <input type="text" id="step1Input" name="step1"><br>
+                    <div id="step1" class="field">
+                        <label for="step1Input" class="form-label">Step 1:</label><br>
+                        <input type="text" id="step1Input" name="step1" class="input"><br>
                     </div>
                 </div>
-                <button type="button" id="addStep">Add Step</button><br>
-                <button type="button" id="removeStep">Remove Step</button><br>
-                <div style="display: flex;">
+                <button type="button" id="addStep" class="button">Add Step</button><br>
+                <button type="button" id="removeStep" class="button">Remove Step</button><br>
+                <div class="ingredient-container">
                     <div id="ingredients">
-                        <div id="ing1">
-                            <label for="ing1Input">Ingredient 1:</label><br>
-                            <input type="text" id="ing1Input" name="ing1"><br>
+                        <div id="ing1" class="field">
+                            <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
+                            <input type="text" id="ing1Input" name="ing1" class="input"><br>
                         </div>
                     </div>
                     <div id="amounts">
-                        <div id="amt">
-                            <label for="amt1Input">Amount:</label><br>
-                            <input type="text" id="amtInput" name="amt"><br>
+                        <div id="amt" class="field">
+                            <label for="amt1Input" class="form-label">Amount:</label><br>
+                            <input type="text" id="amtInput" name="amt" class="input"><br>
                         </div>
                     </div>
                 </div>
-                <button type="button" id="addIng">Add Ingredient</button><br>
-                <button type="button" id="removeIng">Remove Ingredient</button><br>                
-                <input type="submit" value="Submit">
-            </form>
-        </div>
-    </div>
-
-    <div id="searchRecipe" style="display: none;">
-        <div id="searchRecipeForm">
-            <form id="searchForm" action="{{ url_for('main.api_recipes') }}" method="post">
-                <label for="search">Search:</label><br>
-                <input type="text" id="search" name="search"><br>
-                <input type="submit" value="Search">
+                <button type="button" id="addIng" class="button">Add Ingredient</button><br>
+                <button type="button" id="removeIng" class="button">Remove Ingredient</button><br>                
+                <input type="submit" value="Submit" class="button">
             </form>
         </div>
 
-        <div id="searchResults">
-            {% if recipes %}
-                {% for recipe in recipes %}
-                    <!--Code is in script below-->
-                {% endfor %}
-            {% endif %}
+        <div id="searchRecipe" class="tab-content">
+            <div id="searchRecipeForm" class="box">
+                <form id="searchForm" action="{{ url_for('main.api_recipes') }}" method="post">
+                    <div class="field">
+                        <label for="search" class="form-label">Search:</label><br>
+                        <input type="text" id="search" name="search" class="input"><br>
+                    </div>
+                    <input type="submit" value="Search" class="button">
+                </form>
+            </div>
+
+            <div id="searchResults">
+                {% if recipes %}
+                    {% for recipe in recipes %}
+                        <div class="recipe-card">
+                            <h2 class="recipe-title">{{ recipe.RecName }}</h2>
+                            <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
+                            <p class="recipe-style">Style: {{ recipe.Style }}</p>
+                            <p class="recipe-ingredients-title">Ingredients:</p>
+                            <ul class="recipe-ingredients">
+                                {% for food,amount in recipe.Ingredients.items() %}
+                                <li>{{ food }}: {{ amount }}</li>
+                                {% endfor %}
+                            </ul>
+                            <p class="recipe-steps-title">Steps:</p>
+                            <ol class="recipe-steps">
+                                {% for step, instruction in recipe.Steps.items() %}
+                                    <li>{{ instruction }}</li>
+                                {% endfor %}
+                            </ol>
+                            <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                            <button class="button">Select Recipe</button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
     </div>
     
 
 
     <script>
-        document.getElementById('addRecipeButton').addEventListener('click', function() {
-            document.getElementById('addRecipeForm').style.display = 'block';
-            document.getElementById('searchRecipeForm').style.display = 'none';
-        });
+    // Initially hide the search form
+    document.getElementById('searchRecipe').style.display = 'none';
 
-        document.getElementById('searchRecipeButton').addEventListener('click', function() {
-            document.getElementById('searchRecipeForm').style.display = 'block';
-            document.getElementById('addRecipeForm').style.display = 'none';
-        });
+    document.getElementById('addRecipeButton').addEventListener('click', function() {
+        document.getElementById('searchRecipe').style.display = 'none';
+        document.getElementById('addRecipeForm').style.display = 'block';
+        document.getElementById('addRecipeForm').style.opacity = 0;
+        setTimeout(function() {
+            document.getElementById('addRecipeForm').style.opacity = 1;
+        }, 1); // Start the transition 1ms later to ensure it works correctly
+    });
+
+    document.getElementById('searchRecipeButton').addEventListener('click', function() {
+        document.getElementById('addRecipeForm').style.display = 'none';
+        document.getElementById('searchRecipe').style.display = 'block';
+        document.getElementById('searchRecipe').style.opacity = 0;
+        setTimeout(function() {
+            document.getElementById('searchRecipe').style.opacity = 1;
+        }, 1); // Start the transition 1ms later to ensure it works correctly
+    });
 
         var stepCount = 2;
         document.getElementById('addStep').addEventListener('click', function() {
@@ -159,16 +198,28 @@
                         var html = '';
                         if (response.recipes) {
                             response.recipes.forEach(function(recipe) {
-                                html += '<h2>' + recipe.name + '</h2>';
-                                html += '<p>Owner: ' + recipe.owner + '</p>';
-                                html += '<p>Style: ' + recipe.style + '</p>';
-                                html += '<p>Steps:</p><ul>';
-                                for (var step in recipe.steps) {
-                                    html += '<li>' + step + ': ' + recipe.steps[step] + '</li>';
+                                html += '<div class="recipe-card">';
+                                html += '<h2 class="recipe-title">' + recipe.name + '</h2>';
+                                html += '<p class="recipe-owner">Owner: ' + recipe.owner + '</p>';
+                                html += '<p class="recipe-style">Style: ' + recipe.style + '</p>';
+                                html += '<p class="recipe-ingredients-title">Ingredients:</p><ul>';
+                                for (var i = 0; i < recipe.ingredients.length; i++) {
+                                    // Get the ingredient name and amount
+                                    var ingName = recipe.ingredients[i][0];
+                                    var ingAmount = recipe.ingredients[i][1];
+                                    html += '<li>' + ingName + ': ' + ingAmount + '</li>';
                                 }
                                 html += '</ul>';
-                                html += '<p>Source: ' + recipe.source + '</p>';
-                                html += '<button class="selectRecipeButton" data-recipe-name="' + recipe.name + '">Select Recipe</button>';
+                                html += '<p class="recipe-steps-title">Steps:</p><ol>';
+                                for (var step in recipe.steps) {
+                                    // Remove the "step" prefix from the step number
+                                    var stepNum = step.replace('step', '');
+                                    html += '<li>' + stepNum + ': ' + recipe.steps[step] + '</li>';
+                                }
+                                html += '</ol>';
+                                html += '<p class="recipe-source">Source: ' + recipe.source + '</p>';
+                                html += '<button class="select-recipe-button" data-recipe-name="' + recipe.name + '">Select Recipe</button>';
+                                html += '</div>';
                             });
                         }
                         $("#searchResults").html(html);
@@ -179,21 +230,21 @@
     </script>
     
     <script>
-        $(document).on('click', '.selectRecipeButton', function() {
-        var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
+        $(document).on('click', '.select-recipe-button', function() {
+            var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
 
-        // Send the selected recipe's name to the server using AJAX
-        $.ajax({
-            url: '/select_recipe',  // The URL to send the request to
-            type: 'POST',  // The type of HTTP method to use
-            contentType: 'application/json',  // The type of data you're sending
-            data: JSON.stringify({name: recipeName}),  // The selected recipe's name
-            success: function(response) {
-                // Handle the server's response here
-            }
+            // Send the selected recipe's name to the server using AJAX
+            $.ajax({
+                url: '/select_recipe',  // The URL to send the request to
+                type: 'POST',  // The type of HTTP method to use
+                contentType: 'application/json',  // The type of data you're sending
+                data: JSON.stringify({name: recipeName}),  // The selected recipe's name
+                success: function(response) {
+                    // Handle the server's response here
+                    console.log(response);
+                }
+            });
         });
-});
-
     </script>
 
     <script>
