@@ -9,7 +9,7 @@ def create_app():
     db.create_all()
 
     app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
-
+    
     login_manager = LoginManager()
     login_manager.login_view = 'auth.login'
     login_manager.init_app(app)

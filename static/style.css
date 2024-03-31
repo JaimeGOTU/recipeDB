@@ -390,3 +390,47 @@ tr:hover {
     background-color: #ff4e95;
     transform: scale(1.05);
 }
+
+
+
+.user-account {
+    margin: 100px
+}
+
+.user-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #ddd;
+    margin: 0 auto;
+}
+.user-info {
+    text-align: center;
+    margin-top: 20px;
+}
+.user-info h2, .user-info p {
+    margin: 0;
+    padding: 0;
+}
+.user-actions {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.user-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #ddd;
+    margin: 0 auto;
+}
+
+.topnav .user-banner {
+    float: left;
+    flex-grow: 1;
+    font-family: 'Gill Sans', 'Gill Sans MT', sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: #ffffff;
+    text-shadow: 0 0 10px #ff69b4, 0 0 20px #ff69b4, 0 0 30px #ff69b4, 0 0 40px #ff69b4;
+}
