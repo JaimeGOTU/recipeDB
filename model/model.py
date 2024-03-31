@@ -895,6 +895,42 @@ class Database:
             print("Error: " + e.args[1])
         except:
             print("SELECT id from get_id function error")
+
+    def add_to_saved(self,recipe_name,username):
+        '''
+        Adds a recipe to a user's saved-recipes; will only add if not duplicate
+        params recipe_name: str of the recipe name
+        params username: str of the username
+        '''
+        self.ensure_connection()
+        RecID = self.get_id("RecID","Recipes","RecName",recipe_name)
+        UserID = self.get_id("UserID","User","Username",username)
+        flag = False
+        try:
+            self.cur.execute(f"select * from SavedRec where UserID = {UserID} and RecID = {RecID}")
+            comparison = self.cur.fetchall()
+            if comparison == ():
+                flag = True
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("fail to get comparison values")
+
+        if not flag:
+            print("Already in table")
+            return "ERROR"
+        else:
+            try:
+                self.cur.execute(f"INSERT INTO SavedRec (UserID, RecID) VALUES ({UserID}, {RecID})")
+                self.con.commit()
+                return ("SUCCESS")
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("INSERT INTO SAVED REC ERROR (line 932)")
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -945,6 +981,7 @@ database = Database()
 #print(database.browse_main_table("poop"))
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
 #print(database.show_saved_recipes("rpazzi"))
+print(database.add_to_saved("Chicken Curry","rpazzi"))
 
 #################################################
 ####                                         ####
