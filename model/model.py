@@ -303,7 +303,10 @@ class Database:
             self.con.commit()
         except pymysql.Error as e:
             self.con.rollback()
+            print("Error:" + e.args[1])
             return "Error: " + e.args[1]
+        except:
+            print("Unexpected error")
 
         # List to store the necessary IDs to add to RecNeeds tables
         for dif_ingredients in recipe["ingredients"]:
@@ -703,6 +706,45 @@ class Database:
         else:
             return(ingredient_dict)
 
+    def update_recipe(self,recipe,username="None"):
+        '''
+        updates a recipe in the recipe table, 
+        and then (hopefully) the other tables have no issues
+        param recipe: single dictionary of the recipe in the specified format
+        param username: string with the username - used for recipe owner
+        returns: "OK" if it was successful, otherwise the appropiate error message
+
+        SPECIFIED FORMAT: {'RecID':"str","style":"str","owner":"str","source":"str,
+        "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
+        '''
+
+        if username == "None":
+            print("No username, cannot update")
+        else:
+            try:
+                self.cur.execute(f"select UserID from User where Username = '{username}'")
+                result_user = self.cur.fetchall()
+                UserID = result_user[0]["UserID"]
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("Error at UserID lvl")
+
+            try:
+                pass
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("Error at RecipeID lvl")
+
+
+######### DO #########
+#UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
+
+
+        pass
 
     #Quite honestly, I have no clue what this is. It was created in class
     def query(self,sql):
