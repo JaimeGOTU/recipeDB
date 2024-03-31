@@ -779,6 +779,73 @@ class Database:
             self.con.close()
         return result
 
+    def show_saved_recipes(self,username="None"):
+        '''
+        This function returns a list of dictionaries of the recipes of a user given its username
+        param username: string of the username
+        '''
+        self.ensure_connection()
+        recipe_id_list = []
+        recipes_to_return = []
+        if username == "None":
+            print("no username error")
+            return []
+        else:
+            UserID = self.get_id("UserID","User","Username",username)
+            try:
+                self.cur.execute(f"select RecID from SavedRec where UserID = {UserID}")
+                recipe_id_list = self.cur.fetchall() # format [{'RecID': 28}, {'RecID': 34}, {'RecID': 25}]
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("getting recipe id list error")
+            
+            if recipe_id_list == []:
+                print("no saved recipes")
+                return []
+            else:
+                try:
+                    for i in recipe_id_list:
+                        try:
+                            real_value = i["RecID"]
+                            self.cur.execute(f"Select * from Recipes where RecID = '{real_value}';")
+                            result = self.cur.fetchall()[0]
+                            recipes_to_return.append(result)
+                        except pymysql.Error as e:
+                            self.con.rollback()
+                            print("Error: " + e.args[1])
+                        except:
+                            print("getting recipes error")
+                except pymysql.Error as e:
+                    self.con.rollback()
+                    print("Error: " + e.args[1])
+                except:
+                    print("getting recipe id list error")
+
+        return recipes_to_return
+
+    def get_id(self,what_id,what_table,what_column,keyword):
+        '''
+        Gets you an id from a string
+        params what_id: select "what_id"
+        params what_table: from "what_table"
+        params what_column: where "what_column"
+        params keyword: = "keyword"
+        returns an int with the ID
+        '''
+        self.ensure_connection()
+        # Get Recipe ID
+        try:
+            self.cur.execute(f"Select {what_id} from {what_table} where {what_column} = '{keyword}';")
+            result = self.cur.fetchall()
+            RecID = str(result[0][f"{what_id}"])
+            return RecID
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("SELECT id from get_id function error")
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -827,6 +894,8 @@ database = Database()
 #print(database.random_recipes(2))
 #print(database.get_ingredients("Pizza Express Margherita"))
 #print(database.browse_main_table("poop"))
+#print(database.get_id("RecID","Recipes","RecName","Poop pie"))
+#print(database.show_saved_recipes("User1"))
 
 #################################################
 ####                                         ####
