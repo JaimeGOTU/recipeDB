@@ -41,7 +41,7 @@ class RecipeAPI:
             print(e)
             return None
         except:
-            print("Unexpected error")
+            print("API CALL ERROR (line 44)")
         # If the response has text content, try to parse it as JSON and return the result. 
         # If the response doesn’t have any text content (i.e., it’s empty or None), then return None.
         else:
@@ -197,7 +197,7 @@ class Database:
             result = self.cur.fetchall()
 
         except:
-            print("Unexpected error")
+            print("SELECT * FROM TABLE ERROR (line 200)")
 
         finally:
             #close the connection | we're in a limited environment with only
@@ -224,7 +224,7 @@ class Database:
             return "Error: " + e.args[1]
         
         except:
-            print("Unexpected error")
+            print("SELECT COLUMN FROM TABLE ERROR (line 227)")
 
         finally:
             #close the connection | we're in a limited environment with only
@@ -252,7 +252,7 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
         except:
-            print("Unexpected error")
+            print("INSERT INTO TABLE ERROR (line 255)")
 
         finally:
             self.con.close()
@@ -275,7 +275,7 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
         except:
-            print("Unexpected error")
+            print("INSERT INTO USER ERROR (line 278)")
 
         finally:
             self.con.close()
@@ -317,7 +317,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT RECID FROM RECIPES ERROR (line 320)")
 
             try:
                 ingredient_name = dif_ingredients[0]
@@ -328,7 +328,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT INGID FROM INGREDIENTS ERROR (line 331)")
 
             recneeds_values_list.append(dif_ingredients[1])
             try:
@@ -340,10 +340,39 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("INSERT INTO RECNEEDS ERROR (line 343)")
 
         try:
-            pass
+            if username == "None":
+                pass
+            else:
+                SavedRec_Values = []
+                try:
+                    User_Name = username
+                    self.cur.execute(f"select UserID from User where Username = '{User_Name}'")
+                    resultU = self.cur.fetchall()
+                    SavedRec_Values.append(str(resultU[0]["UserID"]))
+                except:
+                    print("SELECT USERID FROM USER ERROR (line 356)")
+
+                try:
+                    recipe_name = recipe["name"]
+                    self.cur.execute(f"select RecID from Recipes where RecName = '{recipe_name}'")
+                    resultR = self.cur.fetchall()
+                    SavedRec_Values.append(str(resultR[0]["RecID"]))
+                except:
+                    print("SELECT RECID FROM RECIPES ERROR (line 364)")
+
+                try:
+                    self.cur.execute("INSERT INTO SavedRec (UserID, RecID) VALUES (%s, %s)",SavedRec_Values)
+                    self.con.commit()
+
+                except:
+                    print("INSERT INTO SAVED REC ERROR (line 371)")
+
+
+            
+            
         finally:
             self.con.close()
         return "OK"
@@ -368,7 +397,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT * FROM MENUTEMP ERROR (line 400)")
             finally:
                 self.con.close()
         else:
@@ -383,7 +412,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT USER.USERID, USER.USERNAME FROM USER ERROR (line 415)")
             finally:
                 self.con.close()
 
@@ -406,7 +435,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT USERID FROM USER ERROR (line 438)")
         # Get Recipe ID
         try:
             self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
@@ -416,7 +445,7 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
         except:
-            print("Unexpected error")
+            print("SELECT RECID FROM RECIPES (lines 448)")
 
         if username != "None":
             try:
@@ -430,7 +459,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT * FROM SAVEDREC (line 462)")
             finally:
                 self.con.close()
         else:
@@ -445,7 +474,7 @@ class Database:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Unexpected error")
+                print("SELECT * FROM SAVED REC (line 477)")
             finally:
                 self.con.close()
 
@@ -477,7 +506,7 @@ class Database:
                 print("Error: " + e.args[1])
             except:
                 RecID = None
-                print("Unexpected error")
+                print("SELECT RECID FROM RECIPES (line 509)")
         # Now it deletes from all necessary tables
         self.delete_with_id("RecNeeds","RecID",RecID)
         self.delete_with_id("MenuTemp","RecID",RecID)
@@ -500,7 +529,7 @@ class Database:
             self.con.rollback()
             return "Error: " + e.args[1]
         except:
-            print("Unexpected error")
+            print("DELETE FROM TABLE ERROR (line 532)")
 
     def delete_user(self,username):
         '''
@@ -523,7 +552,7 @@ class Database:
                 print("Error: " + e.args[1])
             except:
                 UserID = None
-                print("Unexpected error")
+                print("SELECT USERID FROM USER ERROR (line 555)")
         # Now it deletes from all necessary tables
         self.delete_with_id("Allergies","UserID",UserID)
         self.delete_with_id("MenuTemp","UserID",UserID)
@@ -556,7 +585,7 @@ class Database:
                 print("Error: " + e.args[1])
                 return ("ERROR","Could not find username")
             except:
-                print("Unexpected error")
+                print("SELECT USERID FROM USER ERROR (line 588)")
             finally:
                 self.con.close()
         # Get Recipe ID
@@ -569,7 +598,7 @@ class Database:
             print("Error: " + e.args[1])
             return ("ERROR","Could not find recipe")
         except:
-            print("Unexpected error")
+            print("SELECT RECID FROM RECIPES ERROR (line 601)")
         finally:
             self.con.close()
         
@@ -591,7 +620,7 @@ class Database:
             print("Error: " + e.args[1])
             return ("ERROR", "Unexpected error when checking Menu ID")
         except:
-            print("Unexpected error")
+            print("SELECT * FROM MENUTEMP ERROR (line 623)")
 
         # We check to see if there's already an exact same entry on the Menu
         try:
@@ -607,7 +636,7 @@ class Database:
             print("Error: " + e.args[1])
             return ("ERROR","Unexpected error when checking menus")
         except:
-                print("Unexpected error")
+                print("SELECT * FROM MENU TEMP ERROR (line 639)")
 
         try:
             self.cur.execute(f"insert into MenuTemp (MenuID,Description,UserID,RecID,MenuName) values ({MenuID},'{description}',{UserID},{RecID},'{menu_name}')")
@@ -654,7 +683,7 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
         except:
-            print("Unexpected error")
+            print("SELECT RECID FROM RECIPES ERROR (line 686)")
         
         ingredient_dict = {}
 
@@ -667,7 +696,7 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
         except:
-            print("Unexpected error")
+            print("SELECT INGNAME, AMOUNT FROM RECNEEDS ERROR (line 699)")
         
         if ingredient_dict == {}:
             return {"Could not load":"ERROR"}
@@ -731,6 +760,7 @@ database = Database()
 #print(database.random_recipes(2))
 #print(database.get_ingredients("Pizza Express Margherita"))
 
+
 #################################################
 ####                                         ####
 ####     Ingredients DB Table Management     ####
@@ -789,3 +819,19 @@ for i in ingredients["meals"]:
     ->     ('Fake Record 2', 'Jane Smith', 'Formal', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com'),
     ->     ('Fake Record 3', 'Alice Johnson', 'Sporty', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com');
 Query OK, 3 rows affected (0.03 sec)'''
+
+
+
+
+
+#Test RecID and UserID into SavedRec
+
+Dummy_data1 = {
+    "name":"Never going to give you up Spaghetti",
+    "style":"Chinese",
+    "owner":"Rick",
+    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
+    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
+
+#database.insert_recipe(Dummy_data1, 'asdf')
