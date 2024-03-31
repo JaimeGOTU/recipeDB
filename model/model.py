@@ -949,6 +949,10 @@ class Database:
                 print("INSERT INTO SAVED REC ERROR (line 932)")
 
     def get_my_recipes(self,username):
+        '''
+        returns a list of dictionaries with the users recipes in the front-end specified format
+        params username: str of the username
+        '''
         self.ensure_connection()
         result = []
         try:
@@ -1021,7 +1025,7 @@ database = Database()
 #print(database.get_id("RecID","Recipes","RecName","Poop pie"))
 #print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
-print(database.get_my_recipes("trump"))
+#print(database.get_my_recipes("trump"))
 
 #################################################
 ####                                         ####
