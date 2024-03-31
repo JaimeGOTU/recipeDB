@@ -144,6 +144,16 @@ class RecipeAPI:
             return final
         except:
             return final
+    
+    def get_youtubelink_parser(self,repice_name):
+        '''
+        function to get the youtube link of a recipe given it's name
+        params recipe_name: str of the full recipe name
+        '''
+        try:
+            return self.lookup_recipe(repice_name)["meals"][0]["strYoutube"]
+        except:
+            pass
 
 class Database:
     def __init__(self):
@@ -791,16 +801,29 @@ class Database:
 #UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
 
 
+####### DO #######
+#Also for ingredients but i gotta figure that out later
+
         pass
 
-    #Quite honestly, I have no clue what this is. It was created in class
-    def query(self,sql):
+    def browse_main_table(self,search_term=""):
+        '''
+        Looks in the table for a search term, and if it's empty shows all entries
+        param search_term: any string. Regex will handle the rest (e.g. eggs)
+        returns: a list of dictionaries. 
+                Each dictionary is an entry in the table. 
+                Every key in the dictionary is a column in the table 
+        '''
         self.ensure_connection()
-        self.cur.execute(sql)
-        result = self.cur.fetchall()
-        attrib = [i[0] for i in self.cur.description]
-        self.con.close()
-        return result, attrib
+        result=[]
+        try:
+            self.cur.execute(f"SELECT * FROM Recipes WHERE RecName LIKE IF('{search_term}' = '', '%', CONCAT('%', '{search_term}', '%'));")
+            result = self.cur.fetchall()
+        except:
+            print("SELECT * FROM TABLE ERROR (line 779)")
+        finally:
+            self.con.close()
+        return result
 
 #################################################
 ####                                         ####
@@ -824,6 +847,7 @@ database = Database()
 #    break
 #print(thing["meals"])
 #print(type(thing["meals"]))
+#print(recipe.get_youtubelink_parser("Chicken Curry"))
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
@@ -848,7 +872,7 @@ database = Database()
 #database.delete_recipe("Fake Record 3")
 #print(database.random_recipes(2))
 #print(database.get_ingredients("Pizza Express Margherita"))
-
+#print(database.browse_main_table("poop"))
 
 #################################################
 ####                                         ####
