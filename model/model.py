@@ -960,4 +960,4 @@ Dummy_Update ={
 #database.insert_recipe(Dummy_data1, 'asdf')
 #database.delete_recipe("Dummy_data1")
 #database.update_recipe(Dummy_Update, "rpazzi")
-database.add_from_others("Never going to give you up Spaghetti", "trump")
+#database.add_from_others("Never going to give you up Spaghetti", "trump")
