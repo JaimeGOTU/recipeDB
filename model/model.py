@@ -754,6 +754,52 @@ class Database:
             except:
                 print("UPDATE RECIPES ERROR (line 742)")
 
+    def add_from_others(self, recipe, username):
+        self.ensure_connection()
+        try:
+            if username == "None":
+                pass
+            else:
+                Saved_Other_Values = []
+                try:
+                    User_Name = username
+                    self.cur.execute(f"select UserID from User where Username = '{User_Name}'")
+                    resultUser = self.cur.fetchall()
+                    Saved_Other_Values.append(str(resultUser[0]["UserID"]))
+                except:
+                    print("SELECT USERID FROM USER ERROR (line 757)")
+
+                try:
+                    recipe_name = recipe
+                    self.cur.execute(f"select RecID, Owner from Recipes where RecName = '{recipe_name}'")
+                    resultRec = self.cur.fetchall()
+                    Saved_Other_Values.append(str(resultRec[0]["RecID"]))
+                    Saved_Owner_name = resultRec[0]["Owner"]
+                except:
+                    print("SELECT RECID FROM RECIPES ERROR (line 766)")
+
+                try:
+                    if Saved_Owner_name == username:
+                        print("Owner Already Added")
+                        return "Owner Already Added"
+                        
+                    else:
+                        self.cur.execute(f"SELECT * from SavedRec Where UserID = {resultUser[0]['UserID']} and RecID = {resultRec[0]['RecID']}")
+                        ReturnUserRec = self.cur.fetchall()
+                        if ReturnUserRec == ():                            
+                            self.cur.execute("INSERT INTO SavedRec (UserID, RecID) VALUES (%s, %s)",Saved_Other_Values)
+                            self.con.commit()
+                        else:
+                            print("User Already Added Recipe")
+                            return "User Already Added Recipe"
+                except pymysql.Error as e:
+                    self.con.rollback()
+                    print("Error: " + e.args[1])
+                except:
+                    print("INSERT INTO SAVED REC ERROR (line 784)")
+        except:
+            print("Error ADD_FROM_OTHER")
+
 ######### DO #########
 #UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
 
@@ -763,14 +809,24 @@ class Database:
 
         pass
 
-    #Quite honestly, I have no clue what this is. It was created in class
-    def query(self,sql):
+    def browse_main_table(self,search_term=""):
+        '''
+        Looks in the table for a search term, and if it's empty shows all entries
+        param search_term: any string. Regex will handle the rest (e.g. eggs)
+        returns: a list of dictionaries. 
+                Each dictionary is an entry in the table. 
+                Every key in the dictionary is a column in the table 
+        '''
         self.ensure_connection()
-        self.cur.execute(sql)
-        result = self.cur.fetchall()
-        attrib = [i[0] for i in self.cur.description]
-        self.con.close()
-        return result, attrib
+        result=[]
+        try:
+            self.cur.execute(f"SELECT * FROM Recipes WHERE RecName LIKE IF('{search_term}' = '', '%', CONCAT('%', '{search_term}', '%'));")
+            result = self.cur.fetchall()
+        except:
+            print("SELECT * FROM TABLE ERROR (line 779)")
+        finally:
+            self.con.close()
+        return result
 
 #################################################
 ####                                         ####
@@ -794,7 +850,7 @@ database = Database()
 #    break
 #print(thing["meals"])
 #print(type(thing["meals"]))
-print(recipe.get_youtubelink_parser("Chicken Curry"))
+#print(recipe.get_youtubelink_parser("Chicken Curry"))
 
 '''Ingredient API Testing Code'''
 #ingredients = recipe.lookup_ingredients()
@@ -819,7 +875,7 @@ print(recipe.get_youtubelink_parser("Chicken Curry"))
 #database.delete_recipe("Fake Record 3")
 #print(database.random_recipes(2))
 #print(database.get_ingredients("Pizza Express Margherita"))
-
+#print(database.browse_main_table("poop"))
 
 #################################################
 ####                                         ####
@@ -907,3 +963,4 @@ Dummy_Update ={
 #database.insert_recipe(Dummy_data1, 'asdf')
 #database.delete_recipe("Dummy_data1")
 #database.update_recipe(Dummy_Update, "rpazzi")
+#database.add_from_others("Never going to give you up Spaghetti", "trump")
