@@ -75,6 +75,11 @@ def browse_db():
     print(recipes)
     return jsonify(recipes = recipes)
 
+@main.route('/save_recipe', methods=['POST'])
+def save_recipe():
+    recipe = request.get_json()
+    database.add_to_saved(recipe['name'], get_username(current_user.email))
+    return jsonify(success=True)
 
 @main.route('/saved_recipes')
 def saved_recipes():
