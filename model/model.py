@@ -717,28 +717,29 @@ class Database:
         SPECIFIED FORMAT: {'RecID':"str","style":"str","owner":"str","source":"str,
         "steps":JSON,"ingredients":[("strIng","strAmount),("strIng","strAmount)...]}
         '''
-
+        self.ensure_connection()
         if username == "None":
             print("No username, cannot update")
         else:
             try:
-                self.cur.execute(f"select UserID from User where Username = '{username}'")
-                result_user = self.cur.fetchall()
-                UserID = result_user[0]["UserID"]
+                self.cur.execute(f"select RecID from Recipes where RecName = '{recipe['name']}'")
+                result_RecID = self.cur.fetchall()
+                RecID = result_RecID[0]["RecID"]
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Error at UserID lvl")
-
+                print("Error at RecID lvl (line 732)")
+            
+            Update_table_values = (recipe["name"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"], RecID, username)
             try:
-                pass
+                self.cur.execute("UPDATE Recipes SET RecName = %s, Style = %s, Steps = %s, Source = %s WHERE RecID = %s AND Owner = %s", Update_table_values)
+                self.con.commit()
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("Error at RecipeID lvl")
-
+                print("UPDATE RECIPES ERROR (line 742)")
 
 ######### DO #########
 #UPDATE Recipes  SET RecName = 'New Recipe Name', Owner = 'New Owner', Style = 'New Style', Steps = '{"step1": "New Step 1", "step2": "New Step 2"}', Source = 'New Source' WHERE RecID = 1;
@@ -876,4 +877,16 @@ Dummy_data1 = {
     "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
     "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
 
+
+Dummy_Update ={
+    "name":"UDPATE RECIPE",
+    "style":"Chinese",
+    "owner":"rpazzi",
+    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
+    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]} 
+
+
 #database.insert_recipe(Dummy_data1, 'asdf')
+#database.delete_recipe("Dummy_data1")
+#database.update_recipe(Dummy_Update, "rpazzi")
