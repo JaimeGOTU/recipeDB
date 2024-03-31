@@ -61,7 +61,6 @@ def add_recipe():
     database.insert_recipe(recipe, get_username(current_user.email))
     return jsonify(success=True)
 
-
 @main.route('/select_recipe', methods=['POST'])
 def select_recipe():
     recipe = request.get_json()
@@ -127,7 +126,7 @@ def browse_recipes():
         picture = current_user.picture
     return render_template('browse_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture)
 
-@main.route('/menus')
+@main.route('/menus',methods=['GET', 'POST'])
 def menus():
     if isinstance(current_user, AnonymousUserMixin):
         name = None
@@ -137,7 +136,26 @@ def menus():
         name = current_user.name
         email = current_user.email
         picture = current_user.picture
-    return render_template('menus.html', active_page='menus', name=name, email=email, picture=picture)
+
+    select_from = []  # Add your options here
+    selected_option = None
+    recipes = database.show_saved_recipes(get_username(email))
+    for i in recipes:
+        select_from.append(i["RecName"])
+
+    if request.method == 'POST':
+        selected_option = request.form.get('select')
+
+    recipes = [{
+    "name":"Never going to give you up Spaghetti",
+    "style":"Chinese",
+    "owner":"Rick",
+    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "Steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
+    "Ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
+    ]
+    
+    return render_template('menus.html', active_page='menus', name=name, email=email, picture=picture,select_from=select_from, selected_option=selected_option,recipes=recipes)
 
 @main.app_errorhandler(400)
 def bad_request(e):
