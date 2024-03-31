@@ -86,8 +86,10 @@ def update_recipe_form():
         email = current_user.email
         picture = current_user.picture
         
-    recipe = request.form.get('recipe')
-    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+    recName = request.form.get('recipeName')
+    recipe = database.browse_main_table(recName)
+    print(recipe)
+    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, name=name, email=email, picture=picture)
 
         
 @main.route('/update_recipe', methods=['POST'])

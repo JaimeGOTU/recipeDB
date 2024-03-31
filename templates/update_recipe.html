@@ -7,36 +7,27 @@
             <form id="enterRecipeForm" action="{{ url_for('main.update_recipe') }}" method="post">
                 <div class="field">
                     <label for="recipeName" class="form-label">Recipe Name:</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input"><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" value="{{recipe[0]['RecName']}}"><br>
                 </div>
                 <div class="field">
                     <label for="style" class="form-label">Style:</label><br>
-                    <input type="text" id="style" name="style" class="input"><br>
+                    <input type="text" id="style" name="style" class="input" value="{{recipe[0]['Style']}}"><br>
                 </div>
                 <div class="field">
                     <label for="source" class="form-label">Source:</label><br>
-                    <input type="text" id="source" name="source" class="input"><br>
+                    <input type="text" id="source" name="source" class="input" value="{{recipe[0]['Source']}}"><br>
                 </div>
                 <div id="steps">
-                    <div id="step1" class="field">
-                        <label for="step1Input" class="form-label">Step 1:</label><br>
-                        <input type="text" id="step1Input" name="step1" class="input"><br>
-                    </div>
+                    <!--Placeholder for steps-->
                 </div>
                 <button type="button" id="addStep" class="button">Add Step</button><br>
                 <button type="button" id="removeStep" class="button">Remove Step</button><br>
                 <div class="ingredient-container">
                     <div id="ingredients">
-                        <div id="ing1" class="field">
-                            <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
-                            <input type="text" id="ing1Input" name="ing1" class="input"><br>
-                        </div>
+                        <!--Placeholder for ingredients-->
                     </div>
                     <div id="amounts">
-                        <div id="amt" class="field">
-                            <label for="amt1Input" class="form-label">Amount:</label><br>
-                            <input type="text" id="amtInput" name="amt" class="input"><br>
-                        </div>
+                        <!--Placeholder for amounts-->
                     </div>
                 </div>
                 <button type="button" id="addIng" class="button">Add Ingredient</button><br>
@@ -49,11 +40,63 @@
 
 
     <script>
-        var stepCount = 2;
+        // Pass the recipe variable from Flask to JavaScript
+        var recipe = {{ recipe | tojson | safe }};
+
+        // Parse the 'Steps' field into a JavaScript object
+        var steps = JSON.parse(recipe[0]['Steps']);
+        console.log(steps)
+
+        // Generate the HTML code for the existing steps
+        for (var i = 1; i <= Object.keys(steps).length; i++) {
+            var newStep = document.createElement('div');
+            newStep.id = 'step' + i;
+            newStep.innerHTML = '<label for="step' + i + 'Input">Step ' + i + ':</label><br><input type="text" id="step' + i + 'Input" name="step' + i + '" class="input" value="' + steps['step' + i] + '"><br>';
+            document.getElementById('steps').appendChild(newStep);
+        }
+
+        // Update the stepCount variable to the next step number
+        var stepCount = Object.keys(steps).length + 1;
+    </script>
+
+
+<script>
+   // Pass the recipe variable from Flask to JavaScript
+    var recipe = {{ recipe | tojson | safe }};
+
+    // Parse the 'Ingredients' field into a JavaScript object
+    var ingredients = recipe[0]['Ingredients'];
+
+    // Generate the HTML code for the existing ingredients
+    for (var i = 0; i < ingredients.length; i++) {
+        var ingredient = ingredients[i][0];
+        var quantity = ingredients[i][1];
+
+        var newIngredient = document.createElement('div');
+        newIngredient.id = 'ing' + (i+1);
+        newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="input" value="' + ingredient + '"><br>';
+        document.getElementById('ingredients').appendChild(newIngredient);
+
+        var newQuantity = document.createElement('div');
+        newQuantity.id = 'amt' + (i+1);
+        newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + (i+1) + ':</label><br><input type="text" id="amt' + (i+1) + 'Input" name="amt' + (i+1) + '" class="input" value="' + quantity + '"><br>';
+        document.getElementById('amounts').appendChild(newQuantity);
+    }
+
+    // Update the ingCount variable to the next ingredient number
+    var ingCount = ingredients.length + 1;
+
+</script>
+
+
+
+
+    <script>
+        // Add event listener for the 'addStep' button
         document.getElementById('addStep').addEventListener('click', function() {
             var newStep = document.createElement('div');
             newStep.id = 'step' + stepCount;
-            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
+            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '" class="input"><br>';
             document.getElementById('steps').appendChild(newStep);
             stepCount++;
         });
