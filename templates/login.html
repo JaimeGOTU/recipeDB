@@ -4,8 +4,8 @@
 
 <body>
 {% include "navbar.html" %}
-<div class="column is-4 is-offset-4">
-    <h3 class="title">Login</h3>
+<div class="login-container">
+    <h3 class="logtitle">Login</h3>
     <div class="box">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -33,9 +33,16 @@
                     Remember me
                 </label>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+            <button class="button is-block is-info is-large">Login</button>
+            <button id="signup-button" class="button is-block is-info is-large">Sign Up</button>
         </form>
     </div>
 </div>
+<script>
+    document.getElementById("signup-button").addEventListener("click", function(event){
+        event.preventDefault();
+        window.location.href = "/signup";
+    });
+</script>
 </body>
 {% include "footer.html" %}
