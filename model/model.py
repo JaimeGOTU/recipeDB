@@ -974,6 +974,36 @@ class Database:
 
         return result
 
+    def delete_single_from_menu(self, recipe_name, menu_name, username):
+        #Delete a single recipe from MenuTemp based on the recipe_name, the menu_name and the user
+        self.ensure_connection()
+        UserID = self.get_id("UserID", "User", "Username", username)
+        RecID = self.get_id("RecID", "Recipes", "RecName", recipe_name)
+        try:
+            #print(self.cur.execute(f"Delete from MenuTemp where UserID = '{UserID}' and MenuName = '{menu_name}' and RecID = '{RecID}'"))
+            self.cur.execute(f"Delete from MenuTemp where UserID = '{UserID}' and MenuName = '{menu_name}' and RecID = '{RecID}'")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("DELETE FROM MENUTEMP ERROR (line 990)")
+
+    def delete_entire_menu(self, menu_name, username):
+        #Delete all recipe from MenuTemp based on the Menu_name and the user
+        self.ensure_connection()
+        UserID = self.get_id("UserID", "User", "Username", username)
+        try:
+            self.cur.execute(f"Delete from MenuTemp where UserID = '{UserID}' and MenuName = '{menu_name}'")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("DELETE FROM MENUTEMP ERROR (line 1003)")
+
+
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -1109,8 +1139,10 @@ Dummy_Update ={
     "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
     "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]} 
 
-
+#Insert into MenuTemp(MenuID, Description, UserID, RecID, MenuName) Values (4, 'Test 1', 8, 26, 'Menu1'), (4, 'Test 2', 8, 18, 'Menu1'), (5, 'Test 3', 8, 11, 'Menu2'), (5, 'Test 4', 8, 11, 'Menu2'), (5, 'Test 5', 8, 26, 'Menu2')
 #database.insert_recipe(Dummy_data1, 'asdf')
 #database.delete_recipe("Dummy_data1")
 #database.update_recipe(Dummy_Update, "rpazzi")
 #database.add_from_others("Never going to give you up Spaghetti", "trump")
+#database.delete_single_from_menu('Poopy Pie', 'Menu1','rpazzi')
+#database.delete_entire_menu('Menu2', 'rpazzi')
