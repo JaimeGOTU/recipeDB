@@ -125,6 +125,25 @@ def delete_saved_recipe():
         database.delete_saved_recipe(recipe_name,get_username(email))
     return jsonify({'status': 'success'})
 
+@main.route('/delete_my_ingredient',methods=['POST'])
+def delete_my_ingredient():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        print(request.json)
+        ingredient_name = request.json['ingredient']
+        database.remove_owned_ingredient(get_username(email), ingredient_name)
+    return jsonify({'status': 'success'})
+
+@main.route('/delete_my_allergy',methods=['POST'])
+def delete_my_allergy():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        allergy_name = request.json['allergy']
+        database.remove_allergies(get_username(email), allergy_name)
+    return jsonify({'status': 'success'})
+
 @main.route('/saved_recipes')
 def saved_recipes():
     if isinstance(current_user, AnonymousUserMixin):
