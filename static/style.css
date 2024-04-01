@@ -191,7 +191,7 @@ tr:hover {
     align-items: center;
 }
 
-.input {
+.input, .ingredients-field {
     width: 80%; /* Make the input boxes wider */
     padding: 25px;
     border: none;
@@ -206,11 +206,11 @@ tr:hover {
     margin-right: auto; /* Align the input boxes to the center */
 }
 
-.input:focus {
+.input:focus .ingredients-field:focus{
     transform: scale(1.05);
 }
 
-.input::placeholder {
+.ingredients-field::placeholder {
     color: #5a5454;
 }
 
@@ -371,7 +371,7 @@ tr:hover {
     }
 }
 
-.select-recipe-button {
+.select-recipe-button, .delete-recipe-button, .update-recipe-button {
     margin-top: 10px;
     width: 150px; /* Fixed width */
     padding: 15px;
@@ -384,7 +384,7 @@ tr:hover {
     transition: background-color 0.5s ease, transform 0.3s ease;
 }
 
-.select-recipe-button:hover {
+.select-recipe-button:hover, .delete-recipe-button:hover, .update-recipe-button:hover {
     background-color: #ff4e95;
     transform: scale(1.05);
 }
