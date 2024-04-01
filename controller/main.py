@@ -44,7 +44,8 @@ def api_recipes():
             name = current_user.name
             email = current_user.email
             picture = current_user.picture
-        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes, name=name, email=email, picture=picture)
+        ingredients = database.get_all_ingredients()
+        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes, name=name, email=email, ingredients=ingredients, picture=picture)
 
 @main.route('/recipe_info', methods=['POST'])
 def recipe_info():
