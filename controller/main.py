@@ -16,7 +16,6 @@ def index():
         recipe['Steps'] = json.loads(recipe['Steps'])
         recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
         recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
-    print(recipes_random[0])
     if isinstance(current_user, AnonymousUserMixin):
             name = None
             email = None
@@ -45,18 +44,17 @@ def api_recipes():
             name = current_user.name
             email = current_user.email
             picture = current_user.picture
-        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes, name=name, email=email, picture=picture)
+        ingredients = database.get_all_ingredients()
+        return render_template('add_recipes.html', active_page='add_recipes', recipes=parsed_recipes, name=name, email=email, ingredients=ingredients, picture=picture)
 
 @main.route('/recipe_info', methods=['POST'])
 def recipe_info():
     recipe = request.get_json().get('recipe')
-    print(recipe)  # or do whatever you need with the recipe info
     return jsonify(status="success")
 
 @main.route('/add_recipe', methods=['POST'])
 def add_recipe():
     recipe = request.get_json()
-    print(recipe)
     database.insert_recipe(recipe, get_username(current_user.email))
     return jsonify(success=True)
 
@@ -70,7 +68,6 @@ def select_recipe():
 def browse_db():
     search_term = request.form.get('search')
     recipes = database.browse_main_table(search_term)
-    print(recipes)
     return jsonify(recipes = recipes)
 
 @main.route('/update_recipe_form', methods=['POST'])
@@ -85,9 +82,9 @@ def update_recipe_form():
         picture = current_user.picture
         
     recName = request.form.get('recipeName')
+    ingredients = database.get_all_ingredients()
     recipe = database.browse_main_table(recName)
-    print(recipe)
-    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, name=name, email=email, picture=picture)
+    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, ingredients=ingredients, name=name, email=email, picture=picture)
 
         
 @main.route('/update_recipe', methods=['POST'])
@@ -102,7 +99,8 @@ def update_recipe():
         picture = current_user.picture
         
     recipe = request.get_json()
-    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+    database.update_recipe(recipe, get_username(email))
+    return redirect(url_for('main.my_recipes'))
         
 
 @main.route('/save_recipe', methods=['POST'])
@@ -116,6 +114,16 @@ def delete_recipe():
     recipe = request.form.get('recipeName')
     database.delete_recipe(recipe)
     return redirect(url_for('main.my_recipes'))
+
+#Route that gets called by a script in "saved recipes" to delete a saved recipe from a User
+@main.route('/delete_saved_recipe',methods=['POST'])
+def delete_saved_recipe():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        recipe_name = request.json['name']
+        database.delete_saved_recipe(recipe_name,get_username(email))
+    return jsonify({'status': 'success'})
 
 @main.route('/saved_recipes')
 def saved_recipes():
@@ -131,7 +139,8 @@ def saved_recipes():
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
-        print(recipes)
+            recipe['Allergy'] = database.contains_allergies(recipe["RecName"],get_username(email))
+            recipe['Sufice'] = database.check_sufficient_ingredients(recipe["RecName"],get_username(email))
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
@@ -148,7 +157,6 @@ def my_recipes():
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
-        print(recipes)
     return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/browse_recipes')
@@ -167,10 +175,54 @@ def browse_recipes():
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
 
-from flask import request, render_template, jsonify
-from flask_login import current_user, AnonymousUserMixin
+@main.route('/manage_ingredients', methods=['GET', 'POST'])
+def store_ingredients():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_owned_ingredient(get_username(email), ingName)
+        return jsonify(success=True)
+    else:
+        myIngredients = database.get_owned_ingredients(get_username(email))
+        myAllergies = database.get_allergies(get_username(email))
+        ingredients = database.get_all_ingredients()
+        return render_template('manage_ingredients.html', active_page='manage_ingredients', name=name, email=email, ingredients=ingredients, myIngredients=myIngredients, myAllergies = myAllergies, picture=picture)
 
-@main.route('/menus', methods=['GET', 'POST'])
+
+@main.route('/manage_allergies', methods=['POST'])
+def store_allergies():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_allergies(get_username(email), ingName)
+        return jsonify(success=True)
+
+
+@main.route('/menus',methods=['GET', 'POST'])
 def menus():
     if current_user.is_anonymous:
         name = None
