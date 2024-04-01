@@ -14,8 +14,14 @@
                     <div class="menu-card">
                         <h2 class="menu-title">{{ menu_name }}</h2>
                         {% for recipe in recipes %}
-                            <p class="recipe-description">{{ recipe[0] }}: {{ recipe[1] }}</p>
+                        <!-- <p class="recipe-description">{{ recipe[0] }}: {{ recipe[1] }}</p> -->
+                            <div class="recipe-description">
+                                <span>{{ recipe[0] }}</span>
+                                <span>:</span>
+                                <span>{{ recipe[1] }}</span>
+                            </div>
                         {% endfor %}
+                        <button class="delete-menu-button" style="float: right;">Delete menu</button>
                     </div>
                 {% endfor %}
             </div>                
@@ -55,6 +61,7 @@
             $("#searchRecipeButton").click(function(){
                 $("#searchRecipe").show();
                 $("#addRecipeForm").hide();
+                location.reload();
             });
 
             $("#enterRecipeForm").on('submit', function(e) {
@@ -73,9 +80,33 @@
                     data: JSON.stringify(data),
                     success: function(response) {
                         console.log(response);
+                        alert("Successfully added");
+                        $("#recipeName").val('');
+                        $("#recipe").val('');
+                        $("#style").val('');
                     }
-                });
+                });   
             });
+
+            $(".delete-menu-button").click(function(){
+            var menuName = $(this).siblings(".menu-title").text();  // Get the menu name
+            
+            var result = confirm("Are you sure?");
+            if (result){
+            $.ajax({
+                url: '/delete_single_menu',  
+                type: 'POST',  
+                contentType: 'application/json',  
+                data: JSON.stringify({name: menuName}), 
+                success: function(response) {
+                    console.log(response);
+                    location.reload();
+                }
+            });
+        }
+        });
+
+
         });
     </script>
 </body>

@@ -353,7 +353,7 @@ p {
     }
 }
 
-.select-recipe-button, .delete-recipe-button, .update-recipe-button {
+.select-recipe-button, .delete-recipe-button, .update-recipe-button, .delete-menu-button {
     margin-top: 10px;
     width: 150px; /* Fixed width */
     padding: 15px;
@@ -366,7 +366,7 @@ p {
     transition: background-color 0.5s ease, transform 0.3s ease;
 }
 
-.select-recipe-button:hover, .delete-recipe-button:hover, .update-recipe-button:hover {
+.select-recipe-button:hover, .delete-recipe-button:hover, .update-recipe-button:hover, .delete-menu-button:hover {
     background-color: #ff4e95;
     transform: scale(1.05);
 }
