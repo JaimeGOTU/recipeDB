@@ -31,6 +31,10 @@
                         {% if not recipe.Sufice %}
                             <p class="recipe-style">You don't have all ingredients to make this recipe!</p>
                         {% endif %}
+                        <!-- Embed YouTube video -->
+                        {% if recipe.youtube_link %}
+                            <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                        {% endif %}
                         <button class="select-recipe-button" data-recipe-name="{{ recipe.RecName }}">Delete Recipe</button>
                     </div>
                 {% endfor %}
