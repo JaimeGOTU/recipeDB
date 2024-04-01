@@ -15,6 +15,15 @@ h1 {
     font-size: 2.5em;  /* larger text */
     font-weight: bold;
 }
+
+h2 {
+    color: #433e3e;
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 2em;
+    font-weight: bold;
+}
+
 p {
     color: #ffffff;
     text-align: center;
@@ -25,35 +34,6 @@ p {
     margin: auto;
     width: 50%;
     padding: 10px;
-}
-.table-responsive {
-    overflow-x: auto; /* Enable horizontal scrolling */
-}
-table {
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-    border-collapse: collapse;
-    background-color: #f8f8f8de;
-    box-shadow: 0 2px 3px rgba(0, 55, 85, 0.445);
-    border-radius: 25px;
-}
-table, th, td {
-    border: 1px solid #ddd;
-}
-th, td {
-    padding: 15px;
-    text-align: center;
-}
-th {
-    background-color: #313131;
-    color: white;
-}
-tr:nth-child(even) {
-    background-color: #ffffff;
-}
-tr:hover {
-    background-color: #dddddde9;
 }
 
 .topnav {
