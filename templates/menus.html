@@ -8,14 +8,27 @@
             <button class="tab-button active" id="addRecipeButton">Add To Menu</button>
         </div>
 
+        <div id="searchRecipe" class="tab-content" style="display: block;">
+            <div id="searchResults">
+                {% for menu_name, recipes in menus.items() %}
+                    <div class="menu-card">
+                        <h2 class="menu-title">{{ menu_name }}</h2>
+                        {% for recipe in recipes %}
+                            <p class="recipe-description">{{ recipe[0] }}: {{ recipe[1] }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>                
+        </div>
+
         <div id="addRecipeForm" class="tab-content active" style="display: none;">
-            <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
+            <form id="enterRecipeForm" action="{{ url_for('main.add_to_menu') }}" method="post">
                 <div class="field">
-                    <label for="recipeName" class="form-label">Menu Name</label><br>
+                    <label for="recipeName" class="form-label">Menu Name (DO NOT ADD ' OR ")</label><br>
                     <input type="text" id="recipeName" name="recipeName" class="input" placeholder="If adding to an existing menu, name must match exactly"><br>
                 </div>
                 <div class="field">
-                    <label for="style" class="form-label">Description</label><br>
+                    <label for="style" class="form-label">Description (DO NOT ADD ' OR ")</label><br>
                     <input type="text" id="style" name="style" class="input"><br>
                 </div>
                 <div class="field">
@@ -28,253 +41,44 @@
                 </div>
                 <input type="submit" value="Submit" class="button">
             </form>
-        </div>        
-
-        <div id="searchRecipe" class="tab-content" style="display: block;">
-            <div id="searchRecipeForm" class="box">
-                <div id="searchResults">
-                    {% if recipes %}
-                        {% for recipe in recipes %}
-                            <div class="recipe-card">
-                                <h2 class="recipe-title">{{ recipe.RecName }}</h2>
-                                <p class="recipe-owner">Owner: {{ recipe.Owner }}</p>
-                                <p class="recipe-style">Style: {{ recipe.Style }}</p>
-                                <p class="recipe-ingredients-title">Ingredients:</p>
-                                <ul class="recipe-ingredients">
-                                    {% for food,amount in recipe.Ingredients %}
-                                    <li>{{ food }}: {{ amount }}</li>
-                                    {% endfor %}
-                                </ul>
-                                <p class="recipe-steps-title">Steps:</p>
-                                <ol class="recipe-steps">
-                                    {% for step, instruction in recipe.Steps.items() %}
-                                        <li>{{ instruction }}</li>
-                                    {% endfor %}
-                                </ol>
-                                <p class="recipe-source">Source: {{ recipe.Source }}</p>
-                                <button class="button">Select Recipe</button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>                
-            </div>
-        </div>
+        </div>             
     </div>
-    
-
-
-    <script>
-        // Initially hide the addRecipeForm
-        document.getElementById('addRecipeForm').style.display = 'none';
-
-        document.getElementById('addRecipeButton').addEventListener('click', function() {
-            document.getElementById('searchRecipe').style.display = 'none';
-            document.getElementById('addRecipeForm').style.display = 'block';
-            document.getElementById('addRecipeForm').style.opacity = 0;
-            setTimeout(function() {
-                document.getElementById('addRecipeForm').style.opacity = 1;
-            }, 1); // Start the transition 1ms later to ensure it works correctly
-        });
-
-        document.getElementById('searchRecipeButton').addEventListener('click', function() {
-            document.getElementById('addRecipeForm').style.display = 'none';
-            document.getElementById('searchRecipe').style.display = 'block';
-            document.getElementById('searchRecipe').style.opacity = 0;
-            setTimeout(function() {
-                document.getElementById('searchRecipe').style.opacity = 1;
-            }, 1); // Start the transition 1ms later to ensure it works correctly
-        });
-
-        var stepCount = 2;
-        document.getElementById('addStep').addEventListener('click', function() {
-            var newStep = document.createElement('div');
-            newStep.id = 'step' + stepCount;
-            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
-            document.getElementById('steps').appendChild(newStep);
-            stepCount++;
-        });
-
-        var ingCount = 2;
-        var amtCount = 2;
-        document.getElementById('addIng').addEventListener('click', function() {
-            var newIng = document.createElement('div');
-            newIng.id = 'ing' + ingCount;
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
-            document.getElementById('ingredients').appendChild(newIng);
-            ingCount++;
-
-            var newAmt = document.createElement('div');
-            newAmt.id = 'amt' + amtCount;
-            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
-            document.getElementById('amounts').appendChild(newAmt);
-            amtCount++;
-        });
-
-        document.getElementById('removeStep').addEventListener('click', function() {
-            if (stepCount > 2) {
-                stepCount--;
-                var lastStep = document.getElementById('step' + stepCount);
-                lastStep.parentNode.removeChild(lastStep);
-            }
-        });
-
-        document.getElementById('removeIng').addEventListener('click', function() {
-            if (ingCount > 2) {
-                ingCount--;
-                amtCount--;
-                var lastIng = document.getElementById('ing' + ingCount);
-                var lastAmt = document.getElementById('amt' + amtCount);
-                lastIng.parentNode.removeChild(lastIng);
-                lastAmt.parentNode.removeChild(lastAmt);
-            }
-        });
-
-        function sendRecipeInfo(recipe) {
-            fetch('/recipe_info', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({recipe: recipe})
-            }).then(response => response.json())
-            .then(data => console.log(data));
-        }
-
-
-    </script>
-
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
             $("#addRecipeButton").click(function(){
-                $("#recipeManualEntry").show();
+                $("#addRecipeForm").show();
                 $("#searchRecipe").hide();
             });
-    
+
             $("#searchRecipeButton").click(function(){
                 $("#searchRecipe").show();
-                $("#recipeManualEntry").hide();
+                $("#addRecipeForm").hide();
             });
-    
-            $("#searchForm").on('submit', function(e) {
-                e.preventDefault();  // Prevent the form from reloading the page
-    
-                // Submit the form using AJAX
+
+            $("#enterRecipeForm").on('submit', function(e) {
+                e.preventDefault();
+
+                var data = {
+                    menuName: $("#recipeName").val(),
+                    recipeName: $("#recipe").val(),
+                    description: $("#style").val()
+                };
+
                 $.ajax({
-                    url: $(this).attr('action'),  // The URL to send the request to
-                    type: 'POST',  // The type of HTTP method to use
-                    data: $(this).serialize(),  // The form data
+                    url: '/add_to_menu',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
                     success: function(response) {
-                        // Update the searchResults div with the data from the JSON response
-                        var html = '';
-                        if (response.recipes) {
-                            response.recipes.forEach(function(recipe) {
-                                html += '<div class="recipe-card">';
-                                html += '<h2 class="recipe-title">' + recipe.name + '</h2>';
-                                html += '<p class="recipe-owner">Owner: ' + recipe.owner + '</p>';
-                                html += '<p class="recipe-style">Style: ' + recipe.style + '</p>';
-                                html += '<p class="recipe-ingredients-title">Ingredients:</p><ul>';
-                                for (var i = 0; i < recipe.ingredients.length; i++) {
-                                    // Get the ingredient name and amount
-                                    var ingName = recipe.ingredients[i][0];
-                                    var ingAmount = recipe.ingredients[i][1];
-                                    html += '<li>' + ingName + ': ' + ingAmount + '</li>';
-                                }
-                                html += '</ul>';
-                                html += '<p class="recipe-steps-title">Steps:</p><ol>';
-                                for (var step in recipe.steps) {
-                                    // Remove the "step" prefix from the step number
-                                    var stepNum = step.replace('step', '');
-                                    html += '<li>' + stepNum + ': ' + recipe.steps[step] + '</li>';
-                                }
-                                html += '</ol>';
-                                html += '<p class="recipe-source">Source: ' + recipe.source + '</p>';
-                                html += '<button class="select-recipe-button" data-recipe-name="' + recipe.name + '">Select Recipe</button>';
-                                html += '</div>';
-                            });
-                        }
-                        $("#searchResults").html(html);
+                        console.log(response);
                     }
                 });
             });
         });
     </script>
-    
-    <script>
-        $(document).on('click', '.select-recipe-button', function() {
-            var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
-
-            // Send the selected recipe's name to the server using AJAX
-            $.ajax({
-                url: '/select_recipe',  // The URL to send the request to
-                type: 'POST',  // The type of HTTP method to use
-                contentType: 'application/json',  // The type of data you're sending
-                data: JSON.stringify({name: recipeName}),  // The selected recipe's name
-                success: function(response) {
-                    // Handle the server's response here
-                    console.log(response);
-                }
-            });
-        });
-    </script>
-
-    <script>
-        $("#enterRecipeForm").on('submit', function(e) {
-        e.preventDefault();  // Prevent the form from reloading the page
-
-        // Extract the information from the form
-        var recipeName = $("#recipeName").val();
-        var style = $("#style").val();
-        var source = $("#source").val();
-
-        // Format the steps as a JSON object
-        var steps = {};
-        $("#steps div").each(function() {
-            var stepNumber = $(this).attr('id');  // Get the step number
-            var stepInstruction = $(this).find('input').val();  // Get the step instruction
-            steps[stepNumber] = stepInstruction;
-        });
-
-        // Initialize an empty array
-        var ingredients = [];
-
-        // Loop through each div inside the #ingredients and #Amounts divs
-        $("#ingredients div").each(function(index) {
-            // Get the ingredient name and amount
-            var ingName = $(this).find('input').val();
-            var ingAmt = $("#amounts div").eq(index).find('input').val();
-
-            // Create an array with the ingredient name and amount
-            var ingredient = [ingName, ingAmt];
-
-            // Add the array to the ingredients array
-            ingredients.push(ingredient);
-        });
-
-        // Create the data object to send to the server
-        var data = {
-            name: recipeName,
-            style: style,
-            steps: steps,
-            source: source,
-            ingredients: ingredients
-
-        };
-
-        // Send the data to the server using AJAX
-        $.ajax({
-            url: '/add_recipe',  // The URL to send the request to
-            type: 'POST',  // The type of HTTP method to use
-            contentType: 'application/json',  // The type of data you're sending
-            data: JSON.stringify(data),  // The data to send
-            success: function(response) {
-                // Handle the server's response here
-            }
-        });
-    });
-
-    </script>
-
 </body>
+
 {% include "footer.html" %}
+
