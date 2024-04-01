@@ -183,8 +183,31 @@ def store_ingredients():
         return jsonify(success=True)
     else:
         myIngredients = database.get_owned_ingredients(get_username(email))
+        myAllergies = database.get_allergies(get_username(email))
         ingredients = database.get_all_ingredients()
-        return render_template('manage_ingredients.html', active_page='manage_ingredients', name=name, email=email, ingredients=ingredients, myIngredients=myIngredients, picture=picture)
+        return render_template('manage_ingredients.html', active_page='manage_ingredients', name=name, email=email, ingredients=ingredients, myIngredients=myIngredients, myAllergies = myAllergies, picture=picture)
+
+
+@main.route('/manage_allergies', methods=['POST'])
+def store_allergies():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_allergies(get_username(email), ingName)
+        return jsonify(success=True)
+
 
 @main.route('/menus',methods=['GET', 'POST'])
 def menus():

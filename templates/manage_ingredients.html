@@ -5,11 +5,25 @@
     <div class="entry-container">
         <div class="tabs">
             <button class="tab-button active" id="myIngredientsButton">My Ingredients</button>
-            <button class="tab-button" id="searchIngredientsButton">Lookup Ingredients</button>
+            <button class="tab-button" id="searchIngredientsButton">Search Ingredients</button>
+        </div>
+
+        <div id="searchIngredients" class="tab-content">
+            <div id="searchRecipeForm" class="box">
+                <form id="searchForm" action="{{ url_for('main.store_ingredients') }}" method="post">
+                    <div class="field">
+                        <label for="search" class="form-label">Lookup Ingredients to Store:</label><br>
+                        <input type="text" id="search" name="search" class="ingredients-field"><br>
+                    </div>
+                    <input type="submit" id="storeIngredientButton" value="Store Ingredient" class="button">
+                    <input type="submit" id="storeAllergyButton" value="Store Allergy" class="button">
+                </form>
+            </div>
         </div>
 
         <div id="myIngredients" class="tab-content active">
             <div class="recipe-card">
+                <h2 class = "recipe-title">My Ingredients</h2>
                 <ul class="recipe-ingredients">
                     {% if myIngredients %}
                         {% for ingredient in myIngredients %}
@@ -22,40 +36,41 @@
             </div>
         </div>
 
-        <div id="searchIngredients" class="tab-content">
-            <div id="searchRecipeForm" class="box">
-                <form id="searchForm" action="{{ url_for('main.store_ingredients') }}" method="post">
-                    <div class="field">
-                        <label for="search" class="form-label">Lookup Ingredients to Store:</label><br>
-                        <input type="text" id="search" name="search" class="ingredients-field"><br>
-                    </div>
-                    <input type="submit" value="Store Ingredient" class="button">
-                </form>
-            </div>
-
-            <div id="searchResults">
-                <!--Placeholder-->
+        <div id="myAllergies" class="tab-content active">
+            <div class="recipe-card">
+                <h2 class = "recipe-title">My Allergies</h2>
+                <ul class="recipe-ingredients">
+                    {% if myAllergies %}
+                        {% for allergy in myAllergies %}
+                            <li>{{ allergy }}</li>
+                        {% endfor %}
+                    {% else %}
+                        <li>You do not have any allergies!</li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </div>
+</div>
 
 
     <script>
         // Initially hide the search form
         document.getElementById('searchIngredients').style.display = 'none';
-    
+
         document.getElementById('myIngredientsButton').addEventListener('click', function() {
-            document.getElementById('searchIngredients').style.display = 'none';
-            document.getElementById('myIngredients').style.display = 'block';
-            document.getElementById('myIngredients').style.opacity = 0;
-            setTimeout(function() {
-                document.getElementById('myIngredients').style.opacity = 1;
-                location.reload();
-            }, 1); // Start the transition 1ms later to ensure it works correctly
-        });
+        document.getElementById('searchIngredients').style.display = 'none';
+        document.getElementById('myIngredients').style.display = 'block';  // Change 'visible' to 'block'
+        setTimeout(function() {
+            document.getElementById('myIngredients').style.opacity = 1;
+            location.reload();
+        }, 1); // Start the transition 1ms later to ensure it works correctly
+    });
+
     
         document.getElementById('searchIngredientsButton').addEventListener('click', function() {
             document.getElementById('myIngredients').style.display = 'none';
+            document.getElementById('myAllergies').style.display = 'none';
             document.getElementById('searchIngredients').style.display = 'block';
             document.getElementById('searchIngredients').style.opacity = 0;
             setTimeout(function() {
@@ -163,20 +178,29 @@
         // If all inputs are valid, gather form data
         var ingName = $('#search').val();
 
+        // Determine which button was clicked
+        var action = event.originalEvent.submitter.id;
+
+        // Determine the endpoint based on the action
+        var endpoint = action === 'storeIngredientButton' ? '/manage_ingredients' : '/manage_allergies';
+
         // Send data to server
         $.ajax({
-            url: '/manage_ingredients',
+            url: endpoint,
             type: 'POST',
             data: { search: ingName },
             success: function(response) {
                 if (response.success) {
-                    alert('Ingredient added successfully!');
+                    if (action === 'storeIngredientButton') {
+                        alert('Ingredient added successfully!');
+                    } else if (action === 'storeAllergyButton') {
+                        alert('Allergy added successfully!');
+                    }
                     // Update your page here without reloading
                 }
             }
         });
     });
-
 
     </script>
 
