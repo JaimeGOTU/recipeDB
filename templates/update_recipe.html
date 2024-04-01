@@ -40,6 +40,9 @@
 
 
     <script>
+        //THIS IS THE SCRIPT TO FILL IN EXISTING STEPS
+
+
         // Pass the recipe variable from Flask to JavaScript
         var recipe = {{ recipe | tojson | safe }};
 
@@ -61,7 +64,10 @@
 
 
     <script>
-    // Pass the recipe variable from Flask to JavaScript
+        //THIS IS THE SCRIPT TO FILL IN EXISTING INGREDIENTS
+
+
+        // Pass the recipe variable from Flask to JavaScript
         var recipe = {{ recipe | tojson | safe }};
 
         // Parse the 'Ingredients' field into a JavaScript object
@@ -90,6 +96,10 @@
 
 
     <script>
+        //THIS IS THE SCRIPT TO ADD-REMOVE STEPS AND INGREDIENTS
+
+        var allIngredients = {{ ingredients | tojson | safe }};
+
         // Add event listener for the 'addStep' button
         document.getElementById('addStep').addEventListener('click', function() {
             var newStep = document.createElement('div');
@@ -99,19 +109,19 @@
             stepCount++;
         });
 
-        var ingCount = 2;
-        var amtCount = 2;
+        //var ingCount = ;
+        //var amtCount = 2;
+        var amtCount = ingCount;
         document.getElementById('addIng').addEventListener('click', function() {
             var newIng = document.createElement('div');
-            newIng.className = "ingredients-field";
             newIng.id = 'ing' + ingCount;
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" onblur="validateInput(this.value)"><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
-            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
+            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" ><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });
@@ -135,14 +145,21 @@
             }
         });
 
+        function validateInput(input) {
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+            }
+        }
+
     </script>
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
+        //THIS IS THE SCRIPT TO SUBMIT THE FORM
+
         $("#enterRecipeForm").on('submit', function(e) {
-        e.preventDefault();  // Prevent the form from reloading the page
 
         // Extract the information from the form
         var recipeName = $("#recipeName").val();
@@ -198,15 +215,17 @@
     </script>
 
     <script>
-        
-        var myArray = ["Option 1", "Option 2", "Option 3", "Option 4"];
+        //THIS IS THE SCRIPT TO AUTOFILL INGREDIENTS
+
+        var allIngredients = {{ ingredients | tojson | safe }};
+        console.log(allIngredients);
 
         // Get the input field
         var inputs = document.getElementsByClassName("ingredients-field");
 
         // Attach the autocomplete function to each input field
         for (var i = 0; i < inputs.length; i++) {
-            autocomplete(inputs[i], myArray);
+            autocomplete(inputs[i], allIngredients);
         }
 
         function autocomplete(inp, arr) {

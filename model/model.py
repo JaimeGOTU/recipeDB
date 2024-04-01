@@ -1051,6 +1051,26 @@ class Database:
             print("unexpected error getting menu / description info line 1052")
         
         return menu_dict
+    
+    def get_all_ingredients(self):
+        '''
+        returns a list of all ingredients in an array
+        '''
+        self.ensure_connection()
+        result = []
+        ingredients = []
+        try:
+            self.cur.execute(f"Select IngName from Ingredients")
+            result = self.cur.fetchall()
+            for i in result:
+                ingredients.append(i['IngName'])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("Error ingredients")
+        
+        return ingredients
 
 #################################################
 ####                                         ####
@@ -1104,7 +1124,8 @@ database = Database()
 #print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
 #print(database.get_my_recipes("trump"))
-print(database.get_menus("rpazzi"))
+#print(database.get_all_ingredients())
+#print(database.get_menus("rpazzi"))
 
 #################################################
 ####                                         ####

@@ -85,9 +85,10 @@ def update_recipe_form():
         picture = current_user.picture
         
     recName = request.form.get('recipeName')
+    ingredients = database.get_all_ingredients()
     recipe = database.browse_main_table(recName)
     print(recipe)
-    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, name=name, email=email, picture=picture)
+    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, ingredients=ingredients, name=name, email=email, picture=picture)
 
         
 @main.route('/update_recipe', methods=['POST'])
@@ -102,7 +103,8 @@ def update_recipe():
         picture = current_user.picture
         
     recipe = request.get_json()
-    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+    database.update_recipe(recipe, get_username(email))
+    return redirect(url_for('main.my_recipes'))
         
 
 @main.route('/save_recipe', methods=['POST'])
