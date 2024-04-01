@@ -162,6 +162,30 @@ def browse_recipes():
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
 
+@main.route('/manage_ingredients', methods=['GET', 'POST'])
+def store_ingredients():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_owned_ingredient(get_username(email), ingName)
+        return jsonify(success=True)
+    else:
+        myIngredients = database.get_owned_ingredients(get_username(email))
+        ingredients = database.get_all_ingredients()
+        return render_template('manage_ingredients.html', active_page='manage_ingredients', name=name, email=email, ingredients=ingredients, myIngredients=myIngredients, picture=picture)
+
 @main.route('/menus',methods=['GET', 'POST'])
 def menus():
     if isinstance(current_user, AnonymousUserMixin):
