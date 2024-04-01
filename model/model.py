@@ -598,8 +598,6 @@ class Database:
                 return ("ERROR","Could not find username")
             except:
                 print("SELECT USERID FROM USER ERROR (line 588)")
-            finally:
-                self.con.close()
         # Get Recipe ID
         try:
             self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
@@ -611,8 +609,6 @@ class Database:
             return ("ERROR","Could not find recipe")
         except:
             print("SELECT RECID FROM RECIPES ERROR (line 601)")
-        finally:
-            self.con.close()
         
         # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
         try:
