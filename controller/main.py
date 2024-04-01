@@ -115,6 +115,35 @@ def delete_recipe():
     database.delete_recipe(recipe)
     return redirect(url_for('main.my_recipes'))
 
+#Route that gets called by a script in "saved recipes" to delete a saved recipe from a User
+@main.route('/delete_saved_recipe',methods=['POST'])
+def delete_saved_recipe():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        recipe_name = request.json['name']
+        database.delete_saved_recipe(recipe_name,get_username(email))
+    return jsonify({'status': 'success'})
+
+@main.route('/delete_my_ingredient',methods=['POST'])
+def delete_my_ingredient():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        print(request.json)
+        ingredient_name = request.json['ingredient']
+        database.remove_owned_ingredient(get_username(email), ingredient_name)
+    return jsonify({'status': 'success'})
+
+@main.route('/delete_my_allergy',methods=['POST'])
+def delete_my_allergy():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        allergy_name = request.json['allergy']
+        database.remove_allergies(get_username(email), allergy_name)
+    return jsonify({'status': 'success'})
+
 @main.route('/saved_recipes')
 def saved_recipes():
     if isinstance(current_user, AnonymousUserMixin):
@@ -128,6 +157,9 @@ def saved_recipes():
         recipes = database.show_saved_recipes(get_username(email))
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
+            recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
+            recipe['Allergy'] = database.contains_allergies(recipe["RecName"],get_username(email))
+            recipe['Sufice'] = database.check_sufficient_ingredients(recipe["RecName"],get_username(email))
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
@@ -162,9 +194,56 @@ def browse_recipes():
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
     return render_template('browse_recipes.html', active_page='browse_recipes', name=name, email=email, picture=picture)
 
+@main.route('/manage_ingredients', methods=['GET', 'POST'])
+def store_ingredients():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_owned_ingredient(get_username(email), ingName)
+        return jsonify(success=True)
+    else:
+        myIngredients = database.get_owned_ingredients(get_username(email))
+        myAllergies = database.get_allergies(get_username(email))
+        ingredients = database.get_all_ingredients()
+        return render_template('manage_ingredients.html', active_page='manage_ingredients', name=name, email=email, ingredients=ingredients, myIngredients=myIngredients, myAllergies = myAllergies, picture=picture)
+
+
+@main.route('/manage_allergies', methods=['POST'])
+def store_allergies():
+    if isinstance(current_user, AnonymousUserMixin):
+            name = None
+            email = None
+            picture = None
+    else:
+        name = current_user.name
+        email = current_user.email
+        picture = current_user.picture
+    if request.method == 'POST':
+        # Check if the request has JSON data
+        if request.is_json:
+            data = request.get_json()
+            ingName = data.get('search')
+        else:
+            ingName = request.form.get('search')
+        database.add_allergies(get_username(email), ingName)
+        return jsonify(success=True)
+
+
 @main.route('/menus',methods=['GET', 'POST'])
 def menus():
-    if isinstance(current_user, AnonymousUserMixin):
+    if current_user.is_anonymous:
         name = None
         email = None
         picture = None
@@ -173,25 +252,43 @@ def menus():
         email = current_user.email
         picture = current_user.picture
 
-    select_from = []  # Add your options here
-    selected_option = None
-    recipes = database.show_saved_recipes(get_username(email))
-    for i in recipes:
-        select_from.append(i["RecName"])
+    select_from = [i["RecName"] for i in database.show_saved_recipes(get_username(email))]
 
-    if request.method == 'POST':
-        selected_option = request.form.get('select')
+    selected_option = request.form.get('select') if request.method == 'POST' else None
 
-    recipes = [{
-    "name":"Never going to give you up Spaghetti",
-    "style":"Chinese",
-    "owner":"Rick",
-    "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-    "Steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
-    "Ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]}
-    ]
-    
-    return render_template('menus.html', active_page='menus', name=name, email=email, picture=picture,select_from=select_from, selected_option=selected_option,recipes=recipes)
+    raw_menus = database.get_menus(get_username(email))
+    print("Raw Menus:", raw_menus)
+
+    menus = {}
+    for menu_name, menu_items in raw_menus.items():
+        print("Processing menu:", menu_name)  # Print the current menu name
+        for item in menu_items:
+            description = item[0]
+            recipe_name = item[1]
+            menus.setdefault(menu_name, []).append([description, recipe_name])
+            print("Added to menus:", [description, recipe_name])  # Print what's added to menus
+
+    print("Menus before rendering:", menus)
+
+    rendered_template = render_template('menus.html', active_page='menus', name=name, email=email, picture=picture, select_from=select_from, selected_option=selected_option, menus=menus)
+
+    print("Menus after rendering:", menus)  # Print the menus data after rendering the template
+
+    return rendered_template
+
+@main.route('/add_to_menu', methods=['POST'])
+def add_to_menu():
+    data = request.get_json()
+    if 'menuName' in data and 'recipeName' in data and 'description' in data:
+        menuName = data['menuName']
+        recipeName = data['recipeName']
+        description = data['description']  # Get the description from the request data
+        username = get_username(current_user.email)
+        database.insert_menu(username, recipeName, menuName, description)
+        return jsonify(success=True)
+    else:
+        return jsonify(success=False, message="menuName, recipeName or description not provided in request")
+
 
 @main.app_errorhandler(400)
 def bad_request(e):

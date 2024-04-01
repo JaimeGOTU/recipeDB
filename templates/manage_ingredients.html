@@ -1,0 +1,260 @@
+{% include "header.html" %}
+<body>
+    {% include "navbar.html" %}
+
+    <div class="entry-container">
+        <div class="tabs">
+            <button class="tab-button active" id="myIngredientsButton">My Ingredients</button>
+            <button class="tab-button" id="searchIngredientsButton">Search Ingredients</button>
+        </div>
+
+        <div id="searchIngredients" class="tab-content">
+            <div id="searchRecipeForm" class="box">
+                <form id="searchForm" action="{{ url_for('main.store_ingredients') }}" method="post">
+                    <div class="field">
+                        <label for="search" class="form-label">Lookup Ingredients to Store:</label><br>
+                        <input type="text" id="search" name="search" class="ingredients-field"><br>
+                    </div>
+                    <input type="submit" id="storeIngredientButton" value="Store Ingredient" class="button">
+                    <input type="submit" id="storeAllergyButton" value="Store Allergy" class="button">
+                </form>
+            </div>
+        </div>
+
+        <div id="myIngredients" class="tab-content active">
+            <div class="recipe-card">
+                <h2 class = "recipe-title">My Ingredients</h2>
+                <ul class="recipe-ingredients">
+                    {% if myIngredients %}
+                        {% for ingredient in myIngredients %}
+                            <li>{{ ingredient }}</li>
+                            <button class="delete-ingredient-button" data-ingredient-name="{{ ingredient }}">Delete Ingredient</button>
+                        {% endfor %}
+                    {% else %}
+                        <li>You do not have any ingredients!</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+
+        <div id="myAllergies" class="tab-content active">
+            <div class="recipe-card">
+                <h2 class = "recipe-title">My Allergies</h2>
+                <ul class="recipe-ingredients">
+                    {% if myAllergies %}
+                        {% for allergy in myAllergies %}
+                            <li>{{ allergy }}</li>
+                            <button class="delete-allergy-button" data-allergy-name="{{ allergy }}">Delete Allergy</button>
+                        {% endfor %}
+                    {% else %}
+                        <li>You do not have any allergies!</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <script>
+        // Initially hide the search form
+        document.getElementById('searchIngredients').style.display = 'none';
+
+        document.getElementById('myIngredientsButton').addEventListener('click', function() {
+        document.getElementById('searchIngredients').style.display = 'none';
+        document.getElementById('myIngredients').style.display = 'block';  // Change 'visible' to 'block'
+        setTimeout(function() {
+            document.getElementById('myIngredients').style.opacity = 1;
+            location.reload();
+        }, 1); // Start the transition 1ms later to ensure it works correctly
+    });
+
+    
+        document.getElementById('searchIngredientsButton').addEventListener('click', function() {
+            document.getElementById('myIngredients').style.display = 'none';
+            document.getElementById('myAllergies').style.display = 'none';
+            document.getElementById('searchIngredients').style.display = 'block';
+            document.getElementById('searchIngredients').style.opacity = 0;
+            setTimeout(function() {
+                document.getElementById('searchIngredients').style.opacity = 1;
+            }, 1); // Start the transition 1ms later to ensure it works correctly
+        });
+    </script>
+
+    <script>
+        //THIS IS THE SCRIPT TO AUTOFILL INGREDIENTS
+
+        var allIngredients = {{ ingredients | tojson | safe }};
+        console.log(allIngredients);
+
+        // Get the input field
+        var inputs = document.getElementsByClassName("ingredients-field");
+
+        // Attach the autocomplete function to each input field
+        for (var i = 0; i < inputs.length; i++) {
+            autocomplete(inputs[i], allIngredients);
+        }
+
+        function autocomplete(inp, arr) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(a);
+                for (i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        b.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) {
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+    </script>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <script>
+        $('#searchForm').on('submit', function(event) {
+        event.preventDefault();
+
+        var inputs = document.getElementsByClassName("ingredients-field");
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i].value;
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+                return;  // Stop the form submission
+            }
+        }
+
+        // If all inputs are valid, gather form data
+        var ingName = $('#search').val();
+
+        // Determine which button was clicked
+        var action = event.originalEvent.submitter.id;
+
+        // Determine the endpoint based on the action
+        var endpoint = action === 'storeIngredientButton' ? '/manage_ingredients' : '/manage_allergies';
+
+        // Send data to server
+        $.ajax({
+            url: endpoint,
+            type: 'POST',
+            data: { search: ingName },
+            success: function(response) {
+                if (response.success) {
+                    if (action === 'storeIngredientButton') {
+                        alert('Ingredient added successfully!');
+                    } else if (action === 'storeAllergyButton') {
+                        alert('Allergy added successfully!');
+                    }
+                    // Update your page here without reloading
+                }
+            }
+        });
+    });
+
+    </script>
+
+    <script>
+        $(document).on('click', '.delete-ingredient-button', function() {
+            var ingName = $(this).data('ingredient-name');  // Get the selected ingredient name
+            var result = confirm("Are you sure you want to delete this ingredient from your stored ingredients?");
+            if (result) {
+
+                // Send the selected ingredient name to the server using AJAX
+                $.ajax({
+                    url: '/delete_my_ingredient',  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    contentType: 'application/json',  // The type of data you're sending
+                    data: JSON.stringify({ingredient: ingName}),  // The selected ingredient name
+                    success: function(response) {
+                        // Handle the server's response here
+                        console.log(response);
+                        // Reload the page to reflect the deletion
+                        location.reload();
+                    }
+                });
+
+                        }
+        });
+    </script>
+
+<script>
+    $(document).on('click', '.delete-allergy-button', function() {
+        var allergyName = $(this).data('allergy-name');  // Get the selected allergy name
+        var result = confirm("Are you sure you want to delete this allergy?");
+        if (result) {
+
+            // Send the selected allergy name to the server using AJAX
+            $.ajax({
+                url: '/delete_my_allergy',  // The URL to send the request to
+                type: 'POST',  // The type of HTTP method to use
+                contentType: 'application/json',  // The type of data you're sending
+                data: JSON.stringify({allergy: allergyName}),  // The selected allergy name
+                success: function(response) {
+                    // Handle the server's response here
+                    console.log(response);
+                    // Reload the page to reflect the deletion
+                    location.reload();
+                }
+            });
+
+                    }
+    });
+</script>
+
+
+</body>
+{% include "footer.html" %}

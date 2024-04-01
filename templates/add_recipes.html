@@ -34,7 +34,7 @@
                     <div id="ingredients">
                         <div id="ing1" class="field">
                             <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
-                            <input type="text" id="ing2Input" name="ing2" class="ingredients-field" onblur="validateInput(this.value)" control-id="ControlID-15">
+                            <input type="text" id="ing2Input" name="ing2" class="ingredients-field" control-id="ControlID-15">
                         </div>
                     </div>
                     <div id="amounts">
@@ -81,6 +81,10 @@
                                 {% endfor %}
                             </ol>
                             <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                            <!-- Embed YouTube video -->
+                            {% if recipe.youtube_link %}
+                                <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                            {% endif %}
                             <button class="button">Select Recipe</button>
                         </div>
                     {% endfor %}
@@ -129,7 +133,7 @@
             var newIng = document.createElement('div');
             newIng.id = 'ing' + ingCount;
             newIng.className = 'field';
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" onblur="validateInput(this.value)"><br>';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" ><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
@@ -261,6 +265,15 @@
     <script>
         $("#enterRecipeForm").on('submit', function(e) {
         e.preventDefault();  // Prevent the form from reloading the page
+        var inputs = document.getElementsByClassName("ingredients-field");
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i].value;
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+                return;  // Stop the form submission
+            }
+        }
+
 
         // Extract the information from the form
         var recipeName = $("#recipeName").val();
@@ -397,26 +410,5 @@
             });
         }
     </script>
-
-    <script>
-        function validateInput(input) {
-            var inputs = document.getElementsByClassName("ingredients-field");
-            if (!allIngredients.includes(input)) {
-                alert("Invalid ingredient! Please enter a valid ingredient.");
-                // Disable all other input fields
-                for (var i = 0; i < inputs.length; i++) {
-                    if (inputs[i].value !== input) {
-                        inputs[i].disabled = true;
-                    }
-                }
-            } else {
-                // Enable all input fields
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].disabled = false;
-                }
-            }
-        }
-    </script>
-
 </body>
 {% include "footer.html" %}
