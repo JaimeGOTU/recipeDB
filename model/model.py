@@ -1051,7 +1051,7 @@ class Database:
             print("unexpected error getting menu / description info line 1052")
         
         return menu_dict
-    
+
     def get_all_ingredients(self):
         '''
         returns a list of all ingredients in an array
@@ -1230,7 +1230,7 @@ class Database:
 
     def get_owned_ingredients(self,username):
         '''
-        returns a list of ingredients a specific user is allergic to
+        returns a list of ingredients a specific user owns
         params username: str of the username
         '''
         self.ensure_connection()
