@@ -7,7 +7,7 @@
             <form id="enterRecipeForm" action="{{ url_for('main.update_recipe') }}" method="post">
                 <div class="field">
                     <label for="recipeName" class="form-label">Recipe Name:</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input" value="{{recipe[0]['RecName']}}"><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" value="{{recipe[0]['RecName']}}" readonly><br>
                 </div>
                 <div class="field">
                     <label for="style" class="form-label">Style:</label><br>
@@ -60,35 +60,33 @@
     </script>
 
 
-<script>
-   // Pass the recipe variable from Flask to JavaScript
-    var recipe = {{ recipe | tojson | safe }};
+    <script>
+    // Pass the recipe variable from Flask to JavaScript
+        var recipe = {{ recipe | tojson | safe }};
 
-    // Parse the 'Ingredients' field into a JavaScript object
-    var ingredients = recipe[0]['Ingredients'];
+        // Parse the 'Ingredients' field into a JavaScript object
+        var ingredients = recipe[0]['Ingredients'];
 
-    // Generate the HTML code for the existing ingredients
-    for (var i = 0; i < ingredients.length; i++) {
-        var ingredient = ingredients[i][0];
-        var quantity = ingredients[i][1];
+        // Generate the HTML code for the existing ingredients
+        for (var i = 0; i < ingredients.length; i++) {
+            var ingredient = ingredients[i][0];
+            var quantity = ingredients[i][1];
 
-        var newIngredient = document.createElement('div');
-        newIngredient.id = 'ing' + (i+1);
-        newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="input" value="' + ingredient + '"><br>';
-        document.getElementById('ingredients').appendChild(newIngredient);
+            var newIngredient = document.createElement('div');
+            newIngredient.id = 'ing' + (i+1);
+            newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="ingredients-field" value="' + ingredient + '"><br>';
+            document.getElementById('ingredients').appendChild(newIngredient);
 
-        var newQuantity = document.createElement('div');
-        newQuantity.id = 'amt' + (i+1);
-        newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + (i+1) + ':</label><br><input type="text" id="amt' + (i+1) + 'Input" name="amt' + (i+1) + '" class="input" value="' + quantity + '"><br>';
-        document.getElementById('amounts').appendChild(newQuantity);
-    }
+            var newQuantity = document.createElement('div');
+            newQuantity.id = 'amt' + (i+1);
+            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + (i+1) + ':</label><br><input type="text" id="amt' + (i+1) + 'Input" name="amt' + (i+1) + '" class="input" value="' + quantity + '"><br>';
+            document.getElementById('amounts').appendChild(newQuantity);
+        }
 
-    // Update the ingCount variable to the next ingredient number
-    var ingCount = ingredients.length + 1;
+        // Update the ingCount variable to the next ingredient number
+        var ingCount = ingredients.length + 1;
 
-</script>
-
-
+    </script>
 
 
     <script>
@@ -105,6 +103,7 @@
         var amtCount = 2;
         document.getElementById('addIng').addEventListener('click', function() {
             var newIng = document.createElement('div');
+            newIng.className = "ingredients-field";
             newIng.id = 'ing' + ingCount;
             newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
             document.getElementById('ingredients').appendChild(newIng);
@@ -196,6 +195,85 @@
         });
     });
 
+    </script>
+
+    <script>
+        
+        var myArray = ["Option 1", "Option 2", "Option 3", "Option 4"];
+
+        // Get the input field
+        var inputs = document.getElementsByClassName("ingredients-field");
+
+        // Attach the autocomplete function to each input field
+        for (var i = 0; i < inputs.length; i++) {
+            autocomplete(inputs[i], myArray);
+        }
+
+        function autocomplete(inp, arr) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(a);
+                for (i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        b.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) {
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
     </script>
 
 </body>
