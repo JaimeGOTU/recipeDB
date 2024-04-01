@@ -1104,10 +1104,24 @@ class Database:
                 print("error when adding into allergies ingredients")
         print("Already exists or error")
 
-    #insert into Allergies (UserID,IngID) values (8,837)
-
     def remove_allergies(self,username,ingredient):
-        pass
+        '''
+        deletes an entry in the allergies table for a user given the ingredient
+        params username: str of the username
+        params ingredients: str of the username
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        IngID = self.get_id("IngID","Ingredients","IngName",ingredient)
+
+        try:
+            self.cur.execute(f"delete from Allergies where UserID = {UserID} and IngID = {IngID}")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error when deleting allergies")
 
     def get_allergies(self,username):
         '''
@@ -1176,7 +1190,23 @@ class Database:
         print("Already exists or error")
 
     def remove_owned_ingredient(self,username,ingredient):
-        pass
+        '''
+        deletes an entry in the Owns table for a user given the ingredient
+        params username: str of the username
+        params ingredients: str of the username
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        IngID = self.get_id("IngID","Ingredients","IngName",ingredient)
+
+        try:
+            self.cur.execute(f"delete from Owns where UserID = {UserID} and IngID = {IngID}")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error when deleting owns")
 
     def get_owned_ingredients(self,username):
         '''
@@ -1269,6 +1299,8 @@ database = Database()
 #print(database.get_owned_ingredients("rpazzi"))
 #database.add_allergies("rpazzi","Avocado")
 #database.add_owned_ingredient("rpazzi","Avocado")
+#database.remove_allergies("rpazzi","Avocado")
+#database.remove_owned_ingredient("rpazzi","Avocado")
 
 #################################################
 ####                                         ####
