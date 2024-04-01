@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from model.authdb import User, db
 from model.model import Database
 import os
+import time
 
 
 auth = Blueprint('auth', __name__, template_folder='../templates')
@@ -65,15 +66,25 @@ def signup_post():
         flash('No selected image.')
         return redirect(request.url)
     if picture:
-        filename = secure_filename(picture.filename)
-        filepath = f"../static/images/uploads/{filename}"
-        picture.save(os.path.join('static\\images\\uploads', filename))
+        # Get the extension of the uploaded file
+        ext = picture.filename.split('.')[-1]
 
+        # Generate a unique filename using a timestamp
+        filename = f"{time.time()}.{ext}"
+
+        # Secure the filename
+        filename = secure_filename(filename)
+
+        filepath = f"../static/images/uploads/{filename}"
+        
     user = db.query(User).filter_by(email=email).first()  # if this returns a user, then the email already exists in database
 
     if user:  # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
+    
+    #Save the profile picture to the server
+    picture.save(os.path.join('static\\images\\uploads', filename))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
     new_user = User(email=email, name=name, password=generate_password_hash(password), picture=filepath)
@@ -101,6 +112,7 @@ def delete_account():
     # Check if the user exists
     if user_to_delete:
         # Delete the user
+        recipeDB.delete_user(get_username(current_user.email))
         db.delete(user_to_delete)
 
         # Commit the transaction

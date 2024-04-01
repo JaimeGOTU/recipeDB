@@ -52,7 +52,7 @@
                         data: JSON.stringify({name: recipeName}),  // The selected recipe's name
                         success: function(response) {
                             // Handle the server's response here
-                            console.log(response);
+                            alert("Recipe deleted");
                             // Reload the page to reflect the deletion
                             location.reload();
                         }

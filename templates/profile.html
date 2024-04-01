@@ -23,9 +23,6 @@
 
 
 <script>
-  document.getElementById("delete-account-button").addEventListener("click", function() {
-      window.location.href = "/delete_account";
-  });
   document.getElementById("manage-ingredients-button").addEventListener("click", function() {
       window.location.href = "/manage_ingredients";
   });
@@ -39,13 +36,13 @@
 <script>
     $(document).on('click', '#delete-account-button', function() {
         var accountName = $(this).data('account-name');  // Get the selected recipe's name
-        var result = confirm("YOU ARE ABOUT TO DELETE YOUR ACCOUNT!!!!!!?");
-        if (result) {
-          alert("Account deleted...goodbye...Gordan Ramsay is dissappointed...")
-          document.getElementById("manage-recipes-button").addEventListener("click", function() {
-          window.location.href = "/delete_account";
-      });
-      }
+        var userInput = prompt("YOU ARE ABOUT TO DELETE YOUR ACCOUNT!!!!!! ALL RECIPES ASSOCIATED WITH THIS ACCOUNT WILL BE PURGED! IF YOU ARE SURE, TYPE 'delete' TO CONFIRM.");
+        if (userInput.toLowerCase() === 'delete') {
+            alert("Account deleted...goodbye...Gordan Ramsay is disappointed...")
+            window.location.href = "/delete_account";
+        } else {
+            alert("Account deletion cancelled.");
+        }
     });
 </script>
 
