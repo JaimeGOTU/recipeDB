@@ -31,12 +31,36 @@
                         {% if not recipe.Sufice %}
                             <p class="recipe-style">You don't have all ingredients to make this recipe!</p>
                         {% endif %}
-                        <button class="select-recipe-button">Delete Recipe</button>
+                        <button class="select-recipe-button" data-recipe-name="{{ recipe.RecName }}">Delete Recipe</button>
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
 
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script>
+            $(document).on('click', '.select-recipe-button', function() {
+                var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
+                var result = confirm("Are you sure you want to delete this recipe from your saved recipes?");
+                if (result) {
+
+                    // Send the selected recipe's name to the server using AJAX
+                    $.ajax({
+                        url: '/delete_saved_recipe',  // The URL to send the request to
+                        type: 'POST',  // The type of HTTP method to use
+                        contentType: 'application/json',  // The type of data you're sending
+                        data: JSON.stringify({name: recipeName}),  // The selected recipe's name
+                        success: function(response) {
+                            // Handle the server's response here
+                            console.log(response);
+                            // Reload the page to reflect the deletion
+                            location.reload();
+                        }
+                    });
+
+                            }
+            });
+        </script>
 
 </body>
 {% include "footer.html" %}

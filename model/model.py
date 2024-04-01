@@ -1343,10 +1343,6 @@ class Database:
         for x in ingredients_ids:
             if x not in owns_ids:
                 flag = False
-
-        print(owns_ids)
-        print(ingredients_ids)
-
         return flag
 #################################################
 ####                                         ####
@@ -1409,7 +1405,7 @@ database = Database()
 #database.remove_allergies("rpazzi","Avocado")
 #database.remove_owned_ingredient("rpazzi","Avocado")
 #print(database.contains_allergies("the fake james special","jamesgonz99"))
-print(database.check_sufficient_ingredients("the fake james special","jamesgonz99"))
+#print(database.check_sufficient_ingredients("the fake james special","jamesgonz99"))
 
 #################################################
 ####                                         ####
