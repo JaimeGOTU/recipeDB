@@ -35,6 +35,10 @@
                                 {% endfor %}
                             </ol>
                             <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                            <!-- Embed YouTube video -->
+                            {% if recipe.youtube_link %}
+                                <iframe width="560" height="315" src="{{ recipe.youtube_link }}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                            {% endif %}
                             <button class="save-recipe-button">Save Recipe</button>
                         </div>
                     {% endfor %}
@@ -97,7 +101,7 @@
                                 }
                                 html += '</ol>';
                                 html += '<p class="recipe-source">Source: ' + recipe.Source + '</p>';
-                                html += '<button class="save-recipe-button" data-recipe-name="' + recipe.RecName + '">Save Recipe</button>';
+                                html += '<button class="select-recipe-button" data-recipe-name="' + recipe.RecName + '">Save Recipe</button>';
                                 html += '</div>';
                             });
                         }
