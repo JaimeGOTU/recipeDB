@@ -1257,6 +1257,49 @@ class Database:
 
         return(ingredients_list)
 
+    def contains_allergies(self,recipe_name,username):
+        '''
+        Indicates if a recipe has an allergy for a user or not
+        params recipe_name: str of the name of the recipe
+        params username: str of the username
+        '''
+        self.ensure_connection()
+        RecID = self.get_id("RecID","Recipes","RecName",recipe_name)
+        UserID = self.get_id("UserID","User","username",username)
+        flag = False
+        allergies_ids=[]
+        ingredients_ids=[]
+        # Get all of the IDs of ingredients a user is allergic to
+        try:
+            self.cur.execute(f"Select IngID from Allergies where UserID = {UserID}")
+            result_allergies = self.cur.fetchall()
+            for i in result_allergies:
+                allergies_ids.append(i["IngID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of allergies ids")
+
+        # Get all of the IDs
+        try:
+            self.cur.execute(f"Select IngID from RecNeeds where RecID = {RecID}")
+            result_ingredients_need = self.cur.fetchall()
+            for y in result_ingredients_need:
+                ingredients_ids.append(y["IngID"])
+
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of allergies ids")
+
+        for x in allergies_ids:
+            if x in ingredients_ids:
+                flag = True
+                
+        return flag
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -1317,6 +1360,7 @@ database = Database()
 #database.add_owned_ingredient("rpazzi","Avocado")
 #database.remove_allergies("rpazzi","Avocado")
 #database.remove_owned_ingredient("rpazzi","Avocado")
+#print(database.contains_allergies("the fake james special","jamesgonz99"))
 
 #################################################
 ####                                         ####

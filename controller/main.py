@@ -128,6 +128,7 @@ def saved_recipes():
         recipes = database.show_saved_recipes(get_username(email))
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
+            recipe['Allergy'] = database.contains_allergies(recipe["RecName"],get_username(email))
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
