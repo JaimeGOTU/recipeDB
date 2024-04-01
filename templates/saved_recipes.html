@@ -25,6 +25,12 @@
                             {% endfor %}
                         </ol>
                         <p class="recipe-source">Source: {{ recipe.Source }}</p>
+                        {% if recipe.Allergy %}
+                            <p class="recipe-steps-title">CONTAINS INGREDIENTS YOU ARE ALLERGIC TO!!!</p>
+                        {% endif %}
+                        {% if not recipe.Sufice %}
+                            <p class="recipe-style">You don't have all ingredients to make this recipe!</p>
+                        {% endif %}
                         <button class="select-recipe-button">Delete Recipe</button>
                     </div>
                 {% endfor %}

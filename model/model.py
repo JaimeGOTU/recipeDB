@@ -598,8 +598,6 @@ class Database:
                 return ("ERROR","Could not find username")
             except:
                 print("SELECT USERID FROM USER ERROR (line 588)")
-            finally:
-                self.con.close()
         # Get Recipe ID
         try:
             self.cur.execute(f"Select RecID from Recipes where RecName = '{recipe}'")
@@ -611,8 +609,6 @@ class Database:
             return ("ERROR","Could not find recipe")
         except:
             print("SELECT RECID FROM RECIPES ERROR (line 601)")
-        finally:
-            self.con.close()
         
         # Now that we have the UserID and RecipeID we check if it's a new menu, or adding to an existing one
         try:
@@ -1051,7 +1047,7 @@ class Database:
             print("unexpected error getting menu / description info line 1052")
         
         return menu_dict
-    
+
     def get_all_ingredients(self):
         '''
         returns a list of all ingredients in an array
@@ -1230,7 +1226,7 @@ class Database:
 
     def get_owned_ingredients(self,username):
         '''
-        returns a list of ingredients a specific user is allergic to
+        returns a list of ingredients a specific user owns
         params username: str of the username
         '''
         self.ensure_connection()
@@ -1261,6 +1257,97 @@ class Database:
 
         return(ingredients_list)
 
+    def contains_allergies(self,recipe_name,username):
+        '''
+        Indicates if a recipe has an allergy for a user or not
+        params recipe_name: str of the name of the recipe
+        params username: str of the username
+        returns True if there is an allergy, False if not
+        '''
+        self.ensure_connection()
+        RecID = self.get_id("RecID","Recipes","RecName",recipe_name)
+        UserID = self.get_id("UserID","User","username",username)
+        flag = False
+        allergies_ids=[]
+        ingredients_ids=[]
+        # Get all of the IDs of ingredients a user is allergic to
+        try:
+            self.cur.execute(f"Select IngID from Allergies where UserID = {UserID}")
+            result_allergies = self.cur.fetchall()
+            for i in result_allergies:
+                allergies_ids.append(i["IngID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of allergies ids")
+
+        # Get all of the IDs of the ingredients a recipe needs
+        try:
+            self.cur.execute(f"Select IngID from RecNeeds where RecID = {RecID}")
+            result_ingredients_need = self.cur.fetchall()
+            for y in result_ingredients_need:
+                ingredients_ids.append(y["IngID"])
+
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of ingredients ids from a recipe")
+
+        for x in allergies_ids:
+            if x in ingredients_ids:
+                flag = True
+
+        return flag
+
+    def check_sufficient_ingredients(self,recipe_name,username):
+        '''
+        Indicates if a user has all of the ingredients to make a recipe
+        params recipe_name: str of the name of the recipe
+        params username: str of the username
+        returns True if they do have all ingredients, False if not
+        '''
+        pass
+        self.ensure_connection()
+        RecID = self.get_id("RecID","Recipes","RecName",recipe_name)
+        UserID = self.get_id("UserID","User","username",username)
+        flag = True
+        owns_ids=[]
+        ingredients_ids=[]
+        # Get all of the IDs of ingredients a user owns / has
+        try:
+            self.cur.execute(f"Select IngID from Owns where UserID = {UserID}")
+            result_allergies = self.cur.fetchall()
+            for i in result_allergies:
+                owns_ids.append(i["IngID"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of ingredients owned")
+
+        # Get all of the IDs of the ingredients a recipe needs
+        try:
+            self.cur.execute(f"Select IngID from RecNeeds where RecID = {RecID}")
+            result_ingredients_need = self.cur.fetchall()
+            for y in result_ingredients_need:
+                ingredients_ids.append(y["IngID"])
+
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting list of allergies ids")
+
+        for x in ingredients_ids:
+            if x not in owns_ids:
+                flag = False
+
+        print(owns_ids)
+        print(ingredients_ids)
+
+        return flag
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -1321,6 +1408,8 @@ database = Database()
 #database.add_owned_ingredient("rpazzi","Avocado")
 #database.remove_allergies("rpazzi","Avocado")
 #database.remove_owned_ingredient("rpazzi","Avocado")
+#print(database.contains_allergies("the fake james special","jamesgonz99"))
+print(database.check_sufficient_ingredients("the fake james special","jamesgonz99"))
 
 #################################################
 ####                                         ####
