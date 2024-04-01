@@ -113,7 +113,7 @@
     </script>
     
     <script>
-        $(document).on('click', '.save-recipe-button', function() {
+        $(document).on('click', '.select-recipe-button', function() {
             var recipeName = $(this).data('recipe-name');  // Get the selected recipe's name
 
             // Send the selected recipe's name to the server using AJAX
@@ -125,6 +125,7 @@
                 success: function(response) {
                     // Handle the server's response here
                     console.log(response);
+                    alert("Added successfully");
                 }
             });
         });
