@@ -1052,6 +1052,25 @@ class Database:
         
         return menu_dict
 
+    def delete_saved_recipe(self,recipe_name,username):
+        '''
+        deletes a user's saved recipe from SavedRec
+        params recipe_name: a str with the name of the recipe
+        params username: a str with the name of the user
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID", "User", "Username", username)
+        RecID = self.get_id("RecID", "Recipes", "RecName", recipe_name)
+        try:
+            #print(self.cur.execute(f"Delete from MenuTemp where UserID = '{UserID}' and MenuName = '{menu_name}' and RecID = '{RecID}'"))
+            self.cur.execute(f"Delete from SavedRec where UserID = {UserID} and RecID = {RecID}")
+            self.con.commit()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("DELETE FROM SAVEDREC ERROR (line 990)")
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -1104,7 +1123,8 @@ database = Database()
 #print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
 #print(database.get_my_recipes("trump"))
-print(database.get_menus("rpazzi"))
+#print(database.get_menus("rpazzi"))
+#database.delete_saved_recipe("Poop Pie","rpazzi")
 
 #################################################
 ####                                         ####
