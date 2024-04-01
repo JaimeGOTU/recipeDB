@@ -15,6 +15,7 @@
     <div class="user-actions">
         <button id="delete-account-button" class="select-recipe-button">Delete Account</button>
         <button id="manage-ingredients-button" class="select-recipe-button">Manage My Ingredients</button>
+        <button id="manage-recipes-button" class="select-recipe-button">Manage My Recipes</button>
     </div>
   </div>
 </body>
@@ -28,7 +29,26 @@
   document.getElementById("manage-ingredients-button").addEventListener("click", function() {
       window.location.href = "/manage_ingredients";
   });
+  document.getElementById("manage-recipes-button").addEventListener("click", function() {
+      window.location.href = "/my_recipes";
+  });
 </script>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).on('click', '#delete-account-button', function() {
+        var accountName = $(this).data('account-name');  // Get the selected recipe's name
+        var result = confirm("YOU ARE ABOUT TO DELETE YOUR ACCOUNT!!!!!!?");
+        if (result) {
+          alert("Account deleted...goodbye...Gordan Ramsay is dissappointed...")
+          document.getElementById("manage-recipes-button").addEventListener("click", function() {
+          window.location.href = "/delete_account";
+      });
+      }
+    });
+</script>
+
   
 </body>
 {% include "footer.html" %}

@@ -1,6 +1,6 @@
 # auth.py
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -92,6 +92,21 @@ def signup_post():
 def profile():
     return render_template('profile.html', name=current_user.name, email=current_user.email, picture=current_user.picture)
 
+@auth.route('/delete_account',methods=['GET'])
+def delete_account():
+    
+    # Query for the user
+    user_to_delete = db.query(User).filter(User.email == current_user.email).first()
+
+    # Check if the user exists
+    if user_to_delete:
+        # Delete the user
+        db.delete(user_to_delete)
+
+        # Commit the transaction
+        db.commit()
+
+    return redirect(url_for('main.index'))
 
 @auth.route('/logout')
 @login_required
