@@ -28,6 +28,7 @@
                     {% if myIngredients %}
                         {% for ingredient in myIngredients %}
                             <li>{{ ingredient }}</li>
+                            <button class="delete-ingredient-button" data-ingredient-name="{{ ingredient }}">Delete Ingredient</button>
                         {% endfor %}
                     {% else %}
                         <li>You do not have any ingredients!</li>
@@ -43,6 +44,7 @@
                     {% if myAllergies %}
                         {% for allergy in myAllergies %}
                             <li>{{ allergy }}</li>
+                            <button class="delete-allergy-button" data-allergy-name="{{ allergy }}">Delete Allergy</button>
                         {% endfor %}
                     {% else %}
                         <li>You do not have any allergies!</li>
@@ -162,6 +164,7 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
     <script>
         $('#searchForm').on('submit', function(event) {
         event.preventDefault();
@@ -203,6 +206,54 @@
     });
 
     </script>
+
+    <script>
+        $(document).on('click', '.delete-ingredient-button', function() {
+            var ingName = $(this).data('ingredient-name');  // Get the selected ingredient name
+            var result = confirm("Are you sure you want to delete this ingredient from your stored ingredients?");
+            if (result) {
+
+                // Send the selected ingredient name to the server using AJAX
+                $.ajax({
+                    url: '/delete_my_ingredient',  // The URL to send the request to
+                    type: 'POST',  // The type of HTTP method to use
+                    contentType: 'application/json',  // The type of data you're sending
+                    data: JSON.stringify({ingredient: ingName}),  // The selected ingredient name
+                    success: function(response) {
+                        // Handle the server's response here
+                        console.log(response);
+                        // Reload the page to reflect the deletion
+                        location.reload();
+                    }
+                });
+
+                        }
+        });
+    </script>
+
+<script>
+    $(document).on('click', '.delete-allergy-button', function() {
+        var allergyName = $(this).data('allergy-name');  // Get the selected allergy name
+        var result = confirm("Are you sure you want to delete this allergy?");
+        if (result) {
+
+            // Send the selected allergy name to the server using AJAX
+            $.ajax({
+                url: '/delete_my_allergy',  // The URL to send the request to
+                type: 'POST',  // The type of HTTP method to use
+                contentType: 'application/json',  // The type of data you're sending
+                data: JSON.stringify({allergy: allergyName}),  // The selected allergy name
+                success: function(response) {
+                    // Handle the server's response here
+                    console.log(response);
+                    // Reload the page to reflect the deletion
+                    location.reload();
+                }
+            });
+
+                    }
+    });
+</script>
 
 
 </body>
