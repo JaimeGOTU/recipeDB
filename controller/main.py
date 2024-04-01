@@ -268,11 +268,7 @@ def menus():
             menus.setdefault(menu_name, []).append([description, recipe_name])
             print("Added to menus:", [description, recipe_name])  # Print what's added to menus
 
-    print("Menus before rendering:", menus)
-
     rendered_template = render_template('menus.html', active_page='menus', name=name, email=email, picture=picture, select_from=select_from, selected_option=selected_option, menus=menus)
-
-    print("Menus after rendering:", menus)  # Print the menus data after rendering the template
 
     return rendered_template
 
@@ -289,6 +285,13 @@ def add_to_menu():
     else:
         return jsonify(success=False, message="menuName, recipeName or description not provided in request")
 
+@main.route('/delete_single_menu',methods=['POST'])
+def delete_single_menu():
+    data = request.get_json()
+    menu_name = data['name']
+    username = get_username(current_user.email)
+    database.delete_entire_menu(menu_name,username)
+    return jsonify({'status': 'success'})
 
 @main.app_errorhandler(400)
 def bad_request(e):
