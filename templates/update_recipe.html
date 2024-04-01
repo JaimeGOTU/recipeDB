@@ -80,12 +80,12 @@
 
             var newIngredient = document.createElement('div');
             newIngredient.id = 'ing' + (i+1);
-            newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="ingredients-field" value="' + ingredient + '"><br>';
+            newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="ingredients-field" value="' + ingredient + '" onblur="validateInput(this.value)"><br>';
             document.getElementById('ingredients').appendChild(newIngredient);
 
             var newQuantity = document.createElement('div');
             newQuantity.id = 'amt' + (i+1);
-            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + (i+1) + ':</label><br><input type="text" id="amt' + (i+1) + 'Input" name="amt' + (i+1) + '" class="input" value="' + quantity + '"><br>';
+            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt'  + '" class="input" value="' + quantity + '"><br>';
             document.getElementById('amounts').appendChild(newQuantity);
         }
 
@@ -119,9 +119,17 @@
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
+            // Get the input fields again after adding a new one
+            var inputs = document.getElementsByClassName("ingredients-field");
+
+            // Attach the autocomplete function to each input field
+            for (var i = 0; i < inputs.length; i++) {
+                autocomplete(inputs[i], allIngredients);
+            }
+
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
-            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" ><br>';
+            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" class="input"><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });
@@ -144,12 +152,6 @@
                 lastAmt.parentNode.removeChild(lastAmt);
             }
         });
-
-        function validateInput(input) {
-            if (!allIngredients.includes(input)) {
-                alert("Invalid ingredient! Please enter a valid ingredient.");
-            }
-        }
 
     </script>
 
@@ -292,6 +294,26 @@
             document.addEventListener("click", function (e) {
                 closeAllLists(e.target);
             });
+        }
+    </script>
+
+    <script>
+        function validateInput(input) {
+            var inputs = document.getElementsByClassName("ingredients-field");
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+                // Disable all other input fields
+                for (var i = 0; i < inputs.length; i++) {
+                    if (inputs[i].value !== input) {
+                        inputs[i].disabled = true;
+                    }
+                }
+            } else {
+                // Enable all input fields
+                for (var i = 0; i < inputs.length; i++) {
+                    inputs[i].disabled = false;
+                }
+            }
         }
     </script>
 
