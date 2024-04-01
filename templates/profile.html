@@ -13,14 +13,22 @@
         <p id="email">{{email}}</p>
     </div>
     <div class="user-actions">
-        <button class="select-recipe-button">Change Password</button>
-        <button class="select-recipe-button">Delete Account</button>
-        <button class="select-recipe-button">Update Picture</button>
+        <button id="delete-account-button" class="select-recipe-button">Delete Account</button>
+        <button id="manage-ingredients-button" class="select-recipe-button">Manage My Ingredients</button>
     </div>
   </div>
 </body>
 </html>
 
+
+<script>
+  document.getElementById("delete-account-button").addEventListener("click", function() {
+      window.location.href = "/delete_account";
+  });
+  document.getElementById("manage-ingredients-button").addEventListener("click", function() {
+      window.location.href = "/manage_ingredients";
+  });
+</script>
   
 </body>
 {% include "footer.html" %}

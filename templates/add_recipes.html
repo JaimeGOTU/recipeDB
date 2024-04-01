@@ -34,7 +34,7 @@
                     <div id="ingredients">
                         <div id="ing1" class="field">
                             <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
-                            <input type="text" id="ing1Input" name="ing1" class="input"><br>
+                            <input type="text" id="ing2Input" name="ing2" class="ingredients-field" control-id="ControlID-15">
                         </div>
                     </div>
                     <div id="amounts">
@@ -129,9 +129,17 @@
             var newIng = document.createElement('div');
             newIng.id = 'ing' + ingCount;
             newIng.className = 'field';
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="input"><br>';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" ><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
+
+            // Get the input fields again after adding a new one
+            var inputs = document.getElementsByClassName("ingredients-field");
+
+            // Attach the autocomplete function to each input field
+            for (var i = 0; i < inputs.length; i++) {
+                autocomplete(inputs[i], allIngredients);
+            }
 
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
@@ -244,7 +252,7 @@
                 data: JSON.stringify({name: recipeName}),  // The selected recipe's name
                 success: function(response) {
                     // Handle the server's response here
-                    console.log(response);
+                    alert('Added successfully!');
                 }
             });
         });
@@ -253,6 +261,15 @@
     <script>
         $("#enterRecipeForm").on('submit', function(e) {
         e.preventDefault();  // Prevent the form from reloading the page
+        var inputs = document.getElementsByClassName("ingredients-field");
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i].value;
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+                return;  // Stop the form submission
+            }
+        }
+
 
         // Extract the information from the form
         var recipeName = $("#recipeName").val();
@@ -301,11 +318,93 @@
             data: JSON.stringify(data),  // The data to send
             success: function(response) {
                 // Handle the server's response here
+                // Handle the server's response here
+                alert('Added successfully!');
+                window.location.href = '/add_recipes';  // Redirect to /add_recipes
             }
         });
     });
 
     </script>
+    <script>
+        //THIS IS THE SCRIPT TO AUTOFILL INGREDIENTS
 
+        var allIngredients = {{ ingredients | tojson | safe }};
+        console.log(allIngredients);
+
+        // Get the input field
+        var inputs = document.getElementsByClassName("ingredients-field");
+
+        // Attach the autocomplete function to each input field
+        for (var i = 0; i < inputs.length; i++) {
+            autocomplete(inputs[i], allIngredients);
+        }
+
+        function autocomplete(inp, arr) {
+            var currentFocus;
+            inp.addEventListener("input", function(e) {
+                var a, b, i, val = this.value;
+                closeAllLists();
+                if (!val) { return false;}
+                currentFocus = -1;
+                a = document.createElement("DIV");
+                a.setAttribute("id", this.id + "autocomplete-list");
+                a.setAttribute("class", "autocomplete-items");
+                this.parentNode.appendChild(a);
+                for (i = 0; i < arr.length; i++) {
+                    if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+                        b = document.createElement("DIV");
+                        b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+                        b.innerHTML += arr[i].substr(val.length);
+                        b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+                        b.addEventListener("click", function(e) {
+                            inp.value = this.getElementsByTagName("input")[0].value;
+                            closeAllLists();
+                        });
+                        a.appendChild(b);
+                    }
+                }
+            });
+            inp.addEventListener("keydown", function(e) {
+                var x = document.getElementById(this.id + "autocomplete-list");
+                if (x) x = x.getElementsByTagName("div");
+                if (e.keyCode == 40) {
+                    currentFocus++;
+                    addActive(x);
+                } else if (e.keyCode == 38) {
+                    currentFocus--;
+                    addActive(x);
+                } else if (e.keyCode == 13) {
+                    e.preventDefault();
+                    if (currentFocus > -1) {
+                        if (x) x[currentFocus].click();
+                    }
+                }
+            });
+            function addActive(x) {
+                if (!x) return false;
+                removeActive(x);
+                if (currentFocus >= x.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = (x.length - 1);
+                x[currentFocus].classList.add("autocomplete-active");
+            }
+            function removeActive(x) {
+                for (var i = 0; i < x.length; i++) {
+                    x[i].classList.remove("autocomplete-active");
+                }
+            }
+            function closeAllLists(elmnt) {
+                var x = document.getElementsByClassName("autocomplete-items");
+                for (var i = 0; i < x.length; i++) {
+                    if (elmnt != x[i] && elmnt != inp) {
+                        x[i].parentNode.removeChild(x[i]);
+                    }
+                }
+            }
+            document.addEventListener("click", function (e) {
+                closeAllLists(e.target);
+            });
+        }
+    </script>
 </body>
 {% include "footer.html" %}
