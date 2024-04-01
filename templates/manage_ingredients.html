@@ -27,8 +27,12 @@
                 <ul class="recipe-ingredients">
                     {% if myIngredients %}
                         {% for ingredient in myIngredients %}
-                            <li>{{ ingredient }}</li>
-                            <button class="delete-ingredient-button" data-ingredient-name="{{ ingredient }}">Delete Ingredient</button>
+                            <li>
+                                <div class="ingredient-item">
+                                    {{ ingredient }}
+                                    <button class="delete-ingredient-button" data-ingredient-name="{{ ingredient }}">Delete Ingredient</button>
+                                </div>
+                            </li>
                         {% endfor %}
                     {% else %}
                         <li>You do not have any ingredients!</li>
@@ -43,8 +47,12 @@
                 <ul class="recipe-ingredients">
                     {% if myAllergies %}
                         {% for allergy in myAllergies %}
-                            <li>{{ allergy }}</li>
-                            <button class="delete-allergy-button" data-allergy-name="{{ allergy }}">Delete Allergy</button>
+                            <li>
+                                <div class="ingredient-item">
+                                    {{ allergy }}
+                                    <button class="delete-ingredient-button" data-ingredient-name="{{ ingredient }}">Delete Allergy</button>
+                                </div>
+                            </li>
                         {% endfor %}
                     {% else %}
                         <li>You do not have any allergies!</li>

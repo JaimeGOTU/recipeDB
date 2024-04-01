@@ -292,7 +292,7 @@ p {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     color: #434343;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     line-height: 1.5; /* Add line spacing */
     text-align: left;
 }
@@ -370,6 +370,48 @@ p {
     background-color: #ff4e95;
     transform: scale(1.05);
 }
+
+.delete-ingredient-button {
+    margin-top: 10px;
+    width: 160px; /* Fixed width */
+    padding: 15px;
+    font-size: 16px; /* Larger font size */
+    text-align: center; /* Centered text */
+    border-radius: 8px;
+    border: black;
+    border-width: 1px;
+    margin-left: auto;
+    transition: background-color 0.5s ease, transform 0.3s ease;
+}
+
+.delete-ingredient-button:hover {
+    background-color: #ff4e95;
+    transform: scale(1.05);
+}
+
+ul.recipe-ingredients {
+    list-style-type: none; /* removes the default bullet points */
+    padding: 10px;
+}
+
+ul.recipe-ingredients li {
+    background-color: #fffcfc; /* gives a light grey background to each list item */
+    margin-bottom: 10px; /* adds some space between list items */
+    padding: 20px; /* adds some space around the text inside each list item */
+    border-radius: 5px; /* rounds the corners of each list item */
+    font-weight: bold;
+    color: #433e3e;
+    word-wrap: break-word;
+    padding-top: 5px; /* reduce top padding */
+    padding-bottom: 5px; /* reduce bottom padding */
+}
+
+.ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 #searchResults {
     display: flex;
