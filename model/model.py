@@ -716,7 +716,6 @@ class Database:
             return(ingredient_dict)
 
     def update_recipe(self,recipe,username="None"):
-
         '''
         updates a recipe in the recipe table, 
         and then (hopefully) the other tables have no issues
@@ -732,7 +731,6 @@ class Database:
             print("No username, cannot update")
         else:
             RecID = self.get_id("RecID","Recipes","RecName",recipe['name'])
-            
             Update_table_values = (recipe["name"], recipe["style"], json.dumps(recipe["steps"]), recipe["source"], RecID, username)
             try:
                 self.cur.execute("UPDATE Recipes SET RecName = %s, Style = %s, Steps = %s, Source = %s WHERE RecID = %s AND Owner = %s", Update_table_values)
@@ -745,6 +743,7 @@ class Database:
             # 2nd Deletes all previous ingredients
             try:
                 self.cur.execute(f"delete from RecNeeds where RecID = {RecID}")
+                self.con.commit()
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
@@ -752,19 +751,17 @@ class Database:
                 print("deleting ingredients error (line 757)")
             # 3rd Re-Adds all previous ingredients
             try:
-                for dif_ingredients in recipe["Ingredients"]:
+                for dif_ingredients in recipe["ingredients"]:
                     temp_rec_id = self.get_id("RecID","Recipes","RecName",recipe["name"])
                     temp_ing_id = self.get_id("IngID","Ingredients","IngName",dif_ingredients[0])
                     ingredient_table_values = (temp_rec_id,temp_ing_id,dif_ingredients[1])
-
                     self.cur.execute("INSERT INTO RecNeeds (RecID, IngID, Amount) VALUES (%s, %s, %s)",ingredient_table_values)
                     self.con.commit()
             except pymysql.Error as e:
                 self.con.rollback()
                 print("Error: " + e.args[1])
             except:
-                print("deleting ingredients error (line 757)")
-
+                print("deleting ingredients error (line 767)")
 
     def add_from_others(self, recipe, username):
         self.ensure_connection()
@@ -987,7 +984,12 @@ class Database:
         return result
 
     def delete_single_from_menu(self, recipe_name, menu_name, username):
-        #Delete a single recipe from MenuTemp based on the recipe_name, the menu_name and the user
+        '''
+        Deletes a single recipe from a menu of a username
+        params recipe_name: str of the recipe name
+        params menu_name: str of the menu name
+        params username: str of the username
+        '''
         self.ensure_connection()
         UserID = self.get_id("UserID", "User", "Username", username)
         RecID = self.get_id("RecID", "Recipes", "RecName", recipe_name)
@@ -1002,7 +1004,11 @@ class Database:
             print("DELETE FROM MENUTEMP ERROR (line 990)")
 
     def delete_entire_menu(self, menu_name, username):
-        #Delete all recipe from MenuTemp based on the Menu_name and the user
+        '''
+        Deletes all recipes and the menu itself of a username
+        params menu_name: str of the menu name
+        params username: str of the username
+        '''
         self.ensure_connection()
         UserID = self.get_id("UserID", "User", "Username", username)
         try:
@@ -1012,9 +1018,39 @@ class Database:
             self.con.rollback()
             print("Error: " + e.args[1])
         except:
-            print("DELETE FROM MENUTEMP ERROR (line 1003)")
+            print("DELETE FROM MENUTEMP ERROR (line 1015)")
 
+    def get_menus(self,username):
+        '''
+        For a user, it returns a dictionary, the key is the menu name and the entries are lists of lists
+        format: {"menu1":[["Description","Name"],["Description2","Name2"]],"menu2":[[]]}
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        result = []
+        try:
+            self.cur.execute(f"Select A.MenuName,A.Description,A.RecID,Recipes.RecName from (select * from MenuTemp where UserID = {UserID}) as A left join Recipes on A.RecID = Recipes.RecID;")
+            result = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("SELECT ID ERROR from get my recipes")
 
+        menu_dict = {}
+        try:
+            
+            for item in result:
+                menu_name = item['MenuName']
+                description = item['Description']
+                rec_name = item['RecName']
+                if menu_name not in menu_dict:
+                    menu_dict[menu_name] = []
+                menu_dict[menu_name].append([description, rec_name])
+        except:
+            print("unexpected error getting menu / description info line 1052")
+        
+        return menu_dict
 
 #################################################
 ####                                         ####
@@ -1068,6 +1104,7 @@ database = Database()
 #print(database.show_saved_recipes("rpazzi"))
 #print(database.add_to_saved("Chicken Curry","rpazzi"))
 #print(database.get_my_recipes("trump"))
+print(database.get_menus("rpazzi"))
 
 #################################################
 ####                                         ####
@@ -1145,11 +1182,11 @@ Dummy_data1 = {
 
 Dummy_Update ={
     "name":"UDPATE RECIPE",
-    "style":"Chinese",
+    "style":"Canadian",
     "owner":"rpazzi",
     "source":"https://www.youtube.com/watch?v=dQw4w9WgXcQ",
     "steps": {"step1": "Boil water", "step2": "Cook spaghetti", "step3": "Prepare sauce", "step4": "Combine spaghetti and sauce"},
-    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("pasta sauce","269ml")]} 
+    "ingredients":[("water","69 ml"),("spaghetti","420gr"),("Tomatoes","269g")]} 
 
 #Insert into MenuTemp(MenuID, Description, UserID, RecID, MenuName) Values (4, 'Test 1', 8, 26, 'Menu1'), (4, 'Test 2', 8, 18, 'Menu1'), (5, 'Test 3', 8, 11, 'Menu2'), (5, 'Test 4', 8, 11, 'Menu2'), (5, 'Test 5', 8, 26, 'Menu2')
 #database.insert_recipe(Dummy_data1, 'asdf')

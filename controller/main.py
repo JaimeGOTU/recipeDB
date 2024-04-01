@@ -27,7 +27,6 @@ def index():
         picture = current_user.picture
     return render_template('index.html', active_page='home', recipes=recipes_random, name=name, email=email, picture=picture)
 
-
 @main.route('/add_recipes', methods=['GET', 'POST'])
 def api_recipes():
     parsed_recipes = []
