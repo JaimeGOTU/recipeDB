@@ -16,7 +16,6 @@ def index():
         recipe['Steps'] = json.loads(recipe['Steps'])
         recipe['Ingredients'] = database.get_ingredients(recipe["RecName"])
         recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
-    print(recipes_random[0])
     if isinstance(current_user, AnonymousUserMixin):
             name = None
             email = None
@@ -50,13 +49,11 @@ def api_recipes():
 @main.route('/recipe_info', methods=['POST'])
 def recipe_info():
     recipe = request.get_json().get('recipe')
-    print(recipe)  # or do whatever you need with the recipe info
     return jsonify(status="success")
 
 @main.route('/add_recipe', methods=['POST'])
 def add_recipe():
     recipe = request.get_json()
-    print(recipe)
     database.insert_recipe(recipe, get_username(current_user.email))
     return jsonify(success=True)
 
@@ -70,7 +67,6 @@ def select_recipe():
 def browse_db():
     search_term = request.form.get('search')
     recipes = database.browse_main_table(search_term)
-    print(recipes)
     return jsonify(recipes = recipes)
 
 @main.route('/update_recipe_form', methods=['POST'])
@@ -85,9 +81,9 @@ def update_recipe_form():
         picture = current_user.picture
         
     recName = request.form.get('recipeName')
+    ingredients = database.get_all_ingredients()
     recipe = database.browse_main_table(recName)
-    print(recipe)
-    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, name=name, email=email, picture=picture)
+    return render_template('update_recipe.html', active_page='update_recipe', recipe=recipe, ingredients=ingredients, name=name, email=email, picture=picture)
 
         
 @main.route('/update_recipe', methods=['POST'])
@@ -102,7 +98,8 @@ def update_recipe():
         picture = current_user.picture
         
     recipe = request.get_json()
-    return render_template('add_recipes.html', active_page='add_recipes', recipe=recipe, name=name, email=email, picture=picture)
+    database.update_recipe(recipe, get_username(email))
+    return redirect(url_for('main.my_recipes'))
         
 
 @main.route('/save_recipe', methods=['POST'])
@@ -130,7 +127,6 @@ def saved_recipes():
         recipes = database.show_saved_recipes(get_username(email))
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
-        print(recipes)
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
@@ -147,7 +143,6 @@ def my_recipes():
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
             recipe['youtube_link'] = recipeapi.get_youtubelink_parser(recipe['RecName'])
-        print(recipes)
     return render_template('my_recipes.html', active_page='my_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/browse_recipes')
