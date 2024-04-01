@@ -18,28 +18,28 @@
         <form method="POST" action="/signup" enctype="multipart/form-data">
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="text" name="email" placeholder="Email" autofocus="">
+                    <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="" required>
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="text" name="name" placeholder="Name" autofocus="">
+                    <input class="input is-large" type="text" name="name" placeholder="Display Name" autofocus="" required>
                 </div>
             </div>
 
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Password">
+                    <input class="input is-large" type="password" name="password" placeholder="Password" required>
                 </div>
             </div>
             <div class="field">
                 <div class="control">
-                    <input class="input is-large" type="file" name="image" placeholder="Profile Picture">
+                    <input class="input is-large" type="file" name="image" placeholder="Profile Picture" accept="image/*" required>
                 </div>
             </div>
 
-            <button class="button is-block is-info is-large">Register</button>
+            <button id="signup-button" class="button is-block is-info is-large">Register</button>
             <button id="back-button" class="button is-block is-info is-large">Back to Login</button>
         </form>
     </div>
@@ -49,6 +49,7 @@
         event.preventDefault();
         window.location.href = "/login";
     });
+
 </script>
 </body>
 {% include "footer.html" %}

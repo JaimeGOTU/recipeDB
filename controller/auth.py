@@ -1,12 +1,13 @@
 # auth.py
 
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from model.authdb import User, db
 from model.model import Database
 import os
+import time
 
 
 auth = Blueprint('auth', __name__, template_folder='../templates')
@@ -65,15 +66,25 @@ def signup_post():
         flash('No selected image.')
         return redirect(request.url)
     if picture:
-        filename = secure_filename(picture.filename)
-        filepath = f"../static/images/uploads/{filename}"
-        picture.save(os.path.join('static\\images\\uploads', filename))
+        # Get the extension of the uploaded file
+        ext = picture.filename.split('.')[-1]
 
+        # Generate a unique filename using a timestamp
+        filename = f"{time.time()}.{ext}"
+
+        # Secure the filename
+        filename = secure_filename(filename)
+
+        filepath = f"../static/images/uploads/{filename}"
+        
     user = db.query(User).filter_by(email=email).first()  # if this returns a user, then the email already exists in database
 
     if user:  # if a user is found, we want to redirect back to signup page so user can try again
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
+    
+    #Save the profile picture to the server
+    picture.save(os.path.join('static\\images\\uploads', filename))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
     new_user = User(email=email, name=name, password=generate_password_hash(password), picture=filepath)
@@ -92,6 +103,22 @@ def signup_post():
 def profile():
     return render_template('profile.html', name=current_user.name, email=current_user.email, picture=current_user.picture)
 
+@auth.route('/delete_account',methods=['GET'])
+def delete_account():
+    
+    # Query for the user
+    user_to_delete = db.query(User).filter(User.email == current_user.email).first()
+
+    # Check if the user exists
+    if user_to_delete:
+        # Delete the user
+        recipeDB.delete_user(get_username(current_user.email))
+        db.delete(user_to_delete)
+
+        # Commit the transaction
+        db.commit()
+
+    return redirect(url_for('main.index'))
 
 @auth.route('/logout')
 @login_required

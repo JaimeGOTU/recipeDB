@@ -586,6 +586,9 @@ class Database:
         if username == "None":
             return ("ERROR","No username specified")
         
+        if menu_name=="" or description=="":
+            return("ERROR","No menu name or no description")
+        
         # Get User ID
         else:
             try:
@@ -1344,6 +1347,9 @@ class Database:
             if x not in owns_ids:
                 flag = False
         return flag
+
+    ### Delete all recipes of a user
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####

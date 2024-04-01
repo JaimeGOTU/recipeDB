@@ -15,6 +15,15 @@ h1 {
     font-size: 2.5em;  /* larger text */
     font-weight: bold;
 }
+
+h2 {
+    color: #433e3e;
+    text-align: center;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 2em;
+    font-weight: bold;
+}
+
 p {
     color: #ffffff;
     text-align: center;
@@ -25,35 +34,6 @@ p {
     margin: auto;
     width: 50%;
     padding: 10px;
-}
-.table-responsive {
-    overflow-x: auto; /* Enable horizontal scrolling */
-}
-table {
-    margin: auto;
-    width: 50%;
-    padding: 10px;
-    border-collapse: collapse;
-    background-color: #f8f8f8de;
-    box-shadow: 0 2px 3px rgba(0, 55, 85, 0.445);
-    border-radius: 25px;
-}
-table, th, td {
-    border: 1px solid #ddd;
-}
-th, td {
-    padding: 15px;
-    text-align: center;
-}
-th {
-    background-color: #313131;
-    color: white;
-}
-tr:nth-child(even) {
-    background-color: #ffffff;
-}
-tr:hover {
-    background-color: #dddddde9;
 }
 
 .topnav {
@@ -312,7 +292,7 @@ tr:hover {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 16px;
     color: #434343;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     line-height: 1.5; /* Add line spacing */
     text-align: left;
 }
@@ -373,7 +353,7 @@ tr:hover {
     }
 }
 
-.select-recipe-button, .delete-recipe-button, .update-recipe-button {
+.select-recipe-button, .delete-recipe-button, .update-recipe-button, .delete-menu-button {
     margin-top: 10px;
     width: 150px; /* Fixed width */
     padding: 15px;
@@ -386,10 +366,52 @@ tr:hover {
     transition: background-color 0.5s ease, transform 0.3s ease;
 }
 
-.select-recipe-button:hover, .delete-recipe-button:hover, .update-recipe-button:hover {
+.select-recipe-button:hover, .delete-recipe-button:hover, .update-recipe-button:hover, .delete-menu-button:hover {
     background-color: #ff4e95;
     transform: scale(1.05);
 }
+
+.delete-ingredient-button {
+    margin-top: 10px;
+    width: 160px; /* Fixed width */
+    padding: 15px;
+    font-size: 16px; /* Larger font size */
+    text-align: center; /* Centered text */
+    border-radius: 8px;
+    border: black;
+    border-width: 1px;
+    margin-left: auto;
+    transition: background-color 0.5s ease, transform 0.3s ease;
+}
+
+.delete-ingredient-button:hover {
+    background-color: #ff4e95;
+    transform: scale(1.05);
+}
+
+ul.recipe-ingredients {
+    list-style-type: none; /* removes the default bullet points */
+    padding: 10px;
+}
+
+ul.recipe-ingredients li {
+    background-color: #fffcfc; /* gives a light grey background to each list item */
+    margin-bottom: 10px; /* adds some space between list items */
+    padding: 20px; /* adds some space around the text inside each list item */
+    border-radius: 5px; /* rounds the corners of each list item */
+    font-weight: bold;
+    color: #433e3e;
+    word-wrap: break-word;
+    padding-top: 5px; /* reduce top padding */
+    padding-bottom: 5px; /* reduce bottom padding */
+}
+
+.ingredient-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
 
 #searchResults {
     display: flex;
