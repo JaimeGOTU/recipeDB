@@ -1071,6 +1071,146 @@ class Database:
         except:
             print("DELETE FROM SAVEDREC ERROR (line 990)")
 
+    def add_allergies(self,username,ingredient):
+        '''
+        Adds an ingredient to the allergies table for a user
+        parms username: str of the username
+        params ingredient: str of a valid ingredient
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        IngID = self.get_id("IngID","Ingredients","IngName",ingredient)
+        result = []
+        validation = ()
+        try:
+            self.cur.execute(f"Select * from Allergies where UserID = {UserID} and IngID = {IngID}")
+            validation = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error when validating into allergies ingredients")
+
+        if validation == ():
+            try:
+                self.cur.execute(f"insert into Allergies (UserID,IngID) values ({UserID},{IngID})")
+                self.con.commit()
+                print("SUCCESS")
+                return "DONE"
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("error when adding into allergies ingredients")
+        print("Already exists or error")
+
+    #insert into Allergies (UserID,IngID) values (8,837)
+
+    def remove_allergies(self,username,ingredient):
+        pass
+
+    def get_allergies(self,username):
+        '''
+        returns a list of ingredients a specific user is allergic to
+        params username: str of the username
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        # First we get the IDs of the ingredients
+        result = []
+        try:
+            self.cur.execute(f"Select IngID from Allergies where UserID = {UserID}")
+            result = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("select error from get allergies")
+        # Then we get the ingredient name from the IDs
+        ingredients_list = []
+        for i in result:
+            try:
+                temp_id = i["IngID"]
+                self.cur.execute(f"Select IngName from Ingredients where IngID = {temp_id};")
+                result2 = self.cur.fetchall()
+                ingredients_list.append(result2[0]["IngName"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("error when get allergies getting ingredients")
+
+        return(ingredients_list)
+
+    def add_owned_ingredient(self,username,ingredient):
+        '''
+        Adds an ingredient to the owned ingredients table for a user
+        parms username: str of the username
+        params ingredient: str of a valid ingredient
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        IngID = self.get_id("IngID","Ingredients","IngName",ingredient)
+        result = []
+        validation = ()
+        try:
+            self.cur.execute(f"Select * from Owns where UserID = {UserID} and IngID = {IngID}")
+            validation = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error when validating into owned ingredients")
+
+        if validation == ():
+            try:
+                self.cur.execute(f"insert into Owns (UserID,IngID) values ({UserID},{IngID})")
+                self.con.commit()
+                print("SUCCESS")
+                return "DONE"
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("error when adding into owned ingredients")
+        print("Already exists or error")
+
+    def remove_owned_ingredient(self,username,ingredient):
+        pass
+
+    def get_owned_ingredients(self,username):
+        '''
+        returns a list of ingredients a specific user is allergic to
+        params username: str of the username
+        '''
+        self.ensure_connection()
+        UserID = self.get_id("UserID","User","username",username)
+        # First we get the IDs of the ingredients
+        result = []
+        try:
+            self.cur.execute(f"Select IngID from Owns where UserID = {UserID}")
+            result = self.cur.fetchall()
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("select error from get allergies")
+        # Then we get the ingredient name from the IDs
+        ingredients_list = []
+        for i in result:
+            try:
+                temp_id = i["IngID"]
+                self.cur.execute(f"Select IngName from Ingredients where IngID = {temp_id};")
+                result2 = self.cur.fetchall()
+                ingredients_list.append(result2[0]["IngName"])
+            except pymysql.Error as e:
+                self.con.rollback()
+                print("Error: " + e.args[1])
+            except:
+                print("error when get allergies getting ingredients")
+
+        return(ingredients_list)
+
 #################################################
 ####                                         ####
 ####        Code for testing purposes        ####
@@ -1125,6 +1265,10 @@ database = Database()
 #print(database.get_my_recipes("trump"))
 #print(database.get_menus("rpazzi"))
 #database.delete_saved_recipe("Poop Pie","rpazzi")
+#print(database.get_allergies("rpazzi"))
+#print(database.get_owned_ingredients("rpazzi"))
+#database.add_allergies("rpazzi","Avocado")
+#database.add_owned_ingredient("rpazzi","Avocado")
 
 #################################################
 ####                                         ####
