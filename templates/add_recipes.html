@@ -117,7 +117,8 @@
         document.getElementById('addStep').addEventListener('click', function() {
             var newStep = document.createElement('div');
             newStep.id = 'step' + stepCount;
-            newStep.innerHTML = '<label for="step' + stepCount + 'Input">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '"><br>';
+            newStep.className = 'field';
+            newStep.innerHTML = '<label for="step' + stepCount + 'Input" class="form-label">Step ' + stepCount + ':</label><br><input type="text" id="step' + stepCount + 'Input" name="step' + stepCount + '" class="input"><br>';
             document.getElementById('steps').appendChild(newStep);
             stepCount++;
         });
@@ -127,13 +128,15 @@
         document.getElementById('addIng').addEventListener('click', function() {
             var newIng = document.createElement('div');
             newIng.id = 'ing' + ingCount;
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '"><br>';
+            newIng.className = 'field';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="input"><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
-            newAmt.innerHTML = '<label for="amt' + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '"><br>';
+            newAmt.className = 'field';
+            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" class="input"><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });
