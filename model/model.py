@@ -1505,10 +1505,6 @@ for i in ingredients["meals"]:
     ->     ('Fake Record 3', 'Alice Johnson', 'Sporty', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com');
 Query OK, 3 rows affected (0.03 sec)'''
 
-
-
-
-
 #Test RecID and UserID into SavedRec
 
 Dummy_data1 = {
