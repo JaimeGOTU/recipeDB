@@ -115,6 +115,16 @@ def delete_recipe():
     database.delete_recipe(recipe)
     return redirect(url_for('main.my_recipes'))
 
+#Route that gets called by a script in "saved recipes" to delete a saved recipe from a User
+@main.route('/delete_saved_recipe',methods=['POST'])
+def delete_saved_recipe():
+    print("WE ARE HERE")
+    if not isinstance(current_user, AnonymousUserMixin):
+        email = current_user.email
+        recipe_name = request.json['name']
+        database.delete_saved_recipe(recipe_name,get_username(email))
+    return jsonify({'status': 'success'})
+
 @main.route('/saved_recipes')
 def saved_recipes():
     if isinstance(current_user, AnonymousUserMixin):
@@ -128,6 +138,8 @@ def saved_recipes():
         recipes = database.show_saved_recipes(get_username(email))
         for recipe in recipes:
             recipe['Steps'] = json.loads(recipe['Steps'])
+            recipe['Allergy'] = database.contains_allergies(recipe["RecName"],get_username(email))
+            recipe['Sufice'] = database.check_sufficient_ingredients(recipe["RecName"],get_username(email))
     return render_template('saved_recipes.html', active_page='saved_recipes', name=name, email=email, picture=picture, recipes=recipes)
 
 @main.route('/my_recipes')
