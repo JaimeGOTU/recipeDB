@@ -40,6 +40,7 @@
 
 
     <script>
+        
         //THIS IS THE SCRIPT TO FILL IN EXISTING STEPS
 
 
@@ -162,6 +163,7 @@
         //THIS IS THE SCRIPT TO SUBMIT THE FORM
 
         $("#enterRecipeForm").on('submit', function(e) {
+        e.preventDefault();  // Prevent the form from reloading the page
 
         // Extract the information from the form
         var recipeName = $("#recipeName").val();
@@ -202,17 +204,20 @@
 
         };
 
-        // Send the data to the server using AJAX
+        // Send data to server
         $.ajax({
-            url: '/update_recipe',  // The URL to send the request to
-            type: 'POST',  // The type of HTTP method to use
-            contentType: 'application/json',  // The type of data you're sending
-            data: JSON.stringify(data),  // The data to send
+            url: '/update_recipe',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
             success: function(response) {
                 // Handle the server's response here
+                alert('Updated successfully!');
+                window.location.href = '/my_recipes';  // Redirect to /my_recipes
             }
         });
     });
+
 
     </script>
 
