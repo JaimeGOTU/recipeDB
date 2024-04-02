@@ -112,9 +112,9 @@ def delete_account():
     # Check if the user exists
     if user_to_delete:
         # Delete the user
-        recipeDB.delete_user(get_username(current_user.email))
+        recipeDB.obliterate_user(get_username(current_user.email))
         db.delete(user_to_delete)
-
+        
         # Commit the transaction
         db.commit()
 
