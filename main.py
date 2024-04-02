@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from model.authdb import db
+import time
 
 
 def create_app():
@@ -31,4 +32,10 @@ def create_app():
     app.run(debug=True, host="0.0.0.0", port=5696)
 
 if __name__ == '__main__':
-    create_app()
+    app = create_app()
+    while True:
+        try:
+            app.run(debug=True, host="0.0.0.0", port=5696)
+        except Exception as e:
+            print(f"Server crashed with error: {e}. Restarting...")
+            time.sleep(5)  # Wait for 5 seconds before restarting
