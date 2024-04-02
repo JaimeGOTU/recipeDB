@@ -380,7 +380,7 @@ p {
     border-radius: 8px;
     border: black;
     border-width: 1px;
-    margin-left: auto;
+    margin-left: 15px;
     transition: background-color 0.5s ease, transform 0.3s ease;
 }
 
