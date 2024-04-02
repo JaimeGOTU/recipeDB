@@ -165,6 +165,16 @@
         $("#enterRecipeForm").on('submit', function(e) {
         e.preventDefault();  // Prevent the form from reloading the page
 
+        //Validate user input for ingredients
+        var inputs = document.getElementsByClassName("ingredients-field");
+        for (var i = 0; i < inputs.length; i++) {
+            var input = inputs[i].value;
+            if (!allIngredients.includes(input)) {
+                alert("Invalid ingredient! Please enter a valid ingredient.");
+                return;  // Stop the form submission
+            }
+        }
+
         // Extract the information from the form
         var recipeName = $("#recipeName").val();
         var style = $("#style").val();
@@ -299,26 +309,6 @@
             document.addEventListener("click", function (e) {
                 closeAllLists(e.target);
             });
-        }
-    </script>
-
-    <script>
-        function validateInput(input) {
-            var inputs = document.getElementsByClassName("ingredients-field");
-            if (!allIngredients.includes(input)) {
-                alert("Invalid ingredient! Please enter a valid ingredient.");
-                // Disable all other input fields
-                for (var i = 0; i < inputs.length; i++) {
-                    if (inputs[i].value !== input) {
-                        inputs[i].disabled = true;
-                    }
-                }
-            } else {
-                // Enable all input fields
-                for (var i = 0; i < inputs.length; i++) {
-                    inputs[i].disabled = false;
-                }
-            }
         }
     </script>
 
