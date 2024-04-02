@@ -669,6 +669,7 @@ class Database:
         returns a list of dictionaries. Each dictionary is a recipe.
         The keys are the column names (RecID, RecMame,Owner,Style,Steps,Source)
         '''
+        result = []
         amount = str(amount)
         self.ensure_connection()
         try:
@@ -680,6 +681,7 @@ class Database:
             print("Error: " + e.args[1])
         #except:
         #    print("Unexpected error")
+        return result
         self.con.close()
 
     def get_ingredients(self,recipe):
