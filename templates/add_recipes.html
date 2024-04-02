@@ -12,7 +12,7 @@
             <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
                 <div class="field">
                     <label for="recipeName" class="form-label">Recipe Name:</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input" maxlength="64"><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" maxlength="64" required><br>
                 </div>
                 <div class="field">
                     <label for="style" class="form-label">Style:</label><br>
@@ -25,7 +25,7 @@
                 <div id="steps">
                     <div id="step1" class="field">
                         <label for="step1Input" class="form-label">Step 1:</label><br>
-                        <input type="text" id="step1Input" name="step1" class="input"><br>
+                        <input type="text" id="step1Input" name="step1" class="input" required><br>
                     </div>
                 </div>
                 <button type="button" id="addStep" class="button">Add Step</button><br>
@@ -34,7 +34,7 @@
                     <div id="ingredients">
                         <div id="ing1" class="field">
                             <label for="ing1Input" class="form-label">Ingredient 1:</label><br>
-                            <input type="text" id="ing2Input" name="ing2" class="ingredients-field" control-id="ControlID-15">
+                            <input type="text" id="ing2Input" name="ing2" class="ingredients-field" control-id="ControlID-15" required>
                         </div>
                     </div>
                     <div id="amounts">
@@ -190,6 +190,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
         $(document).ready(function(){
+            $("#recipeName, #style, #source, #search, #amt1Input").on('input', function() {
+            this.value = this.value.replace(/["']/g, "");
+            });
+
             $("#addRecipeButton").click(function(){
                 $("#recipeManualEntry").show();
                 $("#searchRecipe").hide();
