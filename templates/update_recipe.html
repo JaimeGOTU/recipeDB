@@ -11,11 +11,11 @@
                 </div>
                 <div class="field">
                     <label for="style" class="form-label">Style:</label><br>
-                    <input type="text" id="style" name="style" class="input" value="{{recipe[0]['Style']}}"><br>
+                    <input type="text" id="style" name="style" class="input" value="{{recipe[0]['Style']}}" maxlength="16"><br>
                 </div>
                 <div class="field">
                     <label for="source" class="form-label">Source:</label><br>
-                    <input type="text" id="source" name="source" class="input" value="{{recipe[0]['Source']}}"><br>
+                    <input type="text" id="source" name="source" class="input" value="{{recipe[0]['Source']}}" maxlength="512"><br>
                 </div>
                 <div id="steps">
                     <!--Placeholder for steps-->
@@ -86,7 +86,7 @@
 
             var newQuantity = document.createElement('div');
             newQuantity.id = 'amt' + (i+1);
-            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt'  + '" class="input" value="' + quantity + '"><br>';
+            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt'  + '" class="input" value="' + quantity + '"><br>';
             document.getElementById('amounts').appendChild(newQuantity);
         }
 

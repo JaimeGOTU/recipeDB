@@ -51,5 +51,18 @@
     });
 
 </script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $("input[type='email']").on('input', function() {
+            var email = $(this).val();
+            var atPosition = email.indexOf('@');
+            if (atPosition > 32) {
+                alert("The part of the email before the '@' symbol cannot exceed 32 characters.");
+                $(this).val(email.slice(0, 32) + email.slice(atPosition));
+            }
+        });
+    });
+</script>
 </body>
 {% include "footer.html" %}
