@@ -12,15 +12,15 @@
             <form id="enterRecipeForm" action="{{ url_for('main.add_recipe') }}" method="post">
                 <div class="field">
                     <label for="recipeName" class="form-label">Recipe Name:</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input"><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" maxlength="64"><br>
                 </div>
                 <div class="field">
                     <label for="style" class="form-label">Style:</label><br>
-                    <input type="text" id="style" name="style" class="input"><br>
+                    <input type="text" id="style" name="style" class="input" maxlength="16"><br>
                 </div>
                 <div class="field">
                     <label for="source" class="form-label">Source:</label><br>
-                    <input type="text" id="source" name="source" class="input"><br>
+                    <input type="text" id="source" name="source" class="input" maxlength="512" placeholder="www.amazingrecipes-example.com"><br>
                 </div>
                 <div id="steps">
                     <div id="step1" class="field">
@@ -40,7 +40,7 @@
                     <div id="amounts">
                         <div id="amt" class="field">
                             <label for="amt1Input" class="form-label">Amount:</label><br>
-                            <input type="text" id="amtInput" name="amt" class="input"><br>
+                            <input type="text" id="amtInput" name="amt" class="input" maxlength="500"><br>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
             newAmt.className = 'field';
-            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" id="amt' + 'Input" name="amt' + '" class="input"><br>';
+            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt' + '" class="input"><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });

@@ -30,12 +30,12 @@
         <div id="addRecipeForm" class="tab-content active" style="display: none;">
             <form id="enterRecipeForm" action="{{ url_for('main.add_to_menu') }}" method="post">
                 <div class="field">
-                    <label for="recipeName" class="form-label">Menu Name (DO NOT ADD ' OR ")</label><br>
-                    <input type="text" id="recipeName" name="recipeName" class="input" placeholder="If adding to an existing menu, name must match exactly"><br>
+                    <label for="recipeName" class="form-label">Menu Name</label><br>
+                    <input type="text" id="recipeName" name="recipeName" class="input" placeholder="If adding to an existing menu, name must match exactly" maxlength="64"><br>
                 </div>
                 <div class="field">
-                    <label for="style" class="form-label">Description (DO NOT ADD ' OR ")</label><br>
-                    <input type="text" id="style" name="style" class="input"><br>
+                    <label for="style" class="form-label">Description</label><br>
+                    <input type="text" id="style" name="style" class="input" maxlength="144"><br>
                 </div>
                 <div class="field">
                     <label for="recipe" class="form-label">Recipe:</label><br>
@@ -64,13 +64,26 @@
                 location.reload();
             });
 
+            $("#recipeName, #style").on('input', function() {
+            this.value = this.value.replace(/["']/g, "");
+            });
+
             $("#enterRecipeForm").on('submit', function(e) {
                 e.preventDefault();
 
+                var menuName = $("#recipeName").val();
+                var recipeName = $("#recipe").val();
+                var description = $("#style").val();
+
+                if (!menuName || !recipeName || !description) {
+                alert("Please fill out all fields.");
+                return;
+                }
+
                 var data = {
-                    menuName: $("#recipeName").val(),
-                    recipeName: $("#recipe").val(),
-                    description: $("#style").val()
+                    menuName: menuName,
+                    recipeName: recipeName,
+                    description: description
                 };
 
                 $.ajax({

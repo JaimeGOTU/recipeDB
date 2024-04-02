@@ -9,7 +9,7 @@
                 <form id="searchForm" action="{{ url_for('main.browse_db') }}" method="post">
                     <div class="field">
                         <label for="search" class="form-label">Browse Database:</label><br>
-                        <input type="text" id="search" name="search" class="input"><br>
+                        <input type="text" id="search" name="search" class="input" maxlength="255"><br>
                     </div>
                     <input type="submit" value="Search" class="button">
                 </form>
