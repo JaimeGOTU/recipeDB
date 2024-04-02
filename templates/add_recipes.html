@@ -40,7 +40,7 @@
                     <div id="amounts">
                         <div id="amt" class="field">
                             <label for="amt1Input" class="form-label">Amount:</label><br>
-                            <input type="text" id="amtInput" name="amt" class="input" maxlength="500"><br>
+                            <input type="text" id="amtInput" name="amt" class="input" maxlength="500" required><br>
                         </div>
                     </div>
                 </div>
@@ -133,7 +133,7 @@
             var newIng = document.createElement('div');
             newIng.id = 'ing' + ingCount;
             newIng.className = 'field';
-            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" ><br>';
+            newIng.innerHTML = '<label for="ing' + ingCount + 'Input" class="form-label">Ingredient ' + ingCount + ':</label><br><input type="text" id="ing' + ingCount + 'Input" name="ing' + ingCount + '" class="ingredients-field" required><br>';
             document.getElementById('ingredients').appendChild(newIng);
             ingCount++;
 
@@ -148,7 +148,7 @@
             var newAmt = document.createElement('div');
             newAmt.id = 'amt' + amtCount;
             newAmt.className = 'field';
-            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt' + '" class="input"><br>';
+            newAmt.innerHTML = '<label for="amt' + 'Input" class="form-label">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt' + '" class="input" required><br>';
             document.getElementById('amounts').appendChild(newAmt);
             amtCount++;
         });

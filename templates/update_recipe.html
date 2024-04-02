@@ -53,10 +53,10 @@
 
         // Generate the HTML code for the existing steps
         for (var i = 1; i <= Object.keys(steps).length; i++) {
-            var newStep = document.createElement('div');
-            newStep.id = 'step' + i;
-            newStep.innerHTML = '<label for="step' + i + 'Input">Step ' + i + ':</label><br><input type="text" id="step' + i + 'Input" name="step' + i + '" class="input" value="' + steps['step' + i] + '"><br>';
-            document.getElementById('steps').appendChild(newStep);
+        var newStep = document.createElement('div');
+        newStep.id = 'step' + i;
+        newStep.innerHTML = '<label for="step' + i + 'Input">Step ' + i + ':</label><br><input type="text" id="step' + i + 'Input" name="step' + i + '" class="input" value="' + steps['step' + i] + '" required><br>';
+        document.getElementById('steps').appendChild(newStep);
         }
 
         // Update the stepCount variable to the next step number
@@ -81,15 +81,15 @@
 
             var newIngredient = document.createElement('div');
             newIngredient.id = 'ing' + (i+1);
-            newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="ingredients-field" value="' + ingredient + '" onblur="validateInput(this.value)"><br>';
+            newIngredient.innerHTML = '<label for="ing' + (i+1) + 'Input">Ingredient ' + (i+1) + ':</label><br><input type="text" id="ing' + (i+1) + 'Input" name="ing' + (i+1) + '" class="ingredients-field" value="' + ingredient + '" onblur="validateInput(this.value)" required><br>';
             document.getElementById('ingredients').appendChild(newIngredient);
 
             var newQuantity = document.createElement('div');
             newQuantity.id = 'amt' + (i+1);
-            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt'  + '" class="input" value="' + quantity + '"><br>';
+            newQuantity.innerHTML = '<label for="amt' + (i+1) + 'Input">Amount ' + ':</label><br><input type="text" maxlength="500" id="amt' + 'Input" name="amt'  + '" class="input" value="' + quantity + '" required><br>';
             document.getElementById('amounts').appendChild(newQuantity);
-        }
 
+        }
         // Update the ingCount variable to the next ingredient number
         var ingCount = ingredients.length + 1;
 
@@ -160,6 +160,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
     <script>
+        $("#recipeName, #style, #source, #search, #amt1Input").on('input', function() {
+        this.value = this.value.replace(/["']/g, "");
+        });
         //THIS IS THE SCRIPT TO SUBMIT THE FORM
 
         $("#enterRecipeForm").on('submit', function(e) {
