@@ -621,7 +621,10 @@ class Database:
             if result3 == ():
                 self.cur.execute(f"select MenuID from MenuTemp order by -MenuID limit 1")
                 result4 = self.cur.fetchall()
-                MenuID = result4[0]["MenuID"] + 1
+                if result4 == ():
+                    MenuID = 0
+                else:
+                    MenuID = result4[0]["MenuID"] + 1
             # If a menu with that name does exist, take its menu ID
             else:
                 MenuID = str(result3[0]["MenuID"])
