@@ -55,8 +55,8 @@ def signup_post():
     userparams = (get_username(email), email)
     picture = request.files['image']
     
-    if not os.path.exists('static\\images\\uploads\\'):
-        os.makedirs('static\\images\\uploads\\')
+    if not os.path.exists('static/images/uploads/'):
+        os.makedirs('static/images/uploads/')
 
     # handle the image upload
     if 'image' not in request.files:
@@ -83,8 +83,8 @@ def signup_post():
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
     
-    #Save the profile picture to the server
-    picture.save(os.path.join('static\\images\\uploads', filename))
+    # Save the profile picture to the server
+    picture.save(os.path.join('static', 'images', 'uploads', filename))
 
     # create new user with the form data. Hash the password so plaintext version isn't saved.
     new_user = User(email=email, name=name, password=generate_password_hash(password), picture=filepath)
