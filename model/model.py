@@ -1348,7 +1348,39 @@ class Database:
                 flag = False
         return flag
 
-    ### Delete all recipes of a user
+    def delete_all_recipes_from_a_user(self,username):
+        '''
+        This function takes a username and deletes all recipes they own
+        params username: str of the username
+        '''
+        self.ensure_connection()
+        all_recipes = []
+        try:
+            self.cur.execute(f"Select * from Recipes where Owner = '{username}'")
+            recipes_owned = self.cur.fetchall()
+            for x in recipes_owned:
+                all_recipes.append(x["RecName"])
+        except pymysql.Error as e:
+            self.con.rollback()
+            print("Error: " + e.args[1])
+        except:
+            print("error getting all recipes from a user")
+
+        for y in all_recipes:
+            try:
+                self.delete_recipe(y)
+            except:
+                print("unexpected error deleting all recipes from a user")
+
+    def obliterate_user(self,username):
+        '''
+        This function will delete all recipes a user owns, then it 
+        will proceed to delete the user.
+        DELETE FROM THE ENTIRE DATABASE!! CAREFUL USING THIS FUNCTION !!
+        '''
+        self.ensure_connection()
+        self.delete_all_recipes_from_a_user(username)
+        self.delete_user(username)
 
 #################################################
 ####                                         ####
@@ -1412,6 +1444,7 @@ database = Database()
 #database.remove_owned_ingredient("rpazzi","Avocado")
 #print(database.contains_allergies("the fake james special","jamesgonz99"))
 #print(database.check_sufficient_ingredients("the fake james special","jamesgonz99"))
+#database.delete_all_recipes_from_a_user("trump")
 
 #################################################
 ####                                         ####
@@ -1471,10 +1504,6 @@ for i in ingredients["meals"]:
     ->     ('Fake Record 2', 'Jane Smith', 'Formal', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com'),
     ->     ('Fake Record 3', 'Alice Johnson', 'Sporty', '{"step1": "Step 1 description", "step2": "Step 2 description"}', 'www.example.com');
 Query OK, 3 rows affected (0.03 sec)'''
-
-
-
-
 
 #Test RecID and UserID into SavedRec
 
